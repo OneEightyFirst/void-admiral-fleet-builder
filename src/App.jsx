@@ -131,7 +131,7 @@ function DiceFace({ value, size = 24 }) {
 }
 
 export default function App(){
-  console.log("App component mounting/rendering");
+
   const [tab,setTab] = useState(0);
   const [faction,setFaction] = useState("Loyalists");
   const [points,setPoints] = useState(30);
@@ -174,12 +174,10 @@ export default function App(){
       setUser(user);
       setLoading(false);
       if (user) {
-        console.log("🔐 User signed in:", user.displayName);
-        console.log("👤 User ID:", user.uid);
-        console.log("📧 User email:", user.email);
+
         loadUserFleets(user.uid);
       } else {
-        console.log("🚪 User signed out");
+
         loadLocalStorageData();
       }
     });
@@ -191,16 +189,16 @@ export default function App(){
   useEffect(() => {
     const loadFactions = async () => {
       try {
-        console.log("🔄 Loading factions data...");
+
         const response = await fetch('/void-admiral/data/factions.json');
         if (!response.ok) {
           throw new Error(`Failed to load factions: ${response.status}`);
         }
         const factionsData = await response.json();
         setFACTIONS(factionsData);
-        console.log("✅ Factions data loaded successfully");
+
       } catch (error) {
-        console.error("❌ Error loading factions:", error);
+
         // You could add error state here if needed
       } finally {
         setFactionsLoading(false);
@@ -211,7 +209,7 @@ export default function App(){
   }, []);
 
   const loadLocalStorageData = () => {
-    console.log("Loading data from localStorage");
+
     const saved = localStorage.getItem("va_factions_full");
     if(saved){
       try{
@@ -220,14 +218,14 @@ export default function App(){
       }catch{}
     }
     const savedFleets = localStorage.getItem("va_saved_fleets");
-    console.log("Loading saved fleets from localStorage:", savedFleets);
+
     if(savedFleets){
       try{
         const parsed = JSON.parse(savedFleets);
-        console.log("Parsed saved fleets:", parsed);
+
         setSavedFleets(parsed);
       }catch(e){
-        console.error("Error parsing saved fleets:", e);
+
       }
     }
     setHasLoadedSavedFleets(true);
@@ -238,7 +236,7 @@ export default function App(){
   
   useEffect(()=>{
     if (hasLoadedSavedFleets) {
-      console.log("Saving to localStorage:", savedFleets);
+
       localStorage.setItem("va_saved_fleets", JSON.stringify(savedFleets));
     }
   },[savedFleets, hasLoadedSavedFleets]);
@@ -385,14 +383,7 @@ export default function App(){
       savedAt: new Date().toISOString()
     };
     
-    // Debug logging to identify undefined values
-    console.log("🔍 Saving fleet data:", {
-      name: fleet.name,
-      faction: fleet.faction,
-      points: fleet.points,
-      roster: fleet.roster,
-      rosterLength: fleet.roster.length
-    });
+
     
     // Save to Firestore (only option now)
     try {
@@ -407,7 +398,7 @@ export default function App(){
       const newFleet = { ...fleet, id: docId };
       
       setSavedFleets(prev => [...prev.filter(f => f.name !== fleet.name), newFleet]);
-      console.log("Fleet saved to Firestore:", newFleet);
+
       
       setSaveStatus('saved');
       
@@ -417,7 +408,7 @@ export default function App(){
       }, 2000);
       
     } catch (error) {
-      console.error("Error saving fleet to Firestore:", error);
+
       setSaveStatus('idle');
       // Could show an error message to user here
     }
@@ -478,28 +469,28 @@ export default function App(){
   const signInWithGoogle = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
-      console.log("Signed in as:", result.user.displayName);
+
     } catch (error) {
-      console.error("Error signing in:", error);
+
     }
   };
 
   const handleSignOut = async () => {
     try {
       await signOut(auth);
-      console.log("Signed out");
+
       // Clear saved fleets and reload localStorage data
       setSavedFleets([]);
       loadLocalStorageData();
     } catch (error) {
-      console.error("Error signing out:", error);
+
     }
   };
 
   // Firestore Functions
   const loadUserFleets = async (userId) => {
     try {
-      console.log("🔍 Loading fleets for userId:", userId);
+
       const q = query(
         collection(db, "fleets"),
         where("userId", "==", userId),
@@ -508,11 +499,10 @@ export default function App(){
       const querySnapshot = await getDocs(q);
       const fleets = [];
       querySnapshot.forEach((doc) => {
-        console.log("📄 Found fleet document:", doc.id, doc.data());
+
         fleets.push({ id: doc.id, ...doc.data() });
       });
-      console.log("✅ Loaded fleets from Firestore:", fleets.length, "fleets");
-      console.log("📋 Fleet details:", fleets);
+
       setSavedFleets(fleets);
       setHasLoadedSavedFleets(true);
       
@@ -521,7 +511,7 @@ export default function App(){
         setTab(2); // Tab 2 is the Fleets tab
       }
     } catch (error) {
-      console.error("❌ Error loading fleets:", error);
+
       setHasLoadedSavedFleets(true);
     }
   };
@@ -532,10 +522,10 @@ export default function App(){
         ...fleet,
         userId: user.uid
       });
-      console.log("Fleet saved to Firestore with ID:", docRef.id);
+
       return docRef.id;
     } catch (error) {
-      console.error("Error saving fleet:", error);
+
       throw error;
     }
   };
@@ -543,10 +533,10 @@ export default function App(){
   const deleteFleetFromFirestore = async (fleetId) => {
     try {
       await deleteDoc(doc(db, "fleets", fleetId));
-      console.log("Fleet deleted from Firestore");
+
       setSavedFleets(prev => prev.filter(f => f.id !== fleetId));
     } catch (error) {
-      console.error("Error deleting fleet:", error);
+
     }
   };
 
@@ -678,7 +668,7 @@ export default function App(){
 
   // Show loading screen until both auth and factions are ready
   if (loading || factionsLoading) {
-    return (
+  return (
       <ThemeProvider theme={theme}>
         <CssBaseline/>
         <Box sx={{ 
@@ -989,11 +979,11 @@ export default function App(){
                         <Typography variant="subtitle2" sx={{ fontWeight:800 }}>Special Rules</Typography>
                       </AccordionSummary>
                       <AccordionDetails sx={{ pt:0 }}>
-                        {getSpecialRules(faction).length === 0 ? (
+                        {getSpecialRules(faction, FACTIONS).length === 0 ? (
                           <Typography variant="body2" color="text.secondary">None listed.</Typography>
                         ) : (
                           <Stack spacing={0.75}>
-                            {getSpecialRules(faction).map((r, i)=>(
+                            {getSpecialRules(faction, FACTIONS).map((r, i)=>(
                               <Paper key={i} variant="outlined" sx={{ p:1 }}>
                                 <Typography variant="body2" sx={{ fontWeight:700 }}>{r.name}</Typography>
                                 <Typography variant="body2" color="text.secondary" sx={{ mt:0.5 }}>{r.description}</Typography>
@@ -1009,12 +999,12 @@ export default function App(){
                         <Typography variant="subtitle2" sx={{ fontWeight:800 }}>Command Abilities</Typography>
                       </AccordionSummary>
                       <AccordionDetails sx={{ pt:0 }}>
-                        {getCommandAbilities(faction).length === 0 ? (
+                        {getCommandAbilities(faction, FACTIONS).length === 0 ? (
                           <Typography variant="body2" color="text.secondary">None listed.</Typography>
                         ) : (
                           <Grid container spacing={1}>
-                            {getCommandAbilities(faction).sort((a,b)=>a.dice-b.dice).map((c, i)=>(
-                              <Grid key={i} item xs={12} sm={6}>
+                            {getCommandAbilities(faction, FACTIONS).sort((a,b)=>a.dice-b.dice).map((c, i)=>(
+                              <Grid key={i} item xs={12} sm={6} lg={4}>
                                 <Paper variant="outlined" sx={{ p:1, height: '100%' }}>
                                   <Stack direction="row" spacing={1} alignItems="stretch">
                                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -1049,7 +1039,7 @@ export default function App(){
                       const squadronShips = roster.filter(ship => ship.groupId === s.groupId);
                       
                       cards.push(
-                        <Grid key={s.groupId} item xs={12} md={6}>
+                        <Grid key={s.groupId} item xs={12} md={6} lg={4}>
                           <Card>
                             <CardContent>
                               <Stack direction="row" justifyContent="space-between" alignItems="center">
@@ -1215,7 +1205,7 @@ export default function App(){
                       // Handle individual ships (non-squadron)
                       const editableCount = (s.loadout.hull||[]).filter(n=>!(def.beginsWith||[]).some(b=>b.name===n)).length;
                       cards.push(
-                        <Grid key={s.id} item xs={12} md={6}>
+                        <Grid key={s.id} item xs={12} md={6} lg={4}>
                           <Card>
                       <CardContent>
                         <Stack direction="row" justifyContent="space-between" alignItems="center">
@@ -1414,13 +1404,13 @@ export default function App(){
               <Typography variant="h4" sx={{ fontWeight:900, color: 'white' }}>{faction}</Typography>
               {/* <Button variant="contained" size="large" startIcon={<PrintIcon/>} onClick={()=>window.print()}>Print</Button> */}
             </Stack>
-            {(getSpecialRules(faction).length>0 || getCommandAbilities(faction).length>0) && (
+            {(getSpecialRules(faction, FACTIONS).length>0 || getCommandAbilities(faction, FACTIONS).length>0) && (
               <Paper variant="outlined" sx={{ p:2, mb:3, backgroundColor: '#1f1f1f' }}>
-                {getSpecialRules(faction).length>0 && (
+                {getSpecialRules(faction, FACTIONS).length>0 && (
                   <>
                     <Typography variant="h6" sx={{ fontWeight: 700, mb: 1.5, color: 'white' }}>Special Rules</Typography>
-                    <Box sx={{ mb: getCommandAbilities(faction).length > 0 ? 3 : 0 }}>
-                      {getSpecialRules(faction).map((r,i)=>(
+                    <Box sx={{ mb: getCommandAbilities(faction, FACTIONS).length > 0 ? 3 : 0 }}>
+                      {getSpecialRules(faction, FACTIONS).map((r,i)=>(
                         <Paper key={i} variant="outlined" sx={{ p: 1.5, mb: 1, backgroundColor: '#181818' }}>
                           <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 0.5, color: 'white' }}>{r.name}</Typography>
                           <Typography variant="body2" sx={{ color: 'grey.300' }}>{r.description}</Typography>
@@ -1429,12 +1419,12 @@ export default function App(){
                     </Box>
                   </>
                 )}
-                {getCommandAbilities(faction).length>0 && (
+                {getCommandAbilities(faction, FACTIONS).length>0 && (
                   <>
                     <Typography variant="h6" sx={{ fontWeight: 700, mb: 1.5, color: 'white' }}>Command Abilities</Typography>
             <Grid container spacing={2}>
-                      {getCommandAbilities(faction).sort((a,b)=>a.dice-b.dice).map((c,i)=>(
-                        <Grid key={i} item xs={12} md={6}>
+                      {getCommandAbilities(faction, FACTIONS).sort((a,b)=>a.dice-b.dice).map((c,i)=>(
+                        <Grid key={i} item xs={12} md={6} lg={4}>
                           <Paper variant="outlined" sx={{ p: 1.5, backgroundColor: '#181818', display: 'flex', alignItems: 'stretch', gap: 1.5, height: '100%' }}>
                             <Box sx={{ 
                               display: 'flex', 
@@ -1494,7 +1484,7 @@ export default function App(){
                   if (isSquadron) {
                     // Squadron card
                     return (
-                      <Grid key={`squadron-${firstShip.groupId}`} item xs={12} md={6}>
+                      <Grid key={`squadron-${firstShip.groupId}`} item xs={12} md={6} lg={4}>
                         <Paper variant="outlined" sx={{ p:2, borderRadius:2, backgroundColor: '#1f1f1f' }}>
                           <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 1 }}>
                             <Box>
@@ -1532,9 +1522,26 @@ export default function App(){
                                   {s.loadout.prow ? (
                                     <Paper variant="outlined" sx={{ p: 1, backgroundColor: '#2e2e2e' }}>
                                       <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.25, color: 'white' }}>{s.loadout.prow.name}</Typography>
-                                      <Typography variant="caption" color="text.secondary">
-                                        Targets: {s.loadout.prow.targets||"—"} • Attacks: {s.loadout.prow.attacks??"—"} • Range: {s.loadout.prow.range||"—"}
-                                      </Typography>
+                                      <Grid container spacing={1} sx={{ mt: 0.5 }}>
+                                        <Grid item xs={4}>
+                                          <Box sx={{ textAlign: 'center', p: 0.5, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
+                                            <Typography variant="caption" sx={{ fontWeight: 700, display: 'block' }}>Targets</Typography>
+                                            <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '1rem' }}>{s.loadout.prow.targets||"—"}</Typography>
+                                          </Box>
+                                        </Grid>
+                                        <Grid item xs={4}>
+                                          <Box sx={{ textAlign: 'center', p: 0.5, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
+                                            <Typography variant="caption" sx={{ fontWeight: 700, display: 'block' }}>Attacks</Typography>
+                                            <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '1rem' }}>{s.loadout.prow.attacks??"—"}</Typography>
+                                          </Box>
+                                        </Grid>
+                                        <Grid item xs={4}>
+                                          <Box sx={{ textAlign: 'center', p: 0.5, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
+                                            <Typography variant="caption" sx={{ fontWeight: 700, display: 'block' }}>Range</Typography>
+                                            <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '1rem' }}>{s.loadout.prow.range||"—"}</Typography>
+                                          </Box>
+                                        </Grid>
+                                      </Grid>
                                     </Paper>
                                   ) : <Typography variant="caption" color="text.secondary">—</Typography>}
                                 </Box>
@@ -1593,7 +1600,7 @@ export default function App(){
                 const hullList = (s.loadout.hull||[]);
                     
                 return (
-                      <Grid key={s.id} item xs={12} md={6}>
+                      <Grid key={s.id} item xs={12} md={6} lg={4}>
                         <Paper variant="outlined" sx={{ p:2, borderRadius:2, backgroundColor: '#1f1f1f' }}>
                           <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 1 }}>
                             <Box>
@@ -1656,7 +1663,7 @@ export default function App(){
                               <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.75, color: 'white' }}>Hull</Typography>
                               <Stack spacing={0.5}>
                                 {(() => {
-                                  const all = [...def.hull.options, ...(def.beginsWith||[])];
+                          const all = [...def.hull.options, ...(def.beginsWith||[])];
                                   const groupedWeapons = groupWeapons(hullList, all);
                                   
                                   return groupedWeapons.map((weapon, i) => (
@@ -1687,7 +1694,7 @@ export default function App(){
                                     </Paper>
                                   ));
                                 })()}
-                              </Stack>
+                      </Stack>
                             </Box>
                           )}
                     </Paper>
