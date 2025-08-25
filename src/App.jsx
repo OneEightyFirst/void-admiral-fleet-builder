@@ -4,9 +4,9 @@ import {
   Stack, Button, TextField, Chip, Divider, Paper, IconButton, Tooltip as MuiTooltip, Snackbar, Alert, MenuItem, Select, InputLabel, FormControl,
   Accordion, AccordionSummary, AccordionDetails, List, ListItem, ListItemText, Tooltip, Avatar, Fab, ClickAwayListener, Drawer, ListItemIcon, useMediaQuery
 } from "@mui/material";
-import { Add as AddIcon, Delete as DeleteIcon, PlayArrow as PlayIcon, Remove as RemoveIcon, Add as PlusIcon, Print as PrintIcon, ContentCopy as CopyIcon, Save as SaveIcon, Folder as FolderIcon, Login as LoginIcon, Logout as LogoutIcon, Build as BuildIcon, ArrowForward as ArrowForwardIcon, Check as CheckIcon, Menu as MenuIcon } from "@mui/icons-material";
+import { Add as AddIcon, Delete as DeleteIcon, PlayArrow as PlayIcon, Remove as RemoveIcon, Add as PlusIcon, Print as PrintIcon, ContentCopy as CopyIcon, Save as SaveIcon, Folder as FolderIcon, Login as LoginIcon, Logout as LogoutIcon, Build as BuildIcon, ArrowForward as ArrowForwardIcon, Check as CheckIcon, Menu as MenuIcon, Edit as EditIcon } from "@mui/icons-material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import FACTIONS from "./data/factions.json";
+// FACTIONS will be loaded dynamically
 
 // Firebase imports
 import { auth, googleProvider, db } from "./firebase";
@@ -27,13 +27,13 @@ function armingKey(cls, loadout){
 }
 
 // safe getters for new faction fields
-function getFluff(f) { return (FACTIONS[f]?.fluff || "").trim(); }
-function getSpecialRules(f) { return Array.isArray(FACTIONS[f]?.specialRules) ? FACTIONS[f].specialRules : []; }
-function getCommandAbilities(f) { return Array.isArray(FACTIONS[f]?.commandAbilities) ? FACTIONS[f].commandAbilities : []; }
+function getFluff(f, factions) { return (factions?.[f]?.fluff || "").trim(); }
+function getSpecialRules(f, factions) { return Array.isArray(factions?.[f]?.specialRules) ? factions[f].specialRules : []; }
+function getCommandAbilities(f, factions) { return Array.isArray(factions?.[f]?.commandAbilities) ? factions[f].commandAbilities : []; }
 
 // Fleet building rule modifiers
-function getPointLimit(faction, basePoints) {
-  const specialRules = getSpecialRules(faction);
+function getPointLimit(faction, basePoints, factions) {
+  const specialRules = getSpecialRules(faction, factions);
   
   // Few in Number: 20% fewer points (Ancients, Cyborgs)
   if (specialRules.some(rule => rule.name === "Few in Number")) {
@@ -61,13 +61,32 @@ function getShipCost(faction, def, roster) {
 }
 
 // Check if faction has special squadron rules
-function hasSwarmRule(faction) {
-  return getSpecialRules(faction).some(rule => rule.name === "The Swarm");
+function hasSwarmRule(faction, factions) {
+  return getSpecialRules(faction, factions).some(rule => rule.name === "The Swarm");
 }
 
 // Check if faction has random weapon construction
-function hasUnplannedConstruction(faction) {
-  return getSpecialRules(faction).some(rule => rule.name === "Unplanned Construction");
+function hasUnplannedConstruction(faction, factions) {
+  return getSpecialRules(faction, factions).some(rule => rule.name === "Unplanned Construction");
+}
+
+// Group weapons by name and count duplicates
+function groupWeapons(weaponNames, allWeapons) {
+  const weaponCounts = {};
+  const weaponData = {};
+  
+  weaponNames.forEach(name => {
+    weaponCounts[name] = (weaponCounts[name] || 0) + 1;
+    if (!weaponData[name]) {
+      weaponData[name] = allWeapons.find(x => x.name === name) || { name };
+    }
+  });
+  
+  return Object.entries(weaponCounts).map(([name, count]) => ({
+    name,
+    count,
+    data: weaponData[name]
+  }));
 }
 
 // Generate random weapons for Scrap Bots
@@ -126,12 +145,28 @@ export default function App(){
   const [nameSubmitted, setNameSubmitted] = useState(false);
   const [saveStatus, setSaveStatus] = useState('idle'); // 'idle', 'saving', 'saved'
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [FACTIONS, setFACTIONS] = useState(null);
+  const [factionsLoading, setFactionsLoading] = useState(true);
   
-  // Create theme and check for mobile
-  const theme = createTheme({ palette:{ mode:"dark" }, shape:{ borderRadius:12 } });
+  // Create theme with custom breakpoints and check for mobile
+  // Custom breakpoint: md=850px for optimal mobile/desktop split
+  // Mobile: < 850px (xs, sm), Desktop: ≥ 850px (md, lg, xl)
+  const theme = createTheme({ 
+    palette: { mode: "dark" }, 
+    shape: { borderRadius: 12 },
+    breakpoints: {
+      values: {
+        xs: 0,
+        sm: 600,
+        md: 850,  // Custom mobile/desktop breakpoint (was 900px)
+        lg: 1200,
+        xl: 1536,
+      },
+    }
+  });
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   
-  const ships = FACTIONS[faction].ships;
+  const ships = FACTIONS ? FACTIONS[faction]?.ships || {} : {};
 
   // Authentication listener
   useEffect(() => {
@@ -150,6 +185,29 @@ export default function App(){
     });
 
     return () => unsubscribe();
+  }, []);
+
+  // Load factions data
+  useEffect(() => {
+    const loadFactions = async () => {
+      try {
+        console.log("🔄 Loading factions data...");
+        const response = await fetch('/void-admiral/data/factions.json');
+        if (!response.ok) {
+          throw new Error(`Failed to load factions: ${response.status}`);
+        }
+        const factionsData = await response.json();
+        setFACTIONS(factionsData);
+        console.log("✅ Factions data loaded successfully");
+      } catch (error) {
+        console.error("❌ Error loading factions:", error);
+        // You could add error state here if needed
+      } finally {
+        setFactionsLoading(false);
+      }
+    };
+
+    loadFactions();
   }, []);
 
   const loadLocalStorageData = () => {
@@ -185,7 +243,7 @@ export default function App(){
     }
   },[savedFleets, hasLoadedSavedFleets]);
 
-  const cap = getPointLimit(faction, points);
+  const cap = FACTIONS ? getPointLimit(faction, points, FACTIONS) : points;
   const used = useMemo(() =>
     roster.reduce((sum, s) => {
       // Skip free ships (Insectoid Swarm bonus squadrons)
@@ -376,6 +434,33 @@ export default function App(){
     setTab(0); // Switch to Build tab
   }
 
+  function editFleet(fleet){
+    setFaction(fleet.faction);
+    setPoints(fleet.points);
+    setRoster([...fleet.roster]);
+    setFleetName(fleet.name);
+    setNameSubmitted(true); // Mark name as submitted when loading fleet
+    setTab(0); // Switch to Build tab
+  }
+
+  function playFleet(fleet){
+    setFaction(fleet.faction);
+    setPoints(fleet.points);
+    setRoster([...fleet.roster]);
+    setFleetName(fleet.name);
+    setNameSubmitted(true); // Mark name as submitted when loading fleet
+    setTab(1); // Switch to Play tab
+  }
+
+  function startNewFleet(){
+    setFleetName('');
+    setNameSubmitted(false);
+    setRoster([]);
+    setFaction('Loyalists');
+    setPoints(30);
+    setTab(0); // Stay on Build tab
+  }
+
   function deleteFleet(fleetId){
     // Delete from Firestore (only option now)
     if (user) {
@@ -526,7 +611,15 @@ export default function App(){
   const drawer = (
     <Box sx={{ width: 250, bgcolor: 'background.paper', height: '100%' }}>
       <Box sx={{ p: 2 }}>
-        <Typography variant="h6" sx={{ fontWeight: 900 }}>
+        <Typography 
+          variant="h6" 
+          sx={{ 
+            fontWeight: 900,
+            cursor: 'pointer',
+            '&:hover': { color: 'primary.main' }
+          }}
+          onClick={() => setDrawerOpen(false)}
+        >
           Void Admiral
         </Typography>
       </Box>
@@ -582,6 +675,44 @@ export default function App(){
       </Box>
     </Box>
   );
+
+  // Show loading screen until both auth and factions are ready
+  if (loading || factionsLoading) {
+    return (
+      <ThemeProvider theme={theme}>
+        <CssBaseline/>
+        <Box sx={{ 
+          display: 'flex', 
+          flexDirection: 'column',
+          alignItems: 'center', 
+          justifyContent: 'center', 
+          minHeight: '100vh',
+          textAlign: 'center',
+          p: 3
+        }}>
+          <Typography variant="h4" sx={{ mb: 2, color: 'white' }}>
+            Void Admiral Fleet Builder
+          </Typography>
+          <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+            {loading ? "Initializing..." : "Loading faction data..."}
+          </Typography>
+          <Box sx={{ 
+            width: 40, 
+            height: 40, 
+            border: '3px solid',
+            borderColor: 'primary.main',
+            borderTopColor: 'transparent',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            '@keyframes spin': {
+              '0%': { transform: 'rotate(0deg)' },
+              '100%': { transform: 'rotate(360deg)' }
+            }
+          }} />
+        </Box>
+      </ThemeProvider>
+    );
+  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -676,39 +807,46 @@ export default function App(){
                 minHeight: '60vh',
                 textAlign: 'center'
               }}>
-                <Typography variant="h4" sx={{ mb: 3, color: 'white' }}>
+                <Typography variant="h4" sx={{ mb: 1, color: 'white' }}>
                   Create New Fleet
                 </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', maxWidth: '400px' }}>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
+                  Give your fleet a name to start building
+                </Typography>
+                
+                <Box sx={{ width: '100%', maxWidth: '400px' }}>
                   <TextField 
-                    size="large"
+                    fullWidth
                     value={fleetName} 
                     onChange={e=>setFleetName(e.target.value)}
                     placeholder="Enter fleet name..."
                     onKeyDown={e => e.key === 'Enter' && handleNameSubmit()}
                     sx={{ 
-                      flex: 1,
-                      '& .MuiInputBase-root': { fontSize: '1.2rem', padding: '12px 16px' }
+                      mb: 3,
+                      '& .MuiInputBase-root': { 
+                        fontSize: '1.2rem', 
+                        padding: '16px 20px',
+                        textAlign: 'center'
+                      }
                     }}
                     autoFocus
                   />
-                  <IconButton 
+                  
+                  <Button 
+                    fullWidth
+                    variant="contained"
+                    size="large"
                     onClick={handleNameSubmit}
                     disabled={!fleetName.trim()}
                     sx={{ 
-                      ml: 1, 
-                      bgcolor: 'primary.main',
-                      color: 'white',
-                      '&:hover': { bgcolor: 'primary.dark' },
-                      '&:disabled': { bgcolor: 'grey.700', color: 'grey.500' }
+                      py: 1.5,
+                      fontSize: '1.1rem',
+                      fontWeight: 600
                     }}
                   >
-                    <ArrowForwardIcon />
-                  </IconButton>
+                    Start Building
+                  </Button>
                 </Box>
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-                  Give your fleet a name to start building
-                </Typography>
               </Box>
             ) : (
               /* Build Interface - Show when fleet name exists */
@@ -747,7 +885,27 @@ export default function App(){
                       size="small"
                     />
                   </Box>
-                  {!user && (
+                  
+                  {/* New Fleet Button */}
+                  <Button 
+                    variant="outlined" 
+                    onClick={startNewFleet}
+                    size="small"
+                    sx={{ 
+                      color: 'white',
+                      borderColor: 'rgba(255, 255, 255, 0.3)',
+                      '&:hover': {
+                        borderColor: 'primary.main',
+                        backgroundColor: 'rgba(25, 118, 210, 0.08)'
+                      }
+                    }}
+                  >
+                    New Fleet
+                  </Button>
+                </Box>
+                
+                {!user && (
+                  <Box sx={{ mb: 3, textAlign: 'center' }}>
                     <Button 
                       variant="outlined" 
                       startIcon={<LoginIcon/>}
@@ -756,8 +914,8 @@ export default function App(){
                     >
                       Sign In to Save
                     </Button>
-                  )}
-                </Box>
+                  </Box>
+                )}
 
           <Grid container spacing={2}>
             <Grid item xs={12} md={3}>
@@ -775,7 +933,7 @@ export default function App(){
                 <FormControl fullWidth size="small" sx={{ mt:1 }}>
                   <InputLabel>Faction</InputLabel>
                   <Select label="Faction" value={faction} onChange={e=>{ setFaction(e.target.value); setRoster([]); }}>
-                    {Object.keys(FACTIONS).map(f=> <MenuItem key={f} value={f}>{f}</MenuItem>)}
+                          {FACTIONS ? Object.keys(FACTIONS).map(f=> <MenuItem key={f} value={f}>{f}</MenuItem>) : []}
                   </Select>
                 </FormControl>
 
@@ -806,7 +964,7 @@ export default function App(){
                 <Typography>Total: {used}/{cap} pts</Typography>
                 {cap !== points && (
                   <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
-                    {cap < points ? `Reduced from ${points} pts (Few in Number)` : `Increased from ${points} pts (${getSpecialRules(faction).find(r => r.name === "Wealthy" || r.name === "Industrious")?.name})`}
+                    {cap < points ? `Reduced from ${points} pts (Few in Number)` : `Increased from ${points} pts (${FACTIONS ? getSpecialRules(faction, FACTIONS).find(r => r.name === "Wealthy" || r.name === "Industrious")?.name : ""})`}
                   </Typography>
                 )}
                 {uniqueClash && <Alert severity="warning" sx={{ mt:1 }}>Unique rule: two non‑squadron ships are armed identically. Change a prow or hull mix.</Alert>}
@@ -820,9 +978,9 @@ export default function App(){
                     <CardContent>
                       <Typography variant="subtitle1" sx={{ fontWeight:800, mb:1 }}>Faction Overview</Typography>
 
-                    {getFluff(faction) && (
+                    {FACTIONS && getFluff(faction, FACTIONS) && (
                       <Paper variant="outlined" sx={{ p:1, mb:1 }}>
-                        <Typography variant="body2" color="text.secondary">{getFluff(faction)}</Typography>
+                        <Typography variant="body2" color="text.secondary">{getFluff(faction, FACTIONS)}</Typography>
                       </Paper>
                     )}
 
@@ -921,7 +1079,7 @@ export default function App(){
                                         <Grid key={k} item xs={2.4}>
                                           <Box sx={{ textAlign: 'center', p: 0.5, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
                                             <Typography variant="caption" sx={{ fontWeight: 700, display: 'block' }}>{k}</Typography>
-                                            <Typography variant="body2">{v}</Typography>
+                                            <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '1rem' }}>{v}</Typography>
                                           </Box>
                                         </Grid>
                                       ))}
@@ -1082,7 +1240,7 @@ export default function App(){
                                   <Grid key={k} item xs={2.4}>
                                     <Box sx={{ textAlign: 'center', p: 0.5, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
                                       <Typography variant="caption" sx={{ fontWeight: 700, display: 'block' }}>{k}</Typography>
-                                      <Typography variant="body2">{v}</Typography>
+                                      <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '1rem' }}>{v}</Typography>
                                     </Box>
                                   </Grid>
                                 ))}
@@ -1356,7 +1514,7 @@ export default function App(){
                                 <Grid key={k} item xs={2.4}>
                                   <Box sx={{ textAlign: 'center', p: 0.5, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
                                     <Typography variant="caption" sx={{ fontWeight: 700, display: 'block' }}>{k}</Typography>
-                                    <Typography variant="body2">{v}</Typography>
+                                    <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '1rem' }}>{v}</Typography>
                                   </Box>
                                 </Grid>
                               ))}
@@ -1386,18 +1544,38 @@ export default function App(){
                                 <Box sx={{ mb: 1.5 }}>
                                   <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.75, color: 'white' }}>Hull</Typography>
                                   <Stack spacing={0.5}>
-                                    {(s.loadout.hull||[]).map((name, i)=>{
+                                    {(() => {
                                       const all = [...def.hull.options, ...(def.beginsWith||[])];
-                                      const o = all.find(x=>x.name===name) || { name };
-                                      return (
+                                      const groupedWeapons = groupWeapons(s.loadout.hull||[], all);
+                                      
+                                      return groupedWeapons.map((weapon, i) => (
                                         <Paper key={i} variant="outlined" sx={{ p: 1, backgroundColor: '#2e2e2e' }}>
-                                          <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.25, color: 'white' }}>{name}</Typography>
-                                          <Typography variant="caption" color="text.secondary">
-                                            Targets: {o.targets||"—"} • Attacks: {o.attacks??"—"} • Range: {o.range||"—"}
+                                          <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.25, color: 'white' }}>
+                                            {weapon.name}{weapon.count > 1 ? ` x${weapon.count}` : ''}
                                           </Typography>
+                                          <Grid container spacing={1} sx={{ mt: 0.5 }}>
+                                            <Grid item xs={4}>
+                                              <Box sx={{ textAlign: 'center', p: 0.5, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
+                                                <Typography variant="caption" sx={{ fontWeight: 700, display: 'block' }}>Targets</Typography>
+                                                <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '1rem' }}>{weapon.data.targets||"—"}</Typography>
+                                              </Box>
+                                            </Grid>
+                                            <Grid item xs={4}>
+                                              <Box sx={{ textAlign: 'center', p: 0.5, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
+                                                <Typography variant="caption" sx={{ fontWeight: 700, display: 'block' }}>Attacks</Typography>
+                                                <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '1rem' }}>{weapon.data.attacks??"—"}</Typography>
+                                              </Box>
+                                            </Grid>
+                                            <Grid item xs={4}>
+                                              <Box sx={{ textAlign: 'center', p: 0.5, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
+                                                <Typography variant="caption" sx={{ fontWeight: 700, display: 'block' }}>Range</Typography>
+                                                <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '1rem' }}>{weapon.data.range||"—"}</Typography>
+                                              </Box>
+                                            </Grid>
+                                          </Grid>
                                         </Paper>
-                                      );
-                                    })}
+                                      ));
+                                    })()}
                                   </Stack>
                                 </Box>
                               )}
@@ -1436,7 +1614,7 @@ export default function App(){
                                 <Grid key={k} item xs={2.4}>
                                   <Box sx={{ textAlign: 'center', p: 0.5, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
                                     <Typography variant="caption" sx={{ fontWeight: 700, display: 'block' }}>{k}</Typography>
-                                    <Typography variant="body2">{v}</Typography>
+                                    <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '1rem' }}>{v}</Typography>
                                   </Box>
                                 </Grid>
                               ))}
@@ -1448,10 +1626,27 @@ export default function App(){
                               <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.75, color: 'white' }}>Prow</Typography>
                               {prow ? (
                                 <Paper variant="outlined" sx={{ p: 1, backgroundColor: '#2e2e2e' }}>
-                                                                      <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.25, color: 'white' }}>{prow.name}</Typography>
-                                  <Typography variant="caption" color="text.secondary">
-                                    Targets: {prow.targets||"—"} • Attacks: {prow.attacks??"—"} • Range: {prow.range||"—"}
-                                  </Typography>
+                                  <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.25, color: 'white' }}>{prow.name}</Typography>
+                                  <Grid container spacing={1} sx={{ mt: 0.5 }}>
+                                    <Grid item xs={4}>
+                                      <Box sx={{ textAlign: 'center', p: 0.5, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
+                                        <Typography variant="caption" sx={{ fontWeight: 700, display: 'block' }}>Targets</Typography>
+                                        <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '1rem' }}>{prow.targets||"—"}</Typography>
+                                      </Box>
+                                    </Grid>
+                                    <Grid item xs={4}>
+                                      <Box sx={{ textAlign: 'center', p: 0.5, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
+                                        <Typography variant="caption" sx={{ fontWeight: 700, display: 'block' }}>Attacks</Typography>
+                                        <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '1rem' }}>{prow.attacks??"—"}</Typography>
+                                      </Box>
+                                    </Grid>
+                                    <Grid item xs={4}>
+                                      <Box sx={{ textAlign: 'center', p: 0.5, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
+                                        <Typography variant="caption" sx={{ fontWeight: 700, display: 'block' }}>Range</Typography>
+                                        <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '1rem' }}>{prow.range||"—"}</Typography>
+                                      </Box>
+                                    </Grid>
+                                  </Grid>
                                 </Paper>
                               ) : <Typography variant="caption" color="text.secondary">—</Typography>}
                             </Box>
@@ -1460,19 +1655,39 @@ export default function App(){
                             <Box>
                               <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.75, color: 'white' }}>Hull</Typography>
                               <Stack spacing={0.5}>
-                        {hullList.map((name, i)=>{
-                          const all = [...def.hull.options, ...(def.beginsWith||[])];
-                          const o = all.find(x=>x.name===name) || { name };
-                          return (
+                                {(() => {
+                                  const all = [...def.hull.options, ...(def.beginsWith||[])];
+                                  const groupedWeapons = groupWeapons(hullList, all);
+                                  
+                                  return groupedWeapons.map((weapon, i) => (
                                     <Paper key={i} variant="outlined" sx={{ p: 1, backgroundColor: '#2e2e2e' }}>
-                                      <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.25, color: 'white' }}>{name}</Typography>
-                                      <Typography variant="caption" color="text.secondary">
-                                        Targets: {o.targets||"—"} • Attacks: {o.attacks??"—"} • Range: {o.range||"—"}
+                                      <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.25, color: 'white' }}>
+                                        {weapon.name}{weapon.count > 1 ? ` x${weapon.count}` : ''}
                                       </Typography>
+                                      <Grid container spacing={1} sx={{ mt: 0.5 }}>
+                                        <Grid item xs={4}>
+                                          <Box sx={{ textAlign: 'center', p: 0.5, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
+                                            <Typography variant="caption" sx={{ fontWeight: 700, display: 'block' }}>Targets</Typography>
+                                            <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '1rem' }}>{weapon.data.targets||"—"}</Typography>
+                                          </Box>
+                                        </Grid>
+                                        <Grid item xs={4}>
+                                          <Box sx={{ textAlign: 'center', p: 0.5, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
+                                            <Typography variant="caption" sx={{ fontWeight: 700, display: 'block' }}>Attacks</Typography>
+                                            <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '1rem' }}>{weapon.data.attacks??"—"}</Typography>
+                                          </Box>
+                                        </Grid>
+                                        <Grid item xs={4}>
+                                          <Box sx={{ textAlign: 'center', p: 0.5, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
+                                            <Typography variant="caption" sx={{ fontWeight: 700, display: 'block' }}>Range</Typography>
+                                            <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '1rem' }}>{weapon.data.range||"—"}</Typography>
+                                          </Box>
+                                        </Grid>
+                                      </Grid>
                                     </Paper>
-                          );
-                        })}
-                      </Stack>
+                                  ));
+                                })()}
+                              </Stack>
                             </Box>
                           )}
                     </Paper>
@@ -1487,7 +1702,26 @@ export default function App(){
 
         {tab===2 && (
           <Box>
-            <Typography variant="h4" sx={{ fontWeight:900, color: 'white', mb:3 }}>Fleets</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+              <Typography variant="h4" sx={{ fontWeight:900, color: 'white' }}>Fleets</Typography>
+              <IconButton 
+                color="primary" 
+                onClick={() => {
+                  startNewFleet();
+                  setTab(0); // Go to Build tab
+                }}
+                sx={{ 
+                  bgcolor: 'rgba(25, 118, 210, 0.08)',
+                  border: '1px solid',
+                  borderColor: 'primary.main',
+                  '&:hover': {
+                    bgcolor: 'rgba(25, 118, 210, 0.16)'
+                  }
+                }}
+              >
+                <AddIcon />
+              </IconButton>
+            </Box>
             
             {!user ? (
               <Paper variant="outlined" sx={{ p:3, textAlign: 'center' }}>
@@ -1515,7 +1749,7 @@ export default function App(){
               <Grid container spacing={2}>
                 {savedFleets.map(fleet => (
                   <Grid key={fleet.id} item xs={12} md={6} lg={4}>
-                    <Paper variant="outlined" sx={{ p:2, backgroundColor: '#1f1f1f' }}>
+                    <Paper variant="outlined" sx={{ p:2, backgroundColor: '#1f1f1f', position: 'relative' }}>
                       <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 1 }}>
                         <Box>
                           <Typography variant="h6" sx={{ fontWeight: 800, color: 'white' }}>{fleet.name}</Typography>
@@ -1523,20 +1757,32 @@ export default function App(){
                             {fleet.faction} • {fleet.points} pts • {fleet.roster.length} ships
                           </Typography>
                         </Box>
-                        <IconButton color="error" size="small" onClick={()=>deleteFleet(fleet.id)}>
-                          <DeleteIcon/>
-                        </IconButton>
+                        <Stack direction="row" spacing={0.5}>
+                          <IconButton color="primary" size="small" onClick={()=>editFleet(fleet)}>
+                            <EditIcon/>
+                          </IconButton>
+                          <IconButton color="success" size="small" onClick={()=>playFleet(fleet)}>
+                            <PlayIcon/>
+                          </IconButton>
+                        </Stack>
                       </Stack>
                       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                         Saved {new Date(fleet.savedAt).toLocaleDateString()}
                       </Typography>
-                      <Button 
-                        fullWidth 
-                        variant="contained" 
-                        onClick={()=>loadFleet(fleet)}
+                      
+                      {/* Trash can in bottom right */}
+                      <IconButton 
+                        color="error" 
+                        size="small" 
+                        onClick={()=>deleteFleet(fleet.id)}
+                        sx={{ 
+                          position: 'absolute', 
+                          bottom: 8, 
+                          right: 8 
+                        }}
                       >
-                        Load Fleet
-                      </Button>
+                        <DeleteIcon/>
+                      </IconButton>
                     </Paper>
                   </Grid>
                 ))}
