@@ -63,14 +63,6 @@ npm run build
 npm run preview
 ```
 
-## 🔧 Configuration
-
-### Firebase Setup
-1. Create a Firebase project at https://console.firebase.google.com
-2. Enable Authentication (Google provider)
-3. Enable Firestore Database
-4. Update `src/firebase.js` with your project configuration
-
 ### Deployment
 ```bash
 # Deploy to your hosting provider
