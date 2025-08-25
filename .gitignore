@@ -47,5 +47,5 @@ temp/
 .firebaserc
 firebase-debug.log
 
-# Deployment credentials (keep deploy.js since it has placeholders)
-# deploy.js (uncomment if you add real credentials)
+# Deployment credentials - NEVER commit real FTP credentials!
+deploy.js

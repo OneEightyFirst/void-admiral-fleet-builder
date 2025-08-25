@@ -8,12 +8,12 @@ async function deployToFTP() {
   client.ftp.verbose = true;
   
   try {
-    // FTP Configuration
+    // FTP Configuration - REPLACE WITH YOUR ACTUAL CREDENTIALS
     await client.access({
-      host: "server119.web-hosting.com",
+      host: "YOUR_FTP_HOST",
       port: 21,
-      user: "michjfbk",
-      password: "1Eighty1st!",
+      user: "YOUR_FTP_USERNAME", 
+      password: "YOUR_FTP_PASSWORD",
       secure: false // Set to true for FTPS
     });
     
