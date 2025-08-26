@@ -7,6 +7,76 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { ProwIcon, HullIcon } from './WeaponIcons';
 import { getStatDisplayName } from '../utils/gameUtils';
 
+// Helper function to calculate modified stats with refit effects
+const calculateModifiedStats = (baseStats, refit) => {
+  if (!refit) return baseStats;
+  
+  const modifiedStats = { ...baseStats };
+  
+  // Apply refit cost (what the ship loses)
+  if (refit.cost) {
+    Object.entries(refit.cost).forEach(([stat, change]) => {
+      // Skip hull_weapons as it's not a display stat
+      if (stat === 'hull_weapons') return;
+      
+      if (typeof change === 'string' && change.startsWith('-')) {
+        const reduction = parseInt(change.substring(1));
+        const currentValue = typeof modifiedStats[stat] === 'string' ? 
+          parseInt(modifiedStats[stat]) : modifiedStats[stat];
+        modifiedStats[stat] = Math.max(0, currentValue - reduction);
+      }
+    });
+  }
+  
+  // Apply refit gains (what the ship gets)
+  if (refit.gains) {
+    Object.entries(refit.gains).forEach(([stat, change]) => {
+      // Skip hull_weapons as it's not a display stat
+      if (stat === 'hull_weapons') return;
+      
+      if (typeof change === 'string' && change.startsWith('+')) {
+        const increase = parseInt(change.substring(1));
+        const currentValue = typeof modifiedStats[stat] === 'string' ? 
+          parseInt(modifiedStats[stat]) : modifiedStats[stat];
+        modifiedStats[stat] = currentValue + increase;
+      }
+    });
+  }
+  
+  // Apply selected option effects if this refit has options
+  if (refit.selectedOption) {
+    if (refit.selectedOption.cost) {
+      Object.entries(refit.selectedOption.cost).forEach(([stat, change]) => {
+        // Skip hull_weapons as it's not a display stat
+        if (stat === 'hull_weapons') return;
+        
+        if (typeof change === 'string' && change.startsWith('-')) {
+          const reduction = parseInt(change.substring(1));
+          const currentValue = typeof modifiedStats[stat] === 'string' ? 
+            parseInt(modifiedStats[stat]) : modifiedStats[stat];
+          modifiedStats[stat] = Math.max(0, currentValue - reduction);
+        }
+      });
+    }
+    
+    if (refit.selectedOption.gains) {
+      Object.entries(refit.selectedOption.gains).forEach(([stat, change]) => {
+        // Skip hull_weapons as it's not a display stat
+        if (stat === 'hull_weapons') return;
+        
+        if (typeof change === 'string' && change.startsWith('+')) {
+          const increase = parseInt(change.substring(1));
+          const currentValue = typeof modifiedStats[stat] === 'string' ? 
+            parseInt(modifiedStats[stat]) : modifiedStats[stat];
+          modifiedStats[stat] = currentValue + increase;
+        }
+      });
+    }
+  }
+  
+  return modifiedStats;
+};
+
 const BuildViewCard = ({ 
   ship, 
   shipDef, 
@@ -21,7 +91,13 @@ const BuildViewCard = ({
 }) => {
   if (!ship || !shipDef) return null;
 
-  const statline = shipDef.statline || {};
+  const baseStats = shipDef.statline || {};
+  const modifiedStats = calculateModifiedStats(baseStats, ship.refit);
+  
+  // Function to check if a stat has been modified
+  const isStatModified = (statName) => {
+    return ship.refit && baseStats[statName] !== modifiedStats[statName];
+  };
 
   return (
     <Card
@@ -107,7 +183,7 @@ const BuildViewCard = ({
         py: 1
       }}>
         <Grid container spacing={0}>
-          {Object.entries(statline).map(([statName, value]) => (
+          {Object.entries(modifiedStats).filter(([statName]) => statName !== 'hull_weapons').map(([statName, value]) => (
             <Grid key={statName} item xs={2.4}>
               <Box sx={{ textAlign: 'center' }}>
                 <Typography
@@ -115,7 +191,7 @@ const BuildViewCard = ({
                   sx={{
                     fontWeight: 600,
                     fontSize: '0.875rem',
-                    color: 'rgba(255, 255, 255, 0.9)',
+                    color: isStatModified(statName) ? '#ffc107' : 'rgba(255, 255, 255, 0.9)',
                     lineHeight: 1
                   }}
                 >
@@ -134,7 +210,7 @@ const BuildViewCard = ({
         py: 1
       }}>
         <Grid container spacing={0}>
-          {Object.entries(statline).map(([statName, value]) => (
+          {Object.entries(modifiedStats).filter(([statName]) => statName !== 'hull_weapons').map(([statName, value]) => (
             <Grid key={`${statName}-value`} item xs={2.4}>
               <Box sx={{ textAlign: 'center' }}>
                 <Typography
@@ -142,16 +218,45 @@ const BuildViewCard = ({
                   sx={{
                     fontWeight: 700,
                     fontSize: '1.25rem',
-                    lineHeight: 1
+                    lineHeight: 1,
+                    color: isStatModified(statName) ? '#ffc107' : 'inherit'
                   }}
                 >
                   {value}
+                  {isStatModified(statName) && (
+                    <Typography
+                      component="span"
+                      variant="caption"
+                      sx={{
+                        ml: 0.5,
+                        fontSize: '0.7rem',
+                        opacity: 0.7,
+                        textDecoration: 'line-through'
+                      }}
+                    >
+                      ({baseStats[statName]})
+                    </Typography>
+                  )}
                 </Typography>
               </Box>
             </Grid>
           ))}
         </Grid>
       </Box>
+
+      {/* Refit indicator */}
+      {ship.refit && (
+        <Box sx={{ 
+          backgroundColor: '#2a2a2a', 
+          px: 2, 
+          py: 1, 
+          borderTop: '1px solid #444' 
+        }}>
+          <Typography variant="caption" sx={{ fontWeight: 600, color: '#ffc107' }}>
+            Refit: {ship.refit.selectedOption ? ship.refit.selectedOption.name : ship.refit.name}
+          </Typography>
+        </Box>
+      )}
 
       {/* Build-specific content (weapon selection, etc.) */}
       <Box sx={{ p: 2 }}>

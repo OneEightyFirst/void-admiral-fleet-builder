@@ -16,7 +16,7 @@ import {
 import { useTheme } from '../contexts/ThemeContext';
 
 const ThemeSettings = () => {
-  const { currentTheme, themes, switchTheme } = useTheme();
+  const { currentTheme, themes, switchTheme, user, isLoading } = useTheme();
 
   const handleThemeChange = (event) => {
     switchTheme(event.target.value);
@@ -150,9 +150,22 @@ const ThemeSettings = () => {
         <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
           Current Theme: {themes[currentTheme].name}
         </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Theme settings are automatically saved and will persist across sessions.
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+          {user ? (
+            <>
+              🔄 Theme settings are synced with your Firebase account and will follow you across devices.
+            </>
+          ) : (
+            <>
+              💾 Theme settings are saved locally. Sign in to sync across devices.
+            </>
+          )}
         </Typography>
+        {isLoading && (
+          <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
+            Loading theme preferences...
+          </Typography>
+        )}
       </Paper>
     </Box>
   );

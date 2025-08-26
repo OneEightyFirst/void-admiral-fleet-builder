@@ -10,6 +10,18 @@ export function uid() {
   return Math.random().toString(36).slice(2,9); 
 }
 
+// Utility function for efficient array comparison
+export function arraysEqual(a, b) {
+  if (!a && !b) return true;
+  if (!a || !b) return false;
+  if (a.length !== b.length) return false;
+  
+  const sortedA = [...a].sort();
+  const sortedB = [...b].sort();
+  
+  return sortedA.every((val, index) => val === sortedB[index]);
+}
+
 // Create arming key for unique rule checking
 export function armingKey(cls, loadout) {
   const prow = loadout.prow?.name || "";
@@ -161,4 +173,50 @@ export function getWeaponData(weapon, allWeapons = []) {
   
   // Look up in provided weapons list
   return allWeapons.find(w => w.name === weaponName) || { name: weaponName };
+}
+
+// Hull slot management functions
+export function calculateTotalHullSlots(shipDef) {
+  return shipDef.hull?.select || 0;
+}
+
+export function calculateUsedHullSlots(ship, shipDef) {
+  const totalSlots = calculateTotalHullSlots(shipDef);
+  if (totalSlots === 0) return 0;
+  
+  // Count currently equipped hull weapons
+  const hullWeapons = ship.loadout?.hull || ship.weapons?.hull || ship.hull || [];
+  return hullWeapons.length;
+}
+
+export function calculateRefitHullSlotCost(ship) {
+  if (!ship.refit) return 0;
+  
+  // Check main refit cost
+  let totalCost = 0;
+  if (ship.refit.cost?.hull_weapons) {
+    totalCost += parseInt(ship.refit.cost.hull_weapons.replace('-', ''));
+  }
+  
+  // Check selected option cost
+  if (ship.refit.selectedOption?.cost?.hull_weapons) {
+    totalCost += parseInt(ship.refit.selectedOption.cost.hull_weapons.replace('-', ''));
+  }
+  
+  return totalCost;
+}
+
+export function calculateAvailableHullSlots(ship, shipDef) {
+  const totalSlots = calculateTotalHullSlots(shipDef);
+  const usedSlots = calculateUsedHullSlots(ship, shipDef);
+  const refitCost = calculateRefitHullSlotCost(ship);
+  
+  return Math.max(0, totalSlots - usedSlots - refitCost);
+}
+
+export function calculateEffectiveHullSlots(ship, shipDef) {
+  const totalSlots = calculateTotalHullSlots(shipDef);
+  const refitCost = calculateRefitHullSlotCost(ship);
+  
+  return Math.max(0, totalSlots - refitCost);
 }

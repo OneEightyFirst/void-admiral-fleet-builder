@@ -19,13 +19,13 @@ import ThemeSettings from './components/ThemeSettings';
 // Utils
 import {
   shipCost, uid, armingKey, getPointLimit, getShipCost, hasUnplannedConstruction,
-  randomizeScrapBotWeapons, cleanRosterForSave
+  randomizeScrapBotWeapons, cleanRosterForSave, arraysEqual
 } from './utils/gameUtils';
 
 // Firebase imports
 import { auth, googleProvider, db } from "./firebase";
 import { signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
-import { collection, addDoc, getDocs, deleteDoc, doc, query, where, orderBy } from "firebase/firestore";
+import { collection, addDoc, getDocs, deleteDoc, doc, query, where, orderBy, setDoc, getDoc } from "firebase/firestore";
 
 function AppContent(){
   const { muiTheme, currentTheme } = useTheme();
@@ -45,10 +45,19 @@ function AppContent(){
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [FACTIONS, setFACTIONS] = useState(null);
   const [factionsLoading, setFactionsLoading] = useState(true);
+  const [useRefits, setUseRefits] = useState(false);
+  const [useJuggernauts, setUseJuggernauts] = useState(false);
   
   const isMobile = useMediaQuery(muiTheme.breakpoints.down('md'));
   
   const ships = FACTIONS ? FACTIONS[faction]?.ships || {} : {};
+  
+  // Calculate refit limits and usage
+  const maxRefits = Math.floor(points / 15);
+  const usedRefits = roster.filter(ship => ship.refit).length;
+  const usedSquadronRefits = new Set(roster.filter(ship => ship.squadronRefit).map(ship => ship.groupId)).size;
+  const totalUsedRefits = usedRefits + usedSquadronRefits;
+  const canAddRefit = totalUsedRefits < maxRefits;
 
   // Authentication listener
   useEffect(() => {
@@ -57,8 +66,10 @@ function AppContent(){
       setLoading(false);
       if (user) {
         loadUserFleets(user.uid);
+        loadUserPreferences(user.uid);
       } else {
         loadLocalStorageData();
+        loadLocalPreferences();
       }
     });
 
@@ -104,6 +115,58 @@ function AppContent(){
       }catch(e){}
     }
     setHasLoadedSavedFleets(true);
+  };
+
+  // Load preferences from localStorage (for non-authenticated users)
+  const loadLocalPreferences = () => {
+    const savedPrefs = localStorage.getItem('va_preferences');
+    if (savedPrefs) {
+      try {
+        const prefs = JSON.parse(savedPrefs);
+        setUseRefits(prefs.useRefits || false);
+        setUseJuggernauts(prefs.useJuggernauts || false);
+      } catch (error) {
+        console.error('Failed to load local preferences:', error);
+      }
+    }
+  };
+
+  // Load preferences from Firebase (for authenticated users)
+  const loadUserPreferences = async (userId) => {
+    try {
+      const userPrefsRef = doc(db, 'userPreferences', userId);
+      const userPrefsSnap = await getDoc(userPrefsRef);
+      
+      if (userPrefsSnap.exists()) {
+        const prefs = userPrefsSnap.data();
+        setUseRefits(prefs.useRefits || false);
+        setUseJuggernauts(prefs.useJuggernauts || false);
+        return;
+      }
+      
+      // If no Firebase preferences found, check localStorage as fallback
+      loadLocalPreferences();
+    } catch (error) {
+      console.error('Failed to load user preferences:', error);
+      loadLocalPreferences();
+    }
+  };
+
+  // Save preferences to Firebase (for authenticated users) or localStorage
+  const savePreferences = async (prefs) => {
+    if (user) {
+      try {
+        const userPrefsRef = doc(db, 'userPreferences', user.uid);
+        await setDoc(userPrefsRef, prefs, { merge: true });
+      } catch (error) {
+        console.error('Failed to save preferences to Firebase:', error);
+        // Fallback to localStorage if Firebase fails
+        localStorage.setItem('va_preferences', JSON.stringify(prefs));
+      }
+    } else {
+      // Save to localStorage for non-authenticated users
+      localStorage.setItem('va_preferences', JSON.stringify(prefs));
+    }
   };
 
   useEffect(()=>{
@@ -208,7 +271,7 @@ function AppContent(){
       if (faction === "Insectoids" && firstShip.className === "Pincer" && !firstShip.isFree) {
         const freeShips = r.filter(x=>x.className === "Pincer" && x.isFree);
         const matchingFreeGroup = freeShips.find(x=>x.loadout.prow?.name === firstShip.loadout.prow?.name && 
-          JSON.stringify(x.loadout.hull?.sort()) === JSON.stringify(firstShip.loadout.hull?.sort()));
+          arraysEqual(x.loadout.hull, firstShip.loadout.hull));
         
         if (matchingFreeGroup) {
           const freeGroupShips = freeShips.filter(x=>x.groupId === matchingFreeGroup.groupId);
@@ -421,6 +484,64 @@ function AppContent(){
     }));
   }
 
+  // Refit functions
+  function addRefit(shipId, refit) {
+    if (!canAddRefit) return;
+    setRoster(r => r.map(x => 
+      x.id === shipId ? { ...x, refit } : x
+    ));
+  }
+
+  function removeRefit(shipId) {
+    setRoster(r => r.map(x => 
+      x.id === shipId ? { ...x, refit: null } : x
+    ));
+  }
+
+  function addRefitToGroup(groupId, refit, selectedOption = null) {
+    if (!canAddRefit) return;
+    
+    // Create squadron refit object with selected option if provided
+    const squadronRefit = {
+      name: refit.name,
+      description: refit.description,
+      effects: refit.effects,
+      selectedOption: selectedOption?.name || null,
+      selectedEffects: selectedOption?.effects || refit.effects
+    };
+    
+    setRoster(r => r.map(x => 
+      x.groupId === groupId ? { ...x, squadronRefit } : x
+    ));
+  }
+
+  function removeRefitFromGroup(groupId) {
+    setRoster(r => r.map(x => 
+      x.groupId === groupId ? { ...x, squadronRefit: null } : x
+    ));
+  }
+
+  // Enhanced refit toggle function that saves preferences and clears refits
+  function toggleUseRefits(enabled) {
+    setUseRefits(enabled);
+    
+    // If disabling refits, remove all existing refits from roster
+    if (!enabled) {
+      setRoster(r => r.map(ship => ({ ...ship, refit: null, squadronRefit: null })));
+    }
+    
+    // Save preference
+    savePreferences({ useRefits: enabled, useJuggernauts });
+  }
+
+  // Enhanced juggernauts toggle function that saves preferences
+  function toggleUseJuggernauts(enabled) {
+    setUseJuggernauts(enabled);
+    
+    // Save preference
+    savePreferences({ useRefits, useJuggernauts: enabled });
+  }
+
   // Show loading screen until both auth and factions are ready
   if (loading || factionsLoading) {
     return (
@@ -619,6 +740,13 @@ function AppContent(){
                 cap={cap}
                 used={used}
                 uniqueClash={uniqueClash}
+                useRefits={useRefits}
+                setUseRefits={toggleUseRefits}
+                useJuggernauts={useJuggernauts}
+                setUseJuggernauts={toggleUseJuggernauts}
+                maxRefits={maxRefits}
+                usedRefits={totalUsedRefits}
+                canAddRefit={canAddRefit}
                 addShip={addShip}
                 removeShip={removeShip}
                 removeGroup={removeGroup}
@@ -627,6 +755,10 @@ function AppContent(){
                 addHull={addHull}
                 removeHullByName={removeHullByName}
                 randomizeHull={randomizeHull}
+                addRefit={addRefit}
+                removeRefit={removeRefit}
+                addRefitToGroup={addRefitToGroup}
+                removeRefitFromGroup={removeRefitFromGroup}
                 saveFleet={saveFleet}
                 startNewFleet={startNewFleet}
                 signInWithGoogle={signInWithGoogle}

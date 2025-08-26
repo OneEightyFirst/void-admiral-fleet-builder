@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Box,
   Grid,
@@ -22,7 +22,9 @@ import {
   Fab,
   Accordion,
   AccordionSummary,
-  AccordionDetails
+  AccordionDetails,
+  Switch,
+  FormControlLabel
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -31,7 +33,8 @@ import {
   Add as PlusIcon,
   Save as SaveIcon,
   Check as CheckIcon,
-  Login as LoginIcon
+  Edit as EditIcon,
+  Close as CloseIcon
 } from '@mui/icons-material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
@@ -39,6 +42,8 @@ import DiceFace from './DiceFace';
 import { ProwIcon, HullIcon } from './WeaponIcons';
 import BuildViewCard from './BuildViewCard';
 import BuildViewSquadronCard from './BuildViewSquadronCard';
+import RefitModal from './RefitModal';
+import SquadronRefitModal from './SquadronRefitModal';
 import {
   getFluff,
   getSpecialRules,
@@ -46,7 +51,10 @@ import {
   getShipCost,
   getStatDisplayName,
   getWeaponData,
-  hasUnplannedConstruction
+  hasUnplannedConstruction,
+  calculateAvailableHullSlots,
+  calculateEffectiveHullSlots,
+  calculateUsedHullSlots
 } from '../utils/gameUtils';
 
 const BuildView = ({
@@ -73,6 +81,17 @@ const BuildView = ({
   used,
   uniqueClash,
   
+  // Content toggles
+  useRefits,
+  setUseRefits,
+  useJuggernauts,
+  setUseJuggernauts,
+  
+  // Refit data
+  maxRefits,
+  usedRefits,
+  canAddRefit,
+  
   // Functions
   addShip,
   removeShip,
@@ -82,10 +101,69 @@ const BuildView = ({
   addHull,
   removeHullByName,
   randomizeHull,
+  addRefit,
+  removeRefit,
+  addRefitToGroup,
+  removeRefitFromGroup,
   saveFleet,
   startNewFleet,
   signInWithGoogle
 }) => {
+  const [refitModalOpen, setRefitModalOpen] = useState(false);
+  const [refitModalShip, setRefitModalShip] = useState(null);
+  const [squadronRefitModalOpen, setSquadronRefitModalOpen] = useState(false);
+  const [squadronRefitModalSquadron, setSquadronRefitModalSquadron] = useState(null);
+
+  const handleOpenRefitModal = (ship) => {
+    console.log('Opening refit modal for ship:', ship);
+    console.log('Modal state before:', { refitModalOpen, refitModalShip });
+    setRefitModalShip(ship);
+    setRefitModalOpen(true);
+    console.log('Modal state should now be open');
+  };
+
+  const handleCloseRefitModal = () => {
+    console.log('Closing refit modal');
+    setRefitModalOpen(false);
+    setRefitModalShip(null);
+  };
+
+  const handleSelectRefit = (shipId, refit) => {
+    console.log('Selecting refit:', refit, 'for ship:', shipId);
+    if (refit === null) {
+      removeRefit(shipId);
+    } else {
+      addRefit(shipId, refit);
+    }
+  };
+
+  const handleOpenSquadronRefitModal = (squadron) => {
+    console.log('Opening squadron refit modal for squadron:', squadron);
+    const groupId = squadron[0].groupId;
+    setSquadronRefitModalSquadron({
+      groupId: groupId,
+      ships: squadron,
+      squadronRefit: squadron[0].squadronRefit // Assuming refit is stored on first ship
+    });
+    setSquadronRefitModalOpen(true);
+  };
+
+  const handleCloseSquadronRefitModal = () => {
+    console.log('Closing squadron refit modal');
+    setSquadronRefitModalOpen(false);
+    setSquadronRefitModalSquadron(null);
+  };
+
+  const handleApplySquadronRefit = (groupId, refit, selectedOption) => {
+    console.log('Applying squadron refit:', refit, 'option:', selectedOption, 'to group:', groupId);
+    addRefitToGroup(groupId, refit, selectedOption);
+  };
+
+  const handleClearSquadronRefit = (groupId) => {
+    console.log('Clearing squadron refit for group:', groupId);
+    removeRefitFromGroup(groupId);
+  };
+
   return (
     <>
       {/* Fleet Name Header */}
@@ -215,7 +293,60 @@ const BuildView = ({
                 {cap < points ? `Reduced from ${points} pts (Few in Number)` : `Increased from ${points} pts (${factions ? getSpecialRules(faction, factions).find(r => r.name === "Wealthy" || r.name === "Industrious")?.name : ""})`}
               </Typography>
             )}
+            {useRefits && (
+              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+                Refits: {usedRefits}/{maxRefits} used
+              </Typography>
+            )}
             {uniqueClash && <Alert severity="warning" sx={{ mt:1 }}>Unique rule: two non‑squadron ships are armed identically. Change a prow or hull mix.</Alert>}
+            
+            {/* Content Toggles */}
+            <Divider sx={{ my: 2 }}/>
+            <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1, color: 'text.primary' }}>
+              Additional Content
+            </Typography>
+            <Stack spacing={1}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={useRefits}
+                    onChange={(e) => setUseRefits(e.target.checked)}
+                    size="small"
+                  />
+                }
+                label={
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    Use Refits
+                  </Typography>
+                }
+                sx={{ 
+                  margin: 0,
+                  '& .MuiFormControlLabel-label': {
+                    color: useRefits ? 'primary.main' : 'text.secondary'
+                  }
+                }}
+              />
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={useJuggernauts}
+                    onChange={(e) => setUseJuggernauts(e.target.checked)}
+                    size="small"
+                  />
+                }
+                label={
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    Use Juggernauts
+                  </Typography>
+                }
+                sx={{ 
+                  margin: 0,
+                  '& .MuiFormControlLabel-label': {
+                    color: useJuggernauts ? 'primary.main' : 'text.secondary'
+                  }
+                }}
+              />
+            </Stack>
           </CardContent></Card>
         </Grid>
 
@@ -416,9 +547,10 @@ const BuildView = ({
                                         {def.hull.options.map(o=> {
                                           const currentCount = (squadShip.loadout.hull||[]).filter(name => name === o.name).length;
                                           const totalEditable = (squadShip.loadout.hull || []).filter(n=>!(def.beginsWith||[]).some(b=>b.name===n)).length;
-                                          const canAdd = totalEditable < def.hull.select;
+                                          const effectiveSlots = calculateEffectiveHullSlots(squadShip, def);
+                                          const canAdd = totalEditable < effectiveSlots;
                                           const canRemove = currentCount > 0;
-                                          const isAtLimit = totalEditable >= def.hull.select;
+                                          const isAtLimit = totalEditable >= effectiveSlots;
                                           const hasSelection = currentCount > 0;
                                           const shouldHighlight = isAtLimit && hasSelection;
                                           
@@ -474,7 +606,10 @@ const BuildView = ({
                                     )}
                                     {(() => {
                                       const editableCount = (squadShip.loadout.hull||[]).filter(n=>!(def.beginsWith||[]).some(b=>b.name===n)).length;
-                                      return editableCount < def.hull.select && <Alert severity="info" sx={{ mt:1 }}>Choose {def.hull.select - editableCount} more hull weapon(s).</Alert>;
+                                      // Account for hull weapon slots consumed by refits
+                                      const refitHullCost = squadShip.refit?.cost?.hull_weapons ? parseInt(squadShip.refit.cost.hull_weapons.replace('-', '')) : 0;
+                                      const effectiveSlots = def.hull.select - refitHullCost;
+                                      return editableCount < effectiveSlots && <Alert severity="info" sx={{ mt:1 }}>Choose {effectiveSlots - editableCount} more hull weapon(s).</Alert>;
                                     })()}
                                   </Box>
                                 )}
@@ -482,6 +617,65 @@ const BuildView = ({
                             </Grid>
                           ))}
                         </Grid>
+
+                        {/* Squadron Refit Button - only when squadron refits are enabled */}
+                        {useRefits && (
+                          <Grid item xs={12}>
+                            <Paper variant="outlined" sx={{ p: 1, mt: 1 }}>
+                              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <Box>
+                                  <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+                                    Squadron Refit
+                                  </Typography>
+                                  {squadronShips[0].squadronRefit ? (
+                                    <Typography variant="caption" color="text.secondary">
+                                      {squadronShips[0].squadronRefit.name}
+                                      {squadronShips[0].squadronRefit.selectedOption && (
+                                        <> - {squadronShips[0].squadronRefit.selectedOption}</>
+                                      )}
+                                    </Typography>
+                                  ) : (
+                                    <Typography variant="caption" color="text.secondary">
+                                      No refit selected
+                                    </Typography>
+                                  )}
+                                </Box>
+                                <Stack direction="row" spacing={1}>
+                                  <Button
+                                    size="small"
+                                    variant="contained"
+                                    onClick={() => {
+                                      console.log('Squadron refit button clicked for squadron:', squadronShips);
+                                      handleOpenSquadronRefitModal(squadronShips);
+                                    }}
+                                    sx={{
+                                      minWidth: 'auto',
+                                      width: 40,
+                                      height: 40
+                                    }}
+                                  >
+                                    {squadronShips[0].squadronRefit ? <EditIcon fontSize="small" /> : <AddIcon fontSize="small" />}
+                                  </Button>
+                                  {squadronShips[0].squadronRefit && (
+                                    <Button
+                                      size="small"
+                                      variant="outlined"
+                                      color="error"
+                                      onClick={() => handleClearSquadronRefit(squadronShips[0].groupId)}
+                                      sx={{
+                                        minWidth: 'auto',
+                                        width: 40,
+                                        height: 40
+                                      }}
+                                    >
+                                      <CloseIcon fontSize="small" />
+                                    </Button>
+                                  )}
+                                </Stack>
+                              </Box>
+                            </Paper>
+                          </Grid>
+                        )}
                       </BuildViewSquadronCard>
                     </Grid>
                   );
@@ -569,9 +763,10 @@ const BuildView = ({
                                   {def.hull.options.map(o=> {
                                     const currentCount = (s.loadout.hull||[]).filter(name => name === o.name).length;
                                     const totalEditable = (s.loadout.hull || []).filter(n=>!(def.beginsWith||[]).some(b=>b.name===n)).length;
-                                    const canAdd = totalEditable < def.hull.select;
+                                    const effectiveSlots = calculateEffectiveHullSlots(s, def);
+                                    const canAdd = totalEditable < effectiveSlots;
                                     const canRemove = currentCount > 0;
-                                    const isAtLimit = totalEditable >= def.hull.select;
+                                    const isAtLimit = totalEditable >= effectiveSlots;
                                     const hasSelection = currentCount > 0;
                                     const shouldHighlight = isAtLimit && hasSelection;
                                     
@@ -625,10 +820,72 @@ const BuildView = ({
                               })}
                                 </Box>
                               )}
-                            {editableCount < def.hull.select && <Alert severity="info" sx={{ mt:1 }}>Choose {def.hull.select - editableCount} more hull weapon(s).</Alert>}
+                            {(() => {
+                              // Account for hull weapon slots consumed by refits
+                              const refitHullCost = s.refit?.cost?.hull_weapons ? parseInt(s.refit.cost.hull_weapons.replace('-', '')) : 0;
+                              const effectiveSlots = def.hull.select - refitHullCost;
+                              return editableCount < effectiveSlots && <Alert severity="info" sx={{ mt:1 }}>Choose {effectiveSlots - editableCount} more hull weapon(s).</Alert>;
+                            })()}
                           </Paper>
                           )}
                         </Grid>
+
+                        {/* Refit Button - only for capital ships when refits are enabled */}
+                        {useRefits && !def.squadron && (
+                          <Grid item xs={12}>
+                            <Paper variant="outlined" sx={{ p: 1, mt: 1 }}>
+                              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <Box>
+                                  <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+                                    Refit
+                                  </Typography>
+                                  {s.refit ? (
+                                    <Typography variant="caption" color="text.secondary">
+                                      {s.refit.name}
+                                    </Typography>
+                                  ) : (
+                                    <Typography variant="caption" color="text.secondary">
+                                      No refit selected
+                                    </Typography>
+                                  )}
+                                </Box>
+                                <Stack direction="row" spacing={1}>
+                                  <Button
+                                    size="small"
+                                    variant="contained"
+                                    disabled={!canAddRefit && !s.refit}
+                                    onClick={() => {
+                                      console.log('Refit button clicked for ship:', s);
+                                      handleOpenRefitModal(s);
+                                    }}
+                                    sx={{
+                                      minWidth: 'auto',
+                                      width: 40,
+                                      height: 40
+                                    }}
+                                  >
+                                    {s.refit ? <EditIcon fontSize="small" /> : <AddIcon fontSize="small" />}
+                                  </Button>
+                                  {s.refit && (
+                                    <Button
+                                      size="small"
+                                      variant="outlined"
+                                      color="error"
+                                      onClick={() => removeRefit(s.id)}
+                                      sx={{
+                                        minWidth: 'auto',
+                                        width: 40,
+                                        height: 40
+                                      }}
+                                    >
+                                      <CloseIcon fontSize="small" />
+                                    </Button>
+                                  )}
+                                </Stack>
+                              </Box>
+                            </Paper>
+                          </Grid>
+                        )}
                         </Grid>
                       </BuildViewCard>
                     </Grid>
@@ -662,6 +919,38 @@ const BuildView = ({
           {saveStatus === 'saved' ? <CheckIcon /> : <SaveIcon />}
         </Fab>
       )}
+
+      {/* Refit Modal */}
+      <RefitModal
+        open={refitModalOpen && !!refitModalShip}
+        onClose={handleCloseRefitModal}
+        ship={refitModalShip ? roster.find(s => s.id === refitModalShip.id) || refitModalShip : null}
+        shipDef={refitModalShip ? ships[refitModalShip.className] : null}
+        faction={faction}
+        factions={factions}
+        onSelectRefit={handleSelectRefit}
+        usedRefits={usedRefits}
+        maxRefits={maxRefits}
+      />
+
+      {/* Squadron Refit Modal */}
+      <SquadronRefitModal
+        open={squadronRefitModalOpen && !!squadronRefitModalSquadron}
+        onClose={handleCloseSquadronRefitModal}
+        squadron={useMemo(() => 
+          squadronRefitModalSquadron ? {
+            groupId: squadronRefitModalSquadron.groupId,
+            ships: roster.filter(ship => ship.groupId === squadronRefitModalSquadron.groupId),
+            squadronRefit: roster.find(ship => ship.groupId === squadronRefitModalSquadron.groupId)?.squadronRefit
+          } : null, 
+          [squadronRefitModalSquadron, roster]
+        )}
+        shipDef={squadronRefitModalSquadron ? ships[roster.find(ship => ship.groupId === squadronRefitModalSquadron.groupId)?.className] : null}
+        faction={faction}
+        factions={factions}
+        onApplyRefit={handleApplySquadronRefit}
+        onClearRefit={handleClearSquadronRefit}
+      />
     </>
   );
 };
