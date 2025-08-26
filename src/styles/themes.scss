@@ -1,0 +1,113 @@
+// Theme-specific styles
+
+// Space theme styles
+.theme-space {
+  &.app-root {
+    background-image: url('/void-admiral/images/starfield.webp');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    min-height: 100vh;
+  }
+
+  // Layered card system - outer cards with transparency and blur
+  .MuiCard-root,
+  .MuiPaper-root {
+    background: rgba(30, 30, 30, 0.7) !important;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
+    
+    // Inner sections - more opaque, less blur for content readability
+    .MuiCardContent-root,
+    .MuiPaper-root,
+    .MuiAccordionDetails-root,
+    .MuiList-root {
+      background: rgba(40, 40, 40, 0.9) !important;
+      backdrop-filter: blur(4px);
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      
+      // Innermost content areas - solid for text readability
+      .MuiGrid-container,
+      .MuiStack-root,
+      .MuiBox-root {
+        // Don't override these - let content be readable
+      }
+    }
+  }
+
+  // Special handling for navigation
+  .MuiAppBar-root {
+    background: rgba(18, 18, 18, 0.85) !important;
+    backdrop-filter: blur(15px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  // Fleet name entry and special sections
+  .MuiTextField-root .MuiInputBase-root {
+    background: rgba(50, 50, 50, 0.8) !important;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  // Floating action button enhancement
+  .MuiFab-root {
+    background: rgba(100, 181, 246, 0.9) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+    backdrop-filter: blur(10px);
+  }
+
+  // Dialog and drawer enhancements
+  .MuiDrawer-paper {
+    background: rgba(25, 25, 25, 0.95) !important;
+    backdrop-filter: blur(20px);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    
+    .MuiListItem-root {
+      background: rgba(40, 40, 40, 0.6) !important;
+      backdrop-filter: blur(5px);
+      margin: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+  }
+
+  // Ship stat boxes and weapon displays - make them more readable
+  .MuiPaper-outlined {
+    background: rgba(50, 50, 50, 0.9) !important;
+    backdrop-filter: blur(3px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  // Buttons and interactive elements
+  .MuiButton-root {
+    background: rgba(100, 181, 246, 0.15) !important;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(100, 181, 246, 0.3);
+    
+    &:hover {
+      background: rgba(100, 181, 246, 0.25) !important;
+    }
+  }
+
+  .MuiChip-root {
+    background: rgba(60, 60, 60, 0.8) !important;
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+}
+
+// General card shadow enhancements (for all themes)
+.enhanced-cards {
+  .MuiCard-root,
+  .MuiPaper-elevation1 {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  }
+
+  .MuiCard-root:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    transition: box-shadow 0.2s ease-in-out;
+  }
+}

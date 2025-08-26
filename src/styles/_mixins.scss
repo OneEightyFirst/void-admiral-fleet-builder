@@ -1,0 +1,125 @@
+@use 'variables' as *;
+
+// Responsive breakpoints
+@mixin mobile {
+  @media (max-width: #{$breakpoint-md - 1px}) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: #{$breakpoint-md}) and (max-width: #{$breakpoint-lg - 1px}) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: #{$breakpoint-lg}) {
+    @content;
+  }
+}
+
+@mixin min-width($width) {
+  @media (min-width: #{$width}) {
+    @content;
+  }
+}
+
+@mixin max-width($width) {
+  @media (max-width: #{$width}) {
+    @content;
+  }
+}
+
+// Common card styling
+@mixin card-base {
+  background-color: $color-bg-secondary;
+  border: 1px solid $color-border;
+  border-radius: $border-radius-lg;
+  padding: $spacing-lg;
+}
+
+@mixin card-dark {
+  @include card-base;
+  background-color: $color-bg-paper;
+}
+
+// Button mixins
+@mixin button-base {
+  border-radius: $border-radius-md;
+  transition: all $transition-fast;
+  font-weight: $font-weight-semibold;
+  
+  &:hover {
+    transform: translateY(-1px);
+  }
+}
+
+// Flex utilities
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+// Text utilities
+@mixin text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@mixin text-center {
+  text-align: center;
+}
+
+// Stats box styling (for ship/weapon stats)
+@mixin stats-box {
+  @include flex-center;
+  @include text-center;
+  padding: $spacing-sm;
+  border: 1px solid $color-divider;
+  border-radius: $border-radius-sm;
+  background-color: transparent;
+  
+  .stat-label {
+    font-weight: $font-weight-bold;
+    font-size: $font-size-xs;
+    display: block;
+    color: $color-text-secondary;
+  }
+  
+  .stat-value {
+    font-weight: $font-weight-bold;
+    font-size: $font-size-md;
+    color: $color-text-primary;
+  }
+}
+
+// Floating action button
+@mixin fab {
+  position: fixed;
+  bottom: $spacing-xl;
+  right: $spacing-xl;
+  z-index: $z-index-fab;
+  border-radius: 50%;
+  width: 56px;
+  height: 56px;
+  @include flex-center;
+  transition: all $transition-standard;
+  
+  &:hover {
+    transform: scale(1.1);
+  }
+}

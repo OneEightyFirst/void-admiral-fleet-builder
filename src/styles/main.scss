@@ -1,0 +1,357 @@
+@use 'sass:color';
+@use 'variables' as *;
+@use 'mixins' as *;
+
+// Global styles
+body {
+  margin: 0;
+  padding: 0;
+  background-color: $color-bg-primary;
+  color: $color-text-primary;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// App container
+.app {
+  min-height: 100vh;
+  
+  &__content {
+    padding: $spacing-lg;
+    
+    @include mobile {
+      padding: $spacing-md;
+    }
+  }
+}
+
+// Loading screen
+.loading-screen {
+  @include flex-center;
+  @include flex-column;
+  min-height: 60vh;
+  gap: $spacing-lg;
+  
+  &__spinner {
+    animation: spin 1s linear infinite;
+  }
+  
+  &__text {
+    color: $color-text-secondary;
+    font-size: $font-size-lg;
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+// Navigation
+.nav {
+  &__mobile-toggle {
+    margin-right: $spacing-md;
+    
+    @include min-width($breakpoint-md) {
+      display: none;
+    }
+  }
+  
+  &__tabs {
+    @include mobile {
+      display: none;
+    }
+  }
+  
+  &__drawer {
+    width: 250px;
+    
+    &-header {
+      padding: $spacing-lg;
+      cursor: pointer;
+      transition: color $transition-fast;
+      
+      &:hover {
+        color: $color-primary;
+      }
+    }
+    
+    &-auth {
+      padding: $spacing-lg;
+    }
+  }
+}
+
+// Logo styling
+.nav-logo {
+  color: $color-text-primary;
+  margin-right: $spacing-lg;
+  
+  .logo-fill {
+    fill: currentColor;
+  }
+  
+  &:hover {
+    color: $color-primary;
+    transition: color $transition-fast;
+  }
+}
+
+// Fleet name entry
+.fleet-entry {
+  @include flex-center;
+  @include flex-column;
+  min-height: 60vh;
+  text-align: center;
+  gap: $spacing-lg;
+  
+  &__title {
+    color: $color-text-primary;
+    margin-bottom: $spacing-sm;
+  }
+  
+  &__subtitle {
+    color: $color-text-secondary;
+    margin-bottom: $spacing-xxl;
+  }
+  
+  &__form {
+    width: 100%;
+    max-width: 400px;
+    gap: $spacing-lg;
+    @include flex-column;
+  }
+  
+  &__input {
+    .MuiInputBase-root {
+      font-size: $font-size-xl;
+      padding: 16px 20px;
+      text-align: center;
+    }
+  }
+  
+  &__button {
+    padding: $spacing-lg 0;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+  }
+}
+
+// Fleet header
+.fleet-header {
+  @include flex-between;
+  margin-bottom: $spacing-lg;
+  
+  &__left {
+    @include flex-center;
+    gap: $spacing-lg;
+  }
+  
+  &__name {
+    font-weight: $font-weight-bold;
+    color: $color-text-primary;
+    cursor: pointer;
+    transition: color $transition-fast;
+    
+    &:hover {
+      color: $color-primary;
+    }
+    
+    &--editing {
+      .MuiInputBase-root {
+        font-size: 1.5rem;
+        font-weight: $font-weight-bold;
+      }
+    }
+  }
+  
+  &__chip {
+    // MUI chip styling will be handled by theme
+  }
+  
+  &__new-button {
+    color: $color-text-primary;
+    border-color: rgba(255, 255, 255, 0.3);
+    
+    &:hover {
+      border-color: $color-primary;
+      background-color: rgba(25, 118, 210, 0.08);
+    }
+  }
+}
+
+// Cards
+.ship-card, .squadron-card {
+  @include card-dark;
+  position: relative;
+  
+  &__header {
+    @include flex-between;
+    margin-bottom: $spacing-md;
+  }
+  
+  &__title {
+    font-weight: $font-weight-black;
+    color: $color-text-primary;
+  }
+  
+  &__subtitle {
+    color: $color-text-secondary;
+    font-size: $font-size-sm;
+  }
+  
+  &__points {
+    font-weight: $font-weight-semibold;
+    color: $color-text-primary;
+  }
+  
+  &__stats {
+    @include card-base;
+    margin-bottom: $spacing-md;
+    padding: $spacing-md;
+  }
+  
+  &__actions {
+    @include flex-center;
+    gap: $spacing-sm;
+  }
+}
+
+// Stats display
+.stats {
+  &__container {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: $spacing-sm;
+  }
+  
+  &__box {
+    @include stats-box;
+  }
+}
+
+// Weapon stats
+.weapon {
+  &__name {
+    font-weight: $font-weight-semibold;
+    color: $color-text-primary;
+    margin-bottom: $spacing-xs;
+  }
+  
+  &__stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: $spacing-sm;
+    margin-top: $spacing-sm;
+  }
+  
+  &__stat {
+    @include stats-box;
+  }
+}
+
+// Floating action button
+.fab {
+  @include fab;
+  
+  &--success {
+    background-color: $color-success;
+    
+    &:hover {
+      background-color: color.adjust($color-success, $lightness: -10%);
+    }
+  }
+}
+
+// Fleet cards (in fleets view)
+.fleet-card {
+  @include card-dark;
+  position: relative;
+  
+  &__header {
+    @include flex-between;
+    margin-bottom: $spacing-md;
+  }
+  
+  &__info {
+    h6 {
+      font-weight: $font-weight-black;
+      color: $color-text-primary;
+    }
+    
+    .caption {
+      color: $color-text-secondary;
+    }
+  }
+  
+  &__actions {
+    @include flex-center;
+    gap: $spacing-sm;
+  }
+  
+  &__date {
+    color: $color-text-secondary;
+    margin-bottom: $spacing-lg;
+  }
+  
+  &__delete {
+    position: absolute;
+    bottom: $spacing-md;
+    right: $spacing-md;
+  }
+}
+
+// Command abilities
+.command-ability {
+  @include card-base;
+  background-color: $color-bg-paper;
+  display: flex;
+  align-items: stretch;
+  gap: $spacing-lg;
+  height: 100%;
+  
+  &__dice {
+    @include flex-center;
+    aspect-ratio: 1/1;
+    min-width: 48px;
+    align-self: stretch;
+  }
+  
+  &__content {
+    flex: 1;
+    @include flex-column;
+    justify-content: center;
+    
+    h6 {
+      font-weight: $font-weight-semibold;
+      color: $color-text-primary;
+      margin-bottom: $spacing-sm;
+    }
+    
+    .description {
+      color: $color-text-secondary;
+    }
+  }
+}
+
+// Utilities
+.text-center { @include text-center; }
+.flex-center { @include flex-center; }
+.flex-between { @include flex-between; }
+.flex-column { @include flex-column; }
+
+// Hide on mobile/desktop utilities
+.hide-mobile {
+  @include mobile {
+    display: none !important;
+  }
+}
+
+.hide-desktop {
+  @include min-width($breakpoint-md) {
+    display: none !important;
+  }
+}
