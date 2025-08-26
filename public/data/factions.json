@@ -1397,6 +1397,18 @@
         "hull": { "select": 0, "options": [] },
         "squadron": true
       }
+    },
+    "factionRefits": {
+      "capitalShipRefits": [
+        {
+          "name": "Up-gunned Prow",
+          "description": "Your ship loses the benefits of armoured prows but adds +2 to the attacks of its prow mounted missiles or +1 to the attacks of its prow mounted lasers.",
+          "requirements": { "prow_weapons": "missiles_or_lasers" },
+          "cost": { "special_rule": "armoured_prows" },
+          "gains": { "prow_weapon_bonus": { "missiles": "+2_attacks", "lasers": "+1_attacks" } },
+          "eligibility": "capital"
+        }
+      ]
     }
   },
   "Liberationists": {
@@ -2666,5 +2678,137 @@
         "squadron": true
       }
     }
+  },
+  "universalRefits": {
+    "capitalShipRefits": [
+      {
+        "name": "Dorsal Laser Turret",
+        "description": "Your ship sacrifices one from its shields rating to gain a light laser turret, or two shields for a heavy laser turret.",
+        "requirements": { "Shields": "1+" },
+        "options": [
+          {
+            "name": "Light Laser Turret",
+            "cost": { "Shields": "-1" },
+            "gains": { "weapons": [{ "name": "Light Laser", "targets": "Front/Sides", "attacks": 1, "range": "12″" }] }
+          },
+          {
+            "name": "Heavy Laser Turret", 
+            "cost": { "Shields": "-2" },
+            "gains": { "weapons": [{ "name": "Heavy Laser", "targets": "Front/Sides", "attacks": 2, "range": "12″" }] }
+          }
+        ],
+        "eligibility": "capital"
+      },
+      {
+        "name": "Dorsal Cannon Turret",
+        "description": "Your ship sacrifices one from its flak rating to gain a light cannon turret, or two flak for a heavy cannon turret.",
+        "requirements": { "Flak": "1+" },
+        "options": [
+          {
+            "name": "Light Cannon Turret",
+            "cost": { "Flak": "-1" },
+            "gains": { "weapons": [{ "name": "Light Cannons", "targets": "Front/Sides", "attacks": 2, "range": "12″" }] }
+          },
+          {
+            "name": "Heavy Cannon Turret",
+            "cost": { "Flak": "-2" },
+            "gains": { "weapons": [{ "name": "Heavy Cannons", "targets": "Front/Sides", "attacks": 4, "range": "12″" }] }
+          }
+        ],
+        "eligibility": "capital"
+      },
+      {
+        "name": "Additional Shields",
+        "description": "Your ship sacrifices one of its flak for an extra point of shields.",
+        "requirements": { "Flak": "1+" },
+        "cost": { "Flak": "-1" },
+        "gains": { "Shields": "+1" },
+        "eligibility": "capital"
+      },
+      {
+        "name": "Enhanced Flak",
+        "description": "Your ship sacrifices one of its shields for an extra point of flak.",
+        "requirements": { "Shields": "1+" },
+        "cost": { "Shields": "-1" },
+        "gains": { "Flak": "+1" },
+        "eligibility": "capital"
+      },
+      {
+        "name": "Extended Hull",
+        "description": "Your ship subtracts 2″ from its speed in exchange for +1 to its hull. Or it may exchange 4″ from its speed for +2 hull. Ships may not reduce speed below 4″.",
+        "requirements": { "Speed": "6+" },
+        "options": [
+          {
+            "name": "+1 Hull",
+            "cost": { "Speed": "-2" },
+            "gains": { "Hull": "+1" }
+          },
+          {
+            "name": "+2 Hull",
+            "cost": { "Speed": "-4" },
+            "gains": { "Hull": "+2" }
+          }
+        ],
+        "eligibility": "capital"
+      },
+      {
+        "name": "Advanced Shield Batteries",
+        "description": "Your ship sacrifices one of its hull weapon slots to gain +2 to its shield value.",
+        "requirements": { "hull_weapons": "1+" },
+        "cost": { "hull_weapons": "-1" },
+        "gains": { "Shields": "+2" },
+        "eligibility": "capital"
+      },
+      {
+        "name": "Heavy Armour",
+        "description": "Your ship sacrifices one shield and one flak in exchange for +1 armour (max 3).",
+        "requirements": { "Shields": "1+", "Flak": "1+", "Armour": "max_2" },
+        "cost": { "Shields": "-1", "Flak": "-1" },
+        "gains": { "Armour": "+1" },
+        "eligibility": "capital"
+      },
+      {
+        "name": "Enhanced Engines",
+        "description": "Your ship subtracts one from its armour value in exchange for +4″ speed.",
+        "requirements": { "Armour": "1+" },
+        "cost": { "Armour": "-1" },
+        "gains": { "Speed": "+4" },
+        "eligibility": "capital"
+      }
+    ],
+    "squadronRefits": [
+      {
+        "name": "Enhanced Flak",
+        "description": "A squadron sacrifices 1 point from their shields to gain +1 to their flak value.",
+        "requirements": { "Shields": "1+" },
+        "effects": { "Shields": "-1", "Flak": "+1" },
+        "eligibility": "squadron"
+      },
+      {
+        "name": "Enhanced Shields",
+        "description": "A squadron sacrifices 1 point from their flak to gain +1 to their shield value. Squadrons with a flak score of zero may no longer offer flak support.",
+        "requirements": { "Flak": "1+" },
+        "effects": { "Flak": "-1", "Shields": "+1" },
+        "eligibility": "squadron"
+      },
+      {
+        "name": "Bulky Design",
+        "description": "A squadron gains +1 to their hull value. They must subtract 1 from either their shields, or their flak value.",
+        "note": "Note that ships with more than 1 hull are not considered small targets.",
+        "options": [
+          {
+            "name": "Subtract from Shields",
+            "requirements": { "Shields": "1+" },
+            "effects": { "Hull": "+1", "Shields": "-1" }
+          },
+          {
+            "name": "Subtract from Flak",
+            "requirements": { "Flak": "1+" },
+            "effects": { "Hull": "+1", "Flak": "-1" }
+          }
+        ],
+        "eligibility": "squadron"
+      }
+    ]
   }
 }

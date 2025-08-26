@@ -1,5 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { createTheme } from '@mui/material/styles';
+import { auth, db } from '../firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 
 // Theme definitions
 const themes = {
@@ -112,23 +115,75 @@ export const useTheme = () => {
 
 export const ThemeProvider = ({ children }) => {
   const [currentTheme, setCurrentTheme] = useState('default');
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Load theme from localStorage on mount
+  // Authentication listener
   useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      if (user) {
+        loadUserTheme(user.uid);
+      } else {
+        loadLocalTheme();
+      }
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Load theme from localStorage (for non-authenticated users)
+  const loadLocalTheme = () => {
     const savedTheme = localStorage.getItem('va_theme');
     if (savedTheme && themes[savedTheme]) {
       setCurrentTheme(savedTheme);
     }
-  }, []);
+  };
 
-  // Save theme to localStorage when changed
-  useEffect(() => {
-    localStorage.setItem('va_theme', currentTheme);
-  }, [currentTheme]);
+  // Load theme from Firebase (for authenticated users)
+  const loadUserTheme = async (userId) => {
+    try {
+      const userPrefsRef = doc(db, 'userPreferences', userId);
+      const userPrefsSnap = await getDoc(userPrefsRef);
+      
+      if (userPrefsSnap.exists()) {
+        const prefs = userPrefsSnap.data();
+        if (prefs.theme && themes[prefs.theme]) {
+          setCurrentTheme(prefs.theme);
+          return;
+        }
+      }
+      
+      // If no Firebase theme found, check localStorage as fallback
+      loadLocalTheme();
+    } catch (error) {
+      console.error('Failed to load user theme:', error);
+      loadLocalTheme();
+    }
+  };
+
+  // Save theme to Firebase (for authenticated users) or localStorage
+  const saveTheme = async (themeName) => {
+    if (user) {
+      try {
+        const userPrefsRef = doc(db, 'userPreferences', user.uid);
+        await setDoc(userPrefsRef, { theme: themeName }, { merge: true });
+      } catch (error) {
+        console.error('Failed to save theme to Firebase:', error);
+        // Fallback to localStorage if Firebase fails
+        localStorage.setItem('va_theme', themeName);
+      }
+    } else {
+      // Save to localStorage for non-authenticated users
+      localStorage.setItem('va_theme', themeName);
+    }
+  };
 
   const switchTheme = (themeName) => {
     if (themes[themeName]) {
       setCurrentTheme(themeName);
+      saveTheme(themeName);
     }
   };
 
@@ -138,6 +193,8 @@ export const ThemeProvider = ({ children }) => {
     muiTheme: muiThemes[currentTheme],
     customStyles: themes[currentTheme].customStyles || {},
     switchTheme,
+    isLoading,
+    user,
   };
 
   return (

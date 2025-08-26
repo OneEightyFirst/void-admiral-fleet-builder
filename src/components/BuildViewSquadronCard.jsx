@@ -8,6 +8,34 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { ProwIcon, HullIcon } from './WeaponIcons';
 import { getStatDisplayName } from '../utils/gameUtils';
 
+// Helper function to calculate modified stats with squadron refit effects
+const calculateModifiedSquadronStats = (baseStats, squadronRefit) => {
+  if (!squadronRefit) return baseStats;
+  
+  const modifiedStats = { ...baseStats };
+  
+  // Apply squadron refit effects
+  if (squadronRefit.selectedEffects) {
+    Object.entries(squadronRefit.selectedEffects).forEach(([stat, change]) => {
+      if (typeof change === 'string') {
+        if (change.startsWith('-')) {
+          const reduction = parseInt(change.substring(1));
+          const currentValue = typeof modifiedStats[stat] === 'string' ? 
+            parseInt(modifiedStats[stat]) : modifiedStats[stat];
+          modifiedStats[stat] = Math.max(0, currentValue - reduction);
+        } else if (change.startsWith('+')) {
+          const increase = parseInt(change.substring(1));
+          const currentValue = typeof modifiedStats[stat] === 'string' ? 
+            parseInt(modifiedStats[stat]) : modifiedStats[stat];
+          modifiedStats[stat] = currentValue + increase;
+        }
+      }
+    });
+  }
+  
+  return modifiedStats;
+};
+
 const BuildViewSquadronCard = ({ 
   squadron, 
   shipDef, 
@@ -19,7 +47,13 @@ const BuildViewSquadronCard = ({
   if (!squadron || !shipDef || squadron.length === 0) return null;
 
   const firstShip = squadron[0];
-  const statline = shipDef.statline || {};
+  const baseStats = shipDef.statline || {};
+  const modifiedStats = calculateModifiedSquadronStats(baseStats, firstShip.squadronRefit);
+  
+  // Function to check if a stat has been modified
+  const isStatModified = (statName) => {
+    return firstShip.squadronRefit && baseStats[statName] !== modifiedStats[statName];
+  };
 
   return (
     <Card
@@ -108,7 +142,7 @@ const BuildViewSquadronCard = ({
         py: 1
       }}>
         <Grid container spacing={0}>
-          {Object.entries(statline).map(([statName, value]) => (
+          {Object.entries(modifiedStats).map(([statName, value]) => (
             <Grid key={statName} item xs={2.4}>
               <Box sx={{ textAlign: 'center' }}>
                 <Typography
@@ -135,7 +169,7 @@ const BuildViewSquadronCard = ({
         py: 1
       }}>
         <Grid container spacing={0}>
-          {Object.entries(statline).map(([statName, value]) => (
+          {Object.entries(modifiedStats).map(([statName, value]) => (
             <Grid key={`${statName}-value`} item xs={2.4}>
               <Box sx={{ textAlign: 'center' }}>
                 <Typography
@@ -143,16 +177,45 @@ const BuildViewSquadronCard = ({
                   sx={{
                     fontWeight: 700,
                     fontSize: '1.25rem',
-                    lineHeight: 1
+                    lineHeight: 1,
+                    color: isStatModified(statName) ? '#ffc107' : 'inherit'
                   }}
                 >
                   {value}
+                  {isStatModified(statName) && (
+                    <Typography
+                      component="span"
+                      variant="caption"
+                      sx={{
+                        ml: 0.5,
+                        fontSize: '0.7rem',
+                        opacity: 0.7,
+                        textDecoration: 'line-through'
+                      }}
+                    >
+                      ({baseStats[statName]})
+                    </Typography>
+                  )}
                 </Typography>
               </Box>
             </Grid>
           ))}
         </Grid>
       </Box>
+
+      {/* Squadron Refit indicator */}
+      {firstShip.squadronRefit && (
+        <Box sx={{ 
+          backgroundColor: '#2a2a2a', 
+          px: 2, 
+          py: 1, 
+          borderTop: '1px solid #444' 
+        }}>
+          <Typography variant="caption" sx={{ fontWeight: 600, color: '#ffc107' }}>
+            Squadron Refit: {firstShip.squadronRefit.selectedOption ? firstShip.squadronRefit.selectedOption : firstShip.squadronRefit.name}
+          </Typography>
+        </Box>
+      )}
 
       {/* Build-specific content (weapon selection for each ship) */}
       <Box sx={{ p: 2 }}>
