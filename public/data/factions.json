@@ -288,13 +288,15 @@
           "name": "Sloped Armour",
           "description": "Your frigate squadron subtract 2″ from their speed but gain the advantage of armoured prows.",
           "scope": "squadron",
-          "gains": {
-            "addKeywords": [
-              "Armoured Prows"
-            ],
+          "cost": {
             "statDeltas": {
               "Speed": -2
             }
+          },
+          "gains": {
+            "addKeywords": [
+              "Armoured Prows"
+            ]
           },
           "notes": [
             "Speed reduced by 2\"",
@@ -834,7 +836,7 @@
               "Star Weaver"
             ]
           },
-          "gains": {
+          "cost": {
             "statDeltas": {
               "Shields": -1
             }
@@ -850,7 +852,7 @@
           "name": "Death Whispers",
           "description": "Your whisper squadron subtract two from their shields value, but they add +2 to the attacks of their prow weapons (+1 for lasers).",
           "scope": "squadron",
-          "gains": {
+          "cost": {
             "statDeltas": {
               "Shields": -2
             }
@@ -1442,7 +1444,7 @@
           "name": "Heavy Boarding Craft",
           "description": "Your gunship squadron subtracts 2\" from their speed but double their attack dice rolled during boarding actions as either attacker or defender.",
           "scope": "squadron",
-          "gains": {
+          "cost": {
             "statDeltas": {
               "Speed": -2
             }
@@ -2318,7 +2320,7 @@
           "name": "Rearguard",
           "description": "Your squadron of bodyguards subtract 2\" from their speed. Their weapons gain a 360 degree arc of fire.",
           "scope": "squadron",
-          "gains": {
+          "cost": {
             "statDeltas": {
               "Speed": -2
             }
@@ -3158,7 +3160,7 @@
           "name": "Leech Laser Array",
           "description": "Your ship subtracts 2 from its shields and gains a battery of leech lasers.",
           "scope": "capital",
-          "gains": {
+          "cost": {
             "statDeltas": {
               "Shields": -2
             }
@@ -3188,9 +3190,13 @@
           "name": "Attack Thralls",
           "description": "Your squadron of dark thralls subtract one from their flak value and gain +2\" to their speed.",
           "scope": "squadron",
+          "cost": {
+            "statDeltas": {
+              "Flak": -1
+            }
+          },
           "gains": {
             "statDeltas": {
-              "Flak": -1,
               "Speed": 2
             }
           },
@@ -3478,7 +3484,7 @@
           "name": "Artillery Gunships",
           "description": "Your squadron of liberty gunships subtract 1\" from their speed and add +2 to the attacks of their prow weapons (+1 for mega cannons).",
           "scope": "squadron",
-          "gains": {
+          "cost": {
             "statDeltas": {
               "Speed": -1
             }
@@ -4073,9 +4079,13 @@
               "Survey Ship"
             ]
           },
+          "cost": {
+            "statDeltas": {
+              "Speed": -4
+            }
+          },
           "gains": {
             "statDeltas": {
-              "Speed": -4,
               "Flak": 1
             }
           },
@@ -4102,9 +4112,13 @@
           "name": "Attack Frigates",
           "description": "Your supply frigate squadron subtract -1 from their flak value and add +4″ to their speed.",
           "scope": "squadron",
+          "cost": {
+            "statDeltas": {
+              "Flak": -1
+            }
+          },
           "gains": {
             "statDeltas": {
-              "Flak": -1,
               "Speed": 4
             }
           },
@@ -4349,7 +4363,7 @@
           "name": "Stealth Field",
           "description": "Your squadron of Orderlies subtract 1 from their shields value. Enemy shooting always treats them as being inside of terrain (even when they aren't).",
           "scope": "squadron",
-          "gains": {
+          "cost": {
             "statDeltas": {
               "Shields": -1
             }
@@ -5731,7 +5745,7 @@
           "name": "Psychic Amplifier",
           "description": "Your ship subtracts two from its shields. So long as your ship remains on the table you may roll an extra dice on your command board.",
           "scope": "capital",
-          "gains": {
+          "cost": {
             "statDeltas": {
               "Shields": -2
             }
@@ -5747,9 +5761,13 @@
           "name": "Sluggish Servile",
           "description": "Your squadron of serviles subtract 2″ from their speed. They gain +1 to their shields value.",
           "scope": "squadron",
+          "cost": {
+            "statDeltas": {
+              "Speed": -2
+            }
+          },
           "gains": {
             "statDeltas": {
-              "Speed": -2,
               "Shields": 1
             }
           },
