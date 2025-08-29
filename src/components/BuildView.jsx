@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Box,
   Grid,
@@ -128,6 +128,60 @@ const BuildView = ({
   const [squadronRefitModalOpen, setSquadronRefitModalOpen] = useState(false);
   const [squadronRefitModalSquadron, setSquadronRefitModalSquadron] = useState(null);
   const [weaponOptionsRefreshKey, setWeaponOptionsRefreshKey] = useState(0);
+
+  // Helper function to check if a weapon option should be auto-selected
+  const shouldAutoSelectWeapon = (weaponOptions, currentSelection) => {
+    // Only auto-select if:
+    // 1. There's exactly one option
+    // 2. Nothing is currently selected
+    // 3. The weapon has no cost (no +/- points)
+    if (weaponOptions.length !== 1 || currentSelection) {
+      return false;
+    }
+    
+    const option = weaponOptions[0];
+    
+    // Check if weapon has cost indicators (contains + or - signs)
+    const hasCost = option.name && (option.name.includes('+') || option.name.includes('-'));
+    
+    return !hasCost;
+  };
+
+  // Auto-selection effect for prow and hull weapons
+  useEffect(() => {
+    if (!roster || roster.length === 0) return;
+    
+    roster.forEach(ship => {
+      if (ship.squadron) return; // Skip squadrons
+      
+      const shipDef = ships[ship.className];
+      if (!shipDef) return;
+      
+      // Auto-select prow weapons
+      if (shipDef.prow?.options) {
+        const modifiedProwOptions = getModifiedWeaponOptions(shipDef.prow.options, ship, 'prow');
+        
+        if (shouldAutoSelectWeapon(modifiedProwOptions, ship.loadout.prow)) {
+          console.log('🔧 AUTO-SELECT: Auto-selecting prow weapon:', modifiedProwOptions[0].name, 'for ship:', ship.id);
+          pickProw(ship.id, modifiedProwOptions[0]);
+        }
+      }
+      
+      // Auto-select hull weapons if there's only one option and slots are available
+      if (shipDef.hull?.options) {
+        const modifiedHullOptions = getModifiedWeaponOptions(shipDef.hull.options, ship, 'hull');
+        const effectiveSlots = calculateEffectiveHullSlots(ship, shipDef);
+        const usedSlots = calculateUsedHullSlots(ship, shipDef);
+        const availableSlots = effectiveSlots - usedSlots;
+        
+        // Auto-select if there's exactly one hull option, available slots, and no cost
+        if (availableSlots > 0 && shouldAutoSelectWeapon(modifiedHullOptions, null)) {
+          console.log('🔧 AUTO-SELECT: Auto-selecting hull weapon:', modifiedHullOptions[0].name, 'for ship:', ship.id);
+          addHull(ship.id, modifiedHullOptions[0]);
+        }
+      }
+    });
+  }, [roster, ships, weaponOptionsRefreshKey]); // Include weaponOptionsRefreshKey to trigger after refits
 
   const handleOpenRefitModal = (ship) => {
     setRefitModalShip(ship);
