@@ -271,12 +271,33 @@ export function getCanonicalModifiedWeaponOptions(weaponOptions, ship, location)
   if (weaponChanges.replace) {
     for (const replacement of weaponChanges.replace) {
       if (replacement.slot === location || replacement.slot === "any") {
-        modifiedOptions = modifiedOptions.map(option => {
-          if (shouldReplaceCanonicalOption(option, replacement.selector)) {
-            return replacement.to;
+        // Check if this is a slot-only replacement (replace all weapons in slot with single weapon)
+        const isSlotOnlyReplacement = replacement.selector.slot && 
+          !replacement.selector.nameAny && 
+          !replacement.selector.kindAny;
+        
+        if (isSlotOnlyReplacement) {
+          // For slot-only replacements, replace all matching options with a single replacement
+          const hasMatchingOptions = modifiedOptions.some(option => 
+            shouldReplaceCanonicalOption(option, replacement.selector)
+          );
+          
+          if (hasMatchingOptions) {
+            // Remove all matching options and add single replacement
+            modifiedOptions = modifiedOptions.filter(option => 
+              !shouldReplaceCanonicalOption(option, replacement.selector)
+            );
+            modifiedOptions.push(replacement.to);
           }
-          return option;
-        });
+        } else {
+          // For specific weapon replacements, do 1:1 mapping
+          modifiedOptions = modifiedOptions.map(option => {
+            if (shouldReplaceCanonicalOption(option, replacement.selector)) {
+              return replacement.to;
+            }
+            return option;
+          });
+        }
       }
     }
   }
