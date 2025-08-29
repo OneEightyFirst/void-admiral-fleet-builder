@@ -308,6 +308,12 @@ const RefitModal = ({
         continue;
       }
       
+      // Special handling for shipClassesAny requirement (array of allowed classes)
+      if (stat === 'shipClassesAny') {
+        if (!requirement.includes(ship.className)) return false;
+        continue;
+      }
+      
       const statValue = stats[stat];
       if (!statValue) return false;
       
