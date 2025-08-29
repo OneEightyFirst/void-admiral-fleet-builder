@@ -3,44 +3,71 @@ import {
   Card, CardContent, Typography, Box, Grid
 } from '@mui/material';
 import { HullIcon, ProwIcon } from './WeaponIcons';
-import { getStatDisplayName, shipCost, getWeaponData } from '../utils/gameUtils';
+import { getStatDisplayName, formatStatValue, shipCost } from '../utils/gameUtils';
+import { getCanonicalWeaponData as getWeaponData } from '../utils/refits/weaponData.js';
 
 const PlayViewSquadronCard = ({ squadron, faction, shipDef }) => {
   if (!squadron || !shipDef) return null;
 
-  const statline = shipDef.statline || {};
+  // Use squadron ship's statline if it exists (may be modified by refits), otherwise use shipDef
+  const firstShip = squadron[0];
+  
+  // TEMPORARY FIX: Force default stats to debug the issue
+  console.log('🔧 DEBUG: firstShip:', firstShip);
+  console.log('🔧 DEBUG: shipDef:', shipDef);
+  console.log('🔧 DEBUG: firstShip.statline:', firstShip?.statline);
+  console.log('🔧 DEBUG: shipDef.statline:', shipDef?.statline);
+  
+  // For now, always use shipDef.statline as base, then apply refit modifications if they exist
+  let statline = { ...shipDef.statline };
+  
+  // If refit was applied and modified the statline, use those modifications
+  if (firstShip?.statline && Object.keys(firstShip.statline).length > 0) {
+    console.log('🔧 DEBUG: Using modified statline from refit');
+    statline = { ...firstShip.statline };
+  }
+  
+  console.log('🔧 DEBUG: Final statline:', statline);
   
   // Calculate squadron cost and display
   // Check if this is a free squadron (Insectoid Swarm bonus squadrons)
-  const firstShip = squadron[0];
   const isFreeSquadron = firstShip.isFree;
   const squadronCost = isFreeSquadron ? 0 : shipCost(shipDef) * squadron.length;
   const costDisplay = squadronCost === 0 ? 'Free' : `${squadronCost} pts`;
 
-  // Get all weapons from the squadron (each weapon separately, not grouped)
+  // Get all weapons from the squadron, showing each ship's weapons separately
   const allWeapons = [];
-  squadron.forEach(ship => {
-    // Add prow weapons
+  squadron.forEach((ship, shipIndex) => {
+    // Add prow weapon for this ship
     if (ship.loadout?.prow) {
-      const weaponData = getWeaponData(ship.loadout.prow);
+      const weaponData = getWeaponData(ship.loadout.prow, [], ship);
       allWeapons.push({
         name: ship.loadout.prow.name,
         data: weaponData,
-        type: 'prow'
+        type: 'prow',
+        shipIndex: shipIndex
       });
     }
     
-    // Add hull weapons
-    if (ship.loadout?.hull) {
-      ship.loadout.hull.forEach(weaponName => {
-        // Get weapon data with Fighter Bay handling
+    // Add hull weapons for this ship (grouped if identical)
+    if (ship.loadout?.hull && ship.loadout.hull.length > 0) {
+      // Count occurrences of each hull weapon type for this ship
+      const hullWeaponCounts = ship.loadout.hull.reduce((acc, weaponName) => {
+        acc[weaponName] = (acc[weaponName] || 0) + 1;
+        return acc;
+      }, {});
+      
+      // Add each unique hull weapon type with count
+      Object.entries(hullWeaponCounts).forEach(([weaponName, count]) => {
         const allPossibleWeapons = [...(shipDef.hull?.options || []), ...(shipDef.beginsWith || [])];
-        const weaponData = getWeaponData(weaponName, allPossibleWeapons);
+        const weaponData = getWeaponData(weaponName, allPossibleWeapons, ship);
         
         allWeapons.push({
           name: weaponName,
           data: weaponData,
-          type: 'hull'
+          type: 'hull',
+          count: count,
+          shipIndex: shipIndex
         });
       });
     }
@@ -157,13 +184,45 @@ const PlayViewSquadronCard = ({ squadron, faction, shipDef }) => {
                     lineHeight: 1
                   }}
                 >
-                  {value}
+                  {formatStatValue(statName, value)}
                 </Typography>
               </Box>
             </Grid>
           ))}
         </Grid>
       </Box>
+
+      {/* Squadron Refit Information Section */}
+      {firstShip?.appliedCanonicalRefit && (
+        <Box sx={{
+          backgroundColor: '#2a2a2a',
+          borderTop: '1px solid',
+          borderTopColor: 'primary.main',
+          px: 2,
+          py: 1
+        }}>
+          <Typography variant="subtitle2" sx={{ 
+            fontWeight: 600,
+            color: 'primary.main',
+            mb: 0.5
+          }}>
+            Squadron Refit: {firstShip.appliedCanonicalRefit.name}
+          </Typography>
+          {firstShip.appliedCanonicalRefit.notes && (
+            <Box>
+              {firstShip.appliedCanonicalRefit.notes.map((note, index) => (
+                <Typography key={index} variant="caption" sx={{ 
+                  display: 'block',
+                  color: 'text.secondary',
+                  fontSize: '0.75rem'
+                }}>
+                  • {note}
+                </Typography>
+              ))}
+            </Box>
+          )}
+        </Box>
+      )}
 
       {/* Weapons Section */}
       {/* Weapon Headers Bar */}
@@ -227,6 +286,9 @@ const PlayViewSquadronCard = ({ squadron, faction, shipDef }) => {
         py: 2
       }}>
         {allWeapons.map((weapon, index) => {
+          // Check if this is the first weapon for this ship
+          const isFirstWeaponForShip = index === 0 || weapon.shipIndex !== allWeapons[index - 1].shipIndex;
+          
           return (
             <Grid key={`${weapon.name}-${index}`} container spacing={0} sx={{ mb: 1 }}>
               <Grid item xs={6}>
@@ -236,7 +298,7 @@ const PlayViewSquadronCard = ({ squadron, faction, shipDef }) => {
                     width: 24,
                     height: 24,
                     borderRadius: '50%',
-                    border: '2px solid white',
+                    border: isFirstWeaponForShip ? '2px solid white' : '2px solid transparent',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -247,10 +309,11 @@ const PlayViewSquadronCard = ({ squadron, faction, shipDef }) => {
                       sx={{
                         fontWeight: 700,
                         fontSize: '0.75rem',
-                        lineHeight: 1
+                        lineHeight: 1,
+                        opacity: isFirstWeaponForShip ? 1 : 0
                       }}
                     >
-                      {index + 1}
+                      {weapon.shipIndex + 1}
                     </Typography>
                   </Box>
                   {weapon.type === 'prow' ? (
@@ -260,6 +323,7 @@ const PlayViewSquadronCard = ({ squadron, faction, shipDef }) => {
                   )}
                   <Typography variant="body1" sx={{ fontWeight: 600 }}>
                     {weapon.name}
+                    {weapon.count && weapon.count > 1 && ` x${weapon.count}`}
                   </Typography>
                 </Box>
               </Grid>
@@ -282,7 +346,13 @@ const PlayViewSquadronCard = ({ squadron, faction, shipDef }) => {
                     fontWeight: 600
                   }}
                 >
-                  {weapon.data.attacks || '—'}
+                  {(() => {
+                    const attacks = weapon.data.attacks;
+                    if (typeof attacks === 'object' && attacks.dice) {
+                      return attacks.star ? `${attacks.dice}*` : attacks.dice;
+                    }
+                    return attacks || '—';
+                  })()}
                 </Typography>
               </Grid>
               <Grid item xs={2}>
@@ -316,6 +386,8 @@ const PlayViewSquadronCard = ({ squadron, faction, shipDef }) => {
           </Box>
         )}
       </Box>
+
+
     </Card>
   );
 };

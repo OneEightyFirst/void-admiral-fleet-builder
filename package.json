@@ -8,7 +8,12 @@
     "build": "vite build",
     "preview": "vite preview",
     "deploy": "npm run build && node deploy.js",
-    "deploy:netlify": "npm run build && echo 'Drag dist/ folder to netlify.com'"
+    "deploy:netlify": "npm run build && echo 'Drag dist/ folder to netlify.com'",
+    "test": "playwright test",
+    "test:debug": "playwright test --debug",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:critical": "playwright test tests/debug-refit-issues.spec.js"
   },
   "dependencies": {
     "@emotion/react": "^11.11.0",
@@ -20,6 +25,7 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.55.0",
     "@vitejs/plugin-react": "^4.2.0",
     "basic-ftp": "^5.0.5",
     "sass": "^1.90.0",

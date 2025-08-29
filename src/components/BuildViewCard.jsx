@@ -5,77 +5,9 @@ import {
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { ProwIcon, HullIcon } from './WeaponIcons';
-import { getStatDisplayName } from '../utils/gameUtils';
+import { getStatDisplayName, formatStatValue } from '../utils/gameUtils';
 
-// Helper function to calculate modified stats with refit effects
-const calculateModifiedStats = (baseStats, refit) => {
-  if (!refit) return baseStats;
-  
-  const modifiedStats = { ...baseStats };
-  
-  // Apply refit cost (what the ship loses)
-  if (refit.cost) {
-    Object.entries(refit.cost).forEach(([stat, change]) => {
-      // Skip hull_weapons as it's not a display stat
-      if (stat === 'hull_weapons') return;
-      
-      if (typeof change === 'string' && change.startsWith('-')) {
-        const reduction = parseInt(change.substring(1));
-        const currentValue = typeof modifiedStats[stat] === 'string' ? 
-          parseInt(modifiedStats[stat]) : modifiedStats[stat];
-        modifiedStats[stat] = Math.max(0, currentValue - reduction);
-      }
-    });
-  }
-  
-  // Apply refit gains (what the ship gets)
-  if (refit.gains) {
-    Object.entries(refit.gains).forEach(([stat, change]) => {
-      // Skip hull_weapons as it's not a display stat
-      if (stat === 'hull_weapons') return;
-      
-      if (typeof change === 'string' && change.startsWith('+')) {
-        const increase = parseInt(change.substring(1));
-        const currentValue = typeof modifiedStats[stat] === 'string' ? 
-          parseInt(modifiedStats[stat]) : modifiedStats[stat];
-        modifiedStats[stat] = currentValue + increase;
-      }
-    });
-  }
-  
-  // Apply selected option effects if this refit has options
-  if (refit.selectedOption) {
-    if (refit.selectedOption.cost) {
-      Object.entries(refit.selectedOption.cost).forEach(([stat, change]) => {
-        // Skip hull_weapons as it's not a display stat
-        if (stat === 'hull_weapons') return;
-        
-        if (typeof change === 'string' && change.startsWith('-')) {
-          const reduction = parseInt(change.substring(1));
-          const currentValue = typeof modifiedStats[stat] === 'string' ? 
-            parseInt(modifiedStats[stat]) : modifiedStats[stat];
-          modifiedStats[stat] = Math.max(0, currentValue - reduction);
-        }
-      });
-    }
-    
-    if (refit.selectedOption.gains) {
-      Object.entries(refit.selectedOption.gains).forEach(([stat, change]) => {
-        // Skip hull_weapons as it's not a display stat
-        if (stat === 'hull_weapons') return;
-        
-        if (typeof change === 'string' && change.startsWith('+')) {
-          const increase = parseInt(change.substring(1));
-          const currentValue = typeof modifiedStats[stat] === 'string' ? 
-            parseInt(modifiedStats[stat]) : modifiedStats[stat];
-          modifiedStats[stat] = currentValue + increase;
-        }
-      });
-    }
-  }
-  
-  return modifiedStats;
-};
+// Legacy calculateModifiedStats removed - using canonical refit system
 
 const BuildViewCard = ({ 
   ship, 
@@ -91,12 +23,13 @@ const BuildViewCard = ({
 }) => {
   if (!ship || !shipDef) return null;
 
+  // Use canonical refit system - ship.statline should already contain modified stats
+  const modifiedStats = ship.statline || shipDef.statline || {};
   const baseStats = shipDef.statline || {};
-  const modifiedStats = calculateModifiedStats(baseStats, ship.refit);
   
-  // Function to check if a stat has been modified
+  // Function to check if a stat has been modified (comparing against base ship definition)
   const isStatModified = (statName) => {
-    return ship.refit && baseStats[statName] !== modifiedStats[statName];
+    return ship.appliedCanonicalRefit && baseStats[statName] !== modifiedStats[statName];
   };
 
   return (
@@ -222,7 +155,7 @@ const BuildViewCard = ({
                     color: isStatModified(statName) ? '#ffc107' : 'inherit'
                   }}
                 >
-                  {value}
+                  {formatStatValue(statName, value)}
                   {isStatModified(statName) && (
                     <Typography
                       component="span"
@@ -234,7 +167,7 @@ const BuildViewCard = ({
                         textDecoration: 'line-through'
                       }}
                     >
-                      ({baseStats[statName]})
+                      ({formatStatValue(statName, baseStats[statName])})
                     </Typography>
                   )}
                 </Typography>
@@ -244,17 +177,24 @@ const BuildViewCard = ({
         </Grid>
       </Box>
 
-      {/* Refit indicator */}
-      {ship.refit && (
+      {/* Refit and Begins With indicator */}
+      {(ship.refit || (shipDef.beginsWith && shipDef.beginsWith.length > 0)) && (
         <Box sx={{ 
           backgroundColor: '#2a2a2a', 
           px: 2, 
           py: 1, 
           borderTop: '1px solid #444' 
         }}>
-          <Typography variant="caption" sx={{ fontWeight: 600, color: '#ffc107' }}>
-            Refit: {ship.refit.selectedOption ? ship.refit.selectedOption.name : ship.refit.name}
-          </Typography>
+          {ship.refit && (
+            <Typography variant="caption" sx={{ fontWeight: 600, color: '#ffc107', display: 'block', mb: shipDef.beginsWith?.length > 0 ? 0.5 : 0 }}>
+              Refit: {ship.refit.selectedOption ? ship.refit.selectedOption.name : ship.refit.name}
+            </Typography>
+          )}
+          {shipDef.beginsWith && shipDef.beginsWith.length > 0 && (
+            <Typography variant="caption" sx={{ fontWeight: 600, color: 'white' }}>
+              Begins with: {shipDef.beginsWith.map(w => w.name).join(', ')}
+            </Typography>
+          )}
         </Box>
       )}
 

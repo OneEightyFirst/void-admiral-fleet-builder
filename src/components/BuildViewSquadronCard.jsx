@@ -6,35 +6,9 @@ import {
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { ProwIcon, HullIcon } from './WeaponIcons';
-import { getStatDisplayName } from '../utils/gameUtils';
+import { getStatDisplayName, formatStatValue } from '../utils/gameUtils';
 
-// Helper function to calculate modified stats with squadron refit effects
-const calculateModifiedSquadronStats = (baseStats, squadronRefit) => {
-  if (!squadronRefit) return baseStats;
-  
-  const modifiedStats = { ...baseStats };
-  
-  // Apply squadron refit effects
-  if (squadronRefit.selectedEffects) {
-    Object.entries(squadronRefit.selectedEffects).forEach(([stat, change]) => {
-      if (typeof change === 'string') {
-        if (change.startsWith('-')) {
-          const reduction = parseInt(change.substring(1));
-          const currentValue = typeof modifiedStats[stat] === 'string' ? 
-            parseInt(modifiedStats[stat]) : modifiedStats[stat];
-          modifiedStats[stat] = Math.max(0, currentValue - reduction);
-        } else if (change.startsWith('+')) {
-          const increase = parseInt(change.substring(1));
-          const currentValue = typeof modifiedStats[stat] === 'string' ? 
-            parseInt(modifiedStats[stat]) : modifiedStats[stat];
-          modifiedStats[stat] = currentValue + increase;
-        }
-      }
-    });
-  }
-  
-  return modifiedStats;
-};
+// Legacy calculateModifiedSquadronStats removed - using canonical refit system
 
 const BuildViewSquadronCard = ({ 
   squadron, 
@@ -47,12 +21,20 @@ const BuildViewSquadronCard = ({
   if (!squadron || !shipDef || squadron.length === 0) return null;
 
   const firstShip = squadron[0];
+  // Use canonical refit system - firstShip.statline should already contain modified stats
+  const modifiedStats = firstShip.statline || shipDef.statline || {};
   const baseStats = shipDef.statline || {};
-  const modifiedStats = calculateModifiedSquadronStats(baseStats, firstShip.squadronRefit);
   
-  // Function to check if a stat has been modified
+  // Debug logging for stat display (can be removed after testing)
+  // console.log('🎯 SQUADRON CARD: firstShip.appliedCanonicalRefit:', firstShip.appliedCanonicalRefit);
+  // console.log('🎯 SQUADRON CARD: firstShip.squadronRefit:', firstShip.squadronRefit);
+  // console.log('🎯 SQUADRON CARD: baseStats:', baseStats);
+  // console.log('🎯 SQUADRON CARD: modifiedStats:', modifiedStats);
+  // console.log('🎯 SQUADRON CARD: firstShip.statline:', firstShip.statline);
+  
+  // Function to check if a stat has been modified (comparing against base ship definition)
   const isStatModified = (statName) => {
-    return firstShip.squadronRefit && baseStats[statName] !== modifiedStats[statName];
+    return firstShip.appliedCanonicalRefit && baseStats[statName] !== modifiedStats[statName];
   };
 
   return (
@@ -142,7 +124,9 @@ const BuildViewSquadronCard = ({
         py: 1
       }}>
         <Grid container spacing={0}>
-          {Object.entries(modifiedStats).map(([statName, value]) => (
+          {Object.entries(modifiedStats).filter(([statName]) => 
+            !['ArmouredProws', 'hull_weapons'].includes(statName)
+          ).map(([statName, value]) => (
             <Grid key={statName} item xs={2.4}>
               <Box sx={{ textAlign: 'center' }}>
                 <Typography
@@ -169,7 +153,9 @@ const BuildViewSquadronCard = ({
         py: 1
       }}>
         <Grid container spacing={0}>
-          {Object.entries(modifiedStats).map(([statName, value]) => (
+          {Object.entries(modifiedStats).filter(([statName]) => 
+            !['ArmouredProws', 'hull_weapons'].includes(statName)
+          ).map(([statName, value]) => (
             <Grid key={`${statName}-value`} item xs={2.4}>
               <Box sx={{ textAlign: 'center' }}>
                 <Typography
@@ -181,7 +167,7 @@ const BuildViewSquadronCard = ({
                     color: isStatModified(statName) ? '#ffc107' : 'inherit'
                   }}
                 >
-                  {value}
+                  {formatStatValue(statName, value)}
                   {isStatModified(statName) && (
                     <Typography
                       component="span"
@@ -193,7 +179,7 @@ const BuildViewSquadronCard = ({
                         textDecoration: 'line-through'
                       }}
                     >
-                      ({baseStats[statName]})
+                      ({formatStatValue(statName, baseStats[statName])})
                     </Typography>
                   )}
                 </Typography>

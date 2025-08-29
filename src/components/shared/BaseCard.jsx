@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, Box, Typography, Grid } from '@mui/material';
-import { getStatDisplayName } from '../../utils/gameUtils';
+import { getStatDisplayName, formatStatValue } from '../../utils/gameUtils';
 
 /**
  * Base card component with consistent header styling for both build and play views
@@ -135,7 +135,7 @@ const BaseCard = ({
                         lineHeight: 1
                       }}
                     >
-                      {value}
+                      {formatStatValue(statName, value)}
                     </Typography>
                   </Box>
                 </Grid>

@@ -15,6 +15,7 @@ import {
   IconButton
 } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
+import WeaponStatsGrid from './shared/WeaponStatsGrid';
 
 // SquadronRefitCard component for displaying individual squadron refits
 const SquadronRefitCard = ({ 
@@ -39,8 +40,8 @@ const SquadronRefitCard = ({
         position: 'relative',
         cursor: isClickable ? 'pointer' : 'default',
         opacity: shouldGrayOut ? 0.3 : (isSelected || isEligible ? 1 : 0.6),
-        border: isSelected ? 3 : (isFactionRefit ? 2 : 1),
-        borderColor: isSelected ? '#ffc107' : (isFactionRefit ? 'primary.main' : 'divider'),
+        border: isSelected ? 3 : 1,
+        borderColor: isSelected ? '#ffc107' : 'divider',
         backgroundColor: isSelected ? 'rgba(255, 193, 7, 0.1)' : 'background.paper',
         '&:hover': isClickable ? {
           borderColor: 'primary.main',
@@ -130,9 +131,20 @@ const SquadronRefitCard = ({
 
               const isThisOptionSelected = squadron.squadronRefit?.name === refit.name && squadron.squadronRefit?.selectedOption === option.name;
               
-              // Create simple pill text based on effects
+              // Create simple pill text based on effects (canonical format)
               let pillText = option.name;
-              if (option.effects) {
+              
+              // Check canonical format first (cost.statDeltas and gains.statDeltas)
+              if (option.cost?.statDeltas) {
+                const costDeltas = Object.entries(option.cost.statDeltas);
+                if (costDeltas.some(([stat, delta]) => stat === 'Shields' && delta === -1)) {
+                  pillText = '-1 Shield';
+                } else if (costDeltas.some(([stat, delta]) => stat === 'Flak' && delta === -1)) {
+                  pillText = '-1 Flak';
+                }
+              }
+              // Fallback to legacy effects format
+              else if (option.effects) {
                 const effects = Object.entries(option.effects);
                 if (effects.some(([stat, effect]) => stat === 'Shields' && effect === '-1')) {
                   pillText = '-1 Shield';
@@ -151,7 +163,7 @@ const SquadronRefitCard = ({
                     e.stopPropagation();
                     if (isThisOptionSelected) {
                       // If this option is selected, clear the refit
-                      handleRefitClear();
+                      onClear();
                     } else if (optionEligible) {
                       // Otherwise, select this option
                       onSelectOption(refit, option);
@@ -163,6 +175,9 @@ const SquadronRefitCard = ({
             })}
           </Box>
         )}
+
+        {/* Weapon gains - use shared WeaponStatsGrid component */}
+        <WeaponStatsGrid weapons={refit.gains?.weapons} />
 
         {/* Ineligibility reason */}
         {!isEligible && ineligibilityReason && !isSelected && (
@@ -187,12 +202,14 @@ const SquadronRefitModal = ({
 }) => {
   if (!open || !squadron || !shipDef || !factions) return null;
 
-  // Get squadron refits from universal refits
-  const universalSquadronRefits = factions.universalRefits?.squadronRefits || [];
+  // Get squadron refits from Universal faction
+  const universalSquadronRefits = factions.Universal?.factionRefits?.squadronRefits || [];
   
   // Get faction-specific squadron refits if they exist
   const factionData = factions[faction];
   const factionSquadronRefits = factionData?.factionRefits?.squadronRefits || [];
+  
+
 
   const selectedRefitName = squadron.squadronRefit?.name;
   const hasSelectedRefit = Boolean(selectedRefitName);
@@ -208,15 +225,48 @@ const SquadronRefitModal = ({
   };
 
   const handleOptionSelect = (refit, option) => {
+    console.log('🔧 SQUADRON MODAL: Selecting option for refit:', refit.name, 'option:', option.name);
+    console.log('🔧 SQUADRON MODAL: Option details:', option);
     onApplyRefit(squadron.groupId, refit, option);
     onClose(); // Auto-close like capital ship modal
   };
 
   const isRefitEligible = (refit) => {
-    if (!refit.requirements) return true;
+    console.log('🔍 SQUADRON CHECKING ELIGIBILITY for:', refit.name, 'constraints:', refit.constraints);
     
+    // Check hull slot costs (for canonical refit format)
+    if (refit.cost?.loseSlots) {
+      for (const lostSlot of refit.cost.loseSlots) {
+        if (lostSlot.slot === 'hull') {
+          // For squadrons, we need to adapt this logic since they don't have loadouts like capital ships
+          // For now, assume squadrons can't afford to lose hull slots
+          return false;
+        }
+      }
+    }
+    
+    // Get ship stats for both requirements and constraints checking
     const stats = shipDef.statline;
-    for (const [stat, requirement] of Object.entries(refit.requirements)) {
+    
+    // Check requirements if they exist
+    if (refit.requirements) {
+      for (const [stat, requirement] of Object.entries(refit.requirements)) {
+      // Special handling for prow_weapons requirement
+      if (stat === 'prow_weapons') {
+        const prowOptions = shipDef.prow?.options || [];
+        if (prowOptions.length === 0) return false;
+        
+        // Check if any prow weapon matches the requirement (e.g., "missile|laser")
+        const requiredTypes = requirement.split('|');
+        const hasRequiredWeapon = prowOptions.some(weapon => 
+          requiredTypes.some(type => 
+            weapon.name.toLowerCase().includes(type.toLowerCase())
+          )
+        );
+        if (!hasRequiredWeapon) return false;
+        continue;
+      }
+      
       const statValue = stats[stat];
       
       if (!statValue) {
@@ -237,14 +287,88 @@ const SquadronRefitModal = ({
         }
       }
     }
+    }
+    
+    // Check constraints (different from requirements)
+    if (refit.constraints) {
+      for (const [constraint, value] of Object.entries(refit.constraints)) {
+        if (constraint === 'speedMin') {
+          const currentSpeed = squadron.statline?.Speed || stats.Speed || 0;
+          const minSpeed = parseInt(value);
+          
+          // For refits with options, check if ALL options would violate the constraint
+          if (refit.options) {
+            const allOptionsViolateConstraint = refit.options.every(option => {
+              const speedCost = option.cost?.statDeltas?.Speed || 0;
+              return (currentSpeed + speedCost) < minSpeed;
+            });
+            if (allOptionsViolateConstraint) return false;
+          } else if (currentSpeed < minSpeed) {
+            return false;
+          }
+        } else if (constraint === 'armourMax') {
+          const currentArmour = squadron.statline?.Armour || stats.Armour || 0;
+          const maxArmour = parseInt(value);
+          
+          // Check if applying this refit would exceed max armour
+          const armourGain = refit.gains?.statDeltas?.Armour || 0;
+          const resultingArmour = currentArmour + armourGain;
+          
+          console.log('🔍 SQUADRON ARMOUR DEBUG:', {
+            refitName: refit.name,
+            currentArmour,
+            armourGain,
+            resultingArmour,
+            maxArmour,
+            squadronStatline: squadron.statline,
+            stats
+          });
+          
+          if (resultingArmour > maxArmour) {
+            return false;
+          }
+        }
+      }
+    }
+    
     return true;
   };
 
   const getIneligibilityReason = (refit) => {
-    if (!refit.requirements) return null;
+    // Check hull slot costs first
+    if (refit.cost?.loseSlots) {
+      for (const lostSlot of refit.cost.loseSlots) {
+        if (lostSlot.slot === 'hull') {
+          return `Cannot lose hull slots`;
+        }
+      }
+    }
     
     const stats = shipDef.statline;
+    
+    // Check requirements
+    if (refit.requirements) {
     for (const [stat, requirement] of Object.entries(refit.requirements)) {
+      // Special handling for prow_weapons requirement
+      if (stat === 'prow_weapons') {
+        const prowOptions = shipDef.prow?.options || [];
+        if (prowOptions.length === 0) {
+          return `Squadron has no prow weapons`;
+        }
+        
+        // Check if any prow weapon matches the requirement (e.g., "missile|laser")
+        const requiredTypes = requirement.split('|');
+        const hasRequiredWeapon = prowOptions.some(weapon => 
+          requiredTypes.some(type => 
+            weapon.name.toLowerCase().includes(type.toLowerCase())
+          )
+        );
+        if (!hasRequiredWeapon) {
+          return `Requires prow-mounted ${requiredTypes.join(' or ')} weapons`;
+        }
+        continue;
+      }
+      
       const statValue = stats[stat];
       
       if (!statValue) {
@@ -265,6 +389,39 @@ const SquadronRefitModal = ({
         }
       }
     }
+    }
+    
+    // Check constraints
+    if (refit.constraints) {
+      for (const [constraint, value] of Object.entries(refit.constraints)) {
+        if (constraint === 'speedMin') {
+          const currentSpeed = squadron.statline?.Speed || stats.Speed || 0;
+          const minSpeed = parseInt(value);
+          
+          if (refit.options) {
+            const allOptionsViolateConstraint = refit.options.every(option => {
+              const speedCost = option.cost?.statDeltas?.Speed || 0;
+              return (currentSpeed + speedCost) < minSpeed;
+            });
+            if (allOptionsViolateConstraint) {
+              return `All options would reduce speed below minimum (${minSpeed}")`;
+            }
+          } else if (currentSpeed < minSpeed) {
+            return `Speed below minimum (${minSpeed}")`;
+          }
+        } else if (constraint === 'armourMax') {
+          const currentArmour = squadron.statline?.Armour || stats.Armour || 0;
+          const maxArmour = parseInt(value);
+          const armourGain = refit.gains?.statDeltas?.Armour || 0;
+          const resultingArmour = currentArmour + armourGain;
+          
+          if (resultingArmour > maxArmour) {
+            return `Armour would exceed maximum (${maxArmour})`;
+          }
+        }
+      }
+    }
+    
     return null;
   };
 
@@ -347,10 +504,6 @@ const SquadronRefitModal = ({
         {/* Faction Squadron Refits */}
         {sortedFactionRefits.length > 0 && (
           <>
-            <Divider sx={{ my: 3 }} />
-            <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: 'text.primary' }}>
-              {faction} Squadron Refits
-            </Typography>
             <Grid container spacing={2}>
               {sortedFactionRefits.map((refit, index) => {
                 const eligible = isRefitEligible(refit);

@@ -125,7 +125,8 @@ export const ThemeProvider = ({ children }) => {
       if (user) {
         loadUserTheme(user.uid);
       } else {
-        loadLocalTheme();
+        // If user logs out, reset to default theme (localStorage will be cleared by main app)
+        setCurrentTheme('default');
       }
       setIsLoading(false);
     });
