@@ -194,6 +194,11 @@ function applyWeaponReplacement(ship, replacement) {
   const result = deepClone(ship);
   const { slot, selector, to } = replacement;
   
+  console.log('🔧 WEAPON_REPLACEMENT: Applying replacement to slot:', slot);
+  console.log('🔧 WEAPON_REPLACEMENT: Selector:', selector);
+  console.log('🔧 WEAPON_REPLACEMENT: To weapon:', to.name);
+  console.log('🔧 WEAPON_REPLACEMENT: Current loadout:', result.loadout);
+  
   // Replace in begins array if selector matches weapon names
   if (selector.nameAny && result.loadout?.begins) {
     result.loadout.begins = result.loadout.begins.map(weaponName =>
@@ -204,15 +209,32 @@ function applyWeaponReplacement(ship, replacement) {
   // Replace in specific slots
   if (slot !== "any") {
     const slotArray = result.loadout?.[slot];
+    console.log('🔧 WEAPON_REPLACEMENT: Current slot content:', slotArray);
+    
     if (Array.isArray(slotArray)) {
-      for (let i = 0; i < slotArray.length; i++) {
-        if (shouldReplaceWeapon(slotArray[i], selector)) {
-          slotArray[i] = to.name;
+      // Special case: if selector only specifies slot (replace all), replace entire array with single weapon
+      if (selector.slot && !selector.nameAny && !selector.kindAny) {
+        console.log('🔧 WEAPON_REPLACEMENT: Replacing entire slot with single weapon');
+        result.loadout[slot] = [to.name];
+      } else {
+        // Replace individual weapons that match selector
+        for (let i = 0; i < slotArray.length; i++) {
+          if (shouldReplaceWeapon(slotArray[i], selector)) {
+            console.log('🔧 WEAPON_REPLACEMENT: Replacing weapon:', slotArray[i], 'with:', to.name);
+            slotArray[i] = to.name;
+          }
         }
+      }
+    } else if (slotArray !== undefined) {
+      // Handle case where slot contains a single weapon (not an array)
+      if (shouldReplaceWeapon(slotArray, selector)) {
+        console.log('🔧 WEAPON_REPLACEMENT: Replacing single weapon:', slotArray, 'with:', to.name);
+        result.loadout[slot] = to.name;
       }
     }
   }
   
+  console.log('🔧 WEAPON_REPLACEMENT: Final loadout:', result.loadout);
   return result;
 }
 
@@ -276,12 +298,18 @@ function applyWeaponModification(ship, modification) {
  * @returns {boolean}
  */
 function shouldReplaceWeapon(weaponName, selector) {
+  // If selector specifies specific weapon names, check those
   if (selector.nameAny) {
     return selector.nameAny.includes(weaponName);
   }
   
+  // If selector only specifies slot (like "slot": "prow"), replace all weapons in that slot
+  if (selector.slot && !selector.nameAny && !selector.kindAny) {
+    return true;
+  }
+  
   // Add kind-based matching if weapon data is available
-  return true; // Simplified for now
+  return false; // Default to not replacing unless explicitly matched
 }
 
 /**
