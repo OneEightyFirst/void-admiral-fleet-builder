@@ -267,6 +267,28 @@ const SquadronRefitModal = ({
         continue;
       }
       
+      // Special handling for className requirement
+      if (stat === 'className') {
+        // For squadrons, check the first ship's className (they should all be the same)
+        const squadronShip = squadron.ships?.[0] || squadron;
+        if (squadronShip.className !== requirement) return false;
+        continue;
+      }
+      
+      // Special handling for shipClasses requirement (array of allowed classes)
+      if (stat === 'shipClasses') {
+        const squadronShip = squadron.ships?.[0] || squadron;
+        if (!requirement.includes(squadronShip.className)) return false;
+        continue;
+      }
+      
+      // Special handling for shipClassesAny requirement (array of allowed classes)
+      if (stat === 'shipClassesAny') {
+        const squadronShip = squadron.ships?.[0] || squadron;
+        if (!requirement.includes(squadronShip.className)) return false;
+        continue;
+      }
+      
       const statValue = stats[stat];
       
       if (!statValue) {
