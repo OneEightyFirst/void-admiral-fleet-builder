@@ -3,7 +3,7 @@
  * Replaces legacy weapon functions from gameUtils.js
  */
 
-import { cleanWeaponSpec } from './normalize.js';
+import { cleanWeaponSpec, inferWeaponKind } from './normalize.js';
 
 /**
  * Get fighter bay stats for special weapon types
@@ -341,21 +341,4 @@ export function getRefitSlotWeapons(ship) {
   return refitWeapons;
 }
 
-/**
- * Check if weapon option should be replaced
- * @param {Object} option - Weapon option
- * @param {Object} selector - Replacement selector
- * @returns {boolean}
- */
-function shouldReplaceCanonicalOption(option, selector) {
-  if (selector.nameAny && selector.nameAny.includes(option.name)) {
-    return true;
-  }
-  
-  if (selector.kindAny) {
-    const optionSpec = cleanWeaponSpec(option);
-    return selector.kindAny.includes(optionSpec.kind);
-  }
-  
-  return false;
-}
+
