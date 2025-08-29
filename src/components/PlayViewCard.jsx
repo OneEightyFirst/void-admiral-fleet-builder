@@ -3,13 +3,15 @@ import {
   Card, CardContent, Typography, Box, Grid
 } from '@mui/material';
 import { ProwIcon, HullIcon } from './WeaponIcons';
-import { getStatDisplayName, shipCost, getWeaponData } from '../utils/gameUtils';
+import { getStatDisplayName, formatStatValue, shipCost } from '../utils/gameUtils';
+import { getCanonicalWeaponData as getWeaponData, getRefitSlotWeapons } from '../utils/refits/weaponData.js';
 
 const PlayViewCard = ({ ship, faction, shipDef }) => {
   if (!ship || !shipDef) return null;
 
   const cost = shipCost(shipDef);
-  const statline = shipDef.statline || {};
+  // Use ship's statline if it exists (may be modified by refits), otherwise use shipDef
+  const statline = ship.statline || shipDef.statline || {};
   
     // Get weapons - prow and hull
   const prowWeapon = ship.loadout?.prow;
@@ -133,13 +135,15 @@ const PlayViewCard = ({ ship, faction, shipDef }) => {
                     lineHeight: 1
                   }}
                 >
-                  {value}
+                  {formatStatValue(statName, value)}
                 </Typography>
               </Box>
             </Grid>
           ))}
         </Grid>
       </Box>
+
+
 
       {/* Weapons Section */}
             {/* Weapon Headers Bar */}
@@ -223,7 +227,7 @@ const PlayViewCard = ({ ship, faction, shipDef }) => {
                   }}
                 >
                   {(() => {
-                    const weaponData = getWeaponData(prowWeapon);
+                    const weaponData = getWeaponData(prowWeapon, [], ship);
                     return weaponData.targets || '—';
                   })()}
                 </Typography>
@@ -237,8 +241,12 @@ const PlayViewCard = ({ ship, faction, shipDef }) => {
                   }}
                 >
                   {(() => {
-                    const weaponData = getWeaponData(prowWeapon);
-                    return weaponData.attacks || '—';
+                    const weaponData = getWeaponData(prowWeapon, [], ship);
+                    const attacks = weaponData.attacks;
+                    if (typeof attacks === 'object' && attacks.dice) {
+                      return attacks.star ? `${attacks.dice}*` : attacks.dice;
+                    }
+                    return attacks || '—';
                   })()}
                 </Typography>
               </Grid>
@@ -251,7 +259,7 @@ const PlayViewCard = ({ ship, faction, shipDef }) => {
                   }}
                 >
                   {(() => {
-                    const weaponData = getWeaponData(prowWeapon);
+                    const weaponData = getWeaponData(prowWeapon, [], ship);
                     return weaponData.range || '—';
                   })()}
                 </Typography>
@@ -296,7 +304,13 @@ const PlayViewCard = ({ ship, faction, shipDef }) => {
                     fontWeight: 600
                   }}
                 >
-                  {weaponData.attacks || '—'}
+                  {(() => {
+                    const attacks = weaponData.attacks;
+                    if (typeof attacks === 'object' && attacks.dice) {
+                      return attacks.star ? `${attacks.dice}*` : attacks.dice;
+                    }
+                    return attacks || '—';
+                  })()}
                 </Typography>
               </Grid>
               <Grid item xs={2}>
@@ -314,6 +328,73 @@ const PlayViewCard = ({ ship, faction, shipDef }) => {
           );
         })}
 
+        {/* Refit Slot Weapons */}
+        {(() => {
+          const refitWeapons = getRefitSlotWeapons(ship);
+          return refitWeapons.map((weapon, index) => {
+            const weaponData = getWeaponData(weapon, []);
+            const slotLabel = weapon.originalSlot === 'turret' ? 'Hull' : 'Prow';
+            
+            return (
+              <Grid key={`refit-${weapon.name}-${index}`} container spacing={0} sx={{ mb: 1 }}>
+                <Grid item xs={6}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    {weapon.originalSlot === 'turret' ? <HullIcon size={16} /> : <ProwIcon size={16} />}
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        fontWeight: 600,
+                        color: '#ffc107' // Warning color for refit weapons
+                      }}
+                    >
+                      {weapon.name} (Refit)
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={2}>
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      textAlign: 'center',
+                      fontWeight: 600
+                    }}
+                  >
+                    {weaponData.targets || '—'}
+                  </Typography>
+                </Grid>
+                <Grid item xs={2}>
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      textAlign: 'center',
+                      fontWeight: 600
+                    }}
+                  >
+                    {(() => {
+                      const attacks = weaponData.attacks;
+                      if (typeof attacks === 'object' && attacks.dice) {
+                        return attacks.star ? `${attacks.dice}*` : attacks.dice;
+                      }
+                      return attacks || '—';
+                    })()}
+                  </Typography>
+                </Grid>
+                <Grid item xs={2}>
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      textAlign: 'center',
+                      fontWeight: 600
+                    }}
+                  >
+                    {weaponData.range || '—'}
+                  </Typography>
+                </Grid>
+              </Grid>
+            );
+          });
+        })()}
+
         {/* Fighter Bay Footnote */}
         {hasFighterBays && (
           <Box sx={{ px: 2, pb: 1, pt: 0.5 }}>
@@ -330,6 +411,35 @@ const PlayViewCard = ({ ship, faction, shipDef }) => {
           </Box>
         )}
       </Box>
+
+      {/* Refit Notes */}
+      {ship.appliedCanonicalRefit?.notes && ship.appliedCanonicalRefit.notes.length > 0 && (
+        <Box sx={{ 
+          backgroundColor: '#2a2a2a', 
+          px: 2, 
+          py: 1, 
+          borderTop: '1px solid #444' 
+        }}>
+          <Typography variant="caption" sx={{ fontWeight: 600, color: '#ffc107', display: 'block', mb: 0.5 }}>
+            Refit: {ship.appliedCanonicalRefit.name}
+          </Typography>
+          {ship.appliedCanonicalRefit.notes.map((note, index) => (
+            <Typography
+              key={index}
+              variant="caption"
+              sx={{
+                display: 'block',
+                fontStyle: 'italic',
+                color: 'rgba(255, 255, 255, 0.8)',
+                fontSize: '0.75rem',
+                lineHeight: 1.2
+              }}
+            >
+              • {note}
+            </Typography>
+          ))}
+        </Box>
+      )}
     </Card>
   );
 };

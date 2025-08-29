@@ -22,6 +22,10 @@ import {
   randomizeScrapBotWeapons, cleanRosterForSave, arraysEqual
 } from './utils/gameUtils';
 
+// Import canonical refit system
+// Migration no longer needed - factions.json uses canonical format directly
+import { applyCanonicalRefitToShip } from './utils/refits/shipRefits.js';
+
 // Firebase imports
 import { auth, googleProvider, db } from "./firebase";
 import { signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
@@ -80,11 +84,19 @@ function AppContent(){
   useEffect(() => {
     const loadFactions = async () => {
       try {
-        const response = await fetch('/void-admiral/data/factions.json');
+        const response = await fetch(`/void-admiral/data/factions.json?v=${Date.now()}`, {
+          cache: 'no-cache',
+          headers: {
+            'Cache-Control': 'no-cache'
+          }
+        });
         if (!response.ok) {
           throw new Error(`Failed to load factions: ${response.status}`);
         }
         const factionsData = await response.json();
+        
+        // Factions data now uses canonical format directly
+        console.log('📦 Loaded factions with canonical refit format');
         setFACTIONS(factionsData);
       } catch (error) {
         console.error('Failed to load factions:', error);
@@ -169,6 +181,52 @@ function AppContent(){
     }
   };
 
+  // Clean up existing ships that have beginsWith weapons incorrectly in hull
+  // AND ensure all ships have statline data for canonical refit system
+  useEffect(() => {
+    if (ships && roster.length > 0) {
+      setRoster(currentRoster => currentRoster.map(ship => {
+        const def = ships[ship.className];
+        if (!def) return ship;
+        
+        let needsUpdate = false;
+        let updatedShip = { ...ship };
+        
+        // Fix beginsWith weapons
+        if (def.beginsWith && def.beginsWith.length > 0) {
+          const beginsWithNames = def.beginsWith.map(w => w.name);
+          const hasIncorrectHullWeapons = ship.loadout.hull.some(weaponName => 
+            beginsWithNames.includes(weaponName)
+          );
+          
+          if (hasIncorrectHullWeapons) {
+            const cleanedHull = ship.loadout.hull.filter(weaponName => 
+              !beginsWithNames.includes(weaponName)
+            );
+            
+            updatedShip = {
+              ...updatedShip,
+              loadout: {
+                ...updatedShip.loadout,
+                hull: cleanedHull,
+                begins: beginsWithNames
+              }
+            };
+            needsUpdate = true;
+          }
+        }
+        
+        // Ensure ship has statline for canonical refit system
+        if (!ship.statline && def.statline) {
+          updatedShip.statline = { ...def.statline };
+          needsUpdate = true;
+        }
+        
+        return needsUpdate ? updatedShip : ship;
+      }));
+    }
+  }, [ships, roster.length]); // Only run when ships data or roster length changes
+
   useEffect(()=>{
     localStorage.setItem("va_factions_full", JSON.stringify({ faction, points, roster, fleetName }));
   },[faction, points, roster, fleetName]);
@@ -211,7 +269,7 @@ function AppContent(){
 
     const mk = () => {
       const loadout = { prow:null, hull:[], begins:(def.beginsWith||[]).map(o=>o.name) };
-      if (def.beginsWith?.length) loadout.hull = [...loadout.hull, ...def.beginsWith.map(o=>o.name)];
+      // Note: beginsWith weapons are stored in loadout.begins, not added to hull or prow
       
       if (hasUnplannedConstruction(faction, FACTIONS)) {
         const randomWeapons = randomizeScrapBotWeapons(def);
@@ -219,7 +277,10 @@ function AppContent(){
         loadout.isRandomized = true;
       }
       
-      return { id: uid(), className, loadout, groupId };
+      // Include base statline for canonical refit system
+      const statline = def.statline ? { ...def.statline } : {};
+      
+      return { id: uid(), className, loadout, groupId, statline };
     };
 
     const newShips = Array.from({length: count}, mk);
@@ -229,7 +290,7 @@ function AppContent(){
       const freeGroupId = uid();
       const mkFree = () => {
         const loadout = { prow:null, hull:[], begins:(def.beginsWith||[]).map(o=>o.name) };
-        if (def.beginsWith?.length) loadout.hull = [...loadout.hull, ...def.beginsWith.map(o=>o.name)];
+        // Note: beginsWith weapons are stored in loadout.begins, not added to hull or prow
         
         if (hasUnplannedConstruction(faction, FACTIONS)) {
           const randomWeapons = randomizeScrapBotWeapons(def);
@@ -237,7 +298,10 @@ function AppContent(){
           loadout.isRandomized = true;
         }
         
-        return { id: uid(), className, loadout, groupId: freeGroupId, isFree: true };
+        // Include base statline for canonical refit system
+        const statline = def.statline ? { ...def.statline } : {};
+        
+        return { id: uid(), className, loadout, groupId: freeGroupId, isFree: true, statline };
       };
       const freeShips = Array.from({length: 3}, mkFree);
       setRoster(r => [...r, ...newShips, ...freeShips]);
@@ -261,12 +325,18 @@ function AppContent(){
       if (used + cost * count > cap) return r;
       
       const newGroupId = uid();
-      const duplicatedShips = groupShips.map(ship => ({
-        ...ship,
-        id: uid(),
-        groupId: ship.isFree ? uid() : newGroupId,
-        isFree: ship.isFree
-      }));
+      const duplicatedShips = groupShips.map(ship => {
+        const def = ships[ship.className];
+        const statline = def.statline ? { ...def.statline } : {};
+        
+        return {
+          ...ship,
+          id: uid(),
+          groupId: ship.isFree ? uid() : newGroupId,
+          isFree: ship.isFree,
+          statline
+        };
+      });
       
       if (faction === "Insectoids" && firstShip.className === "Pincer" && !firstShip.isFree) {
         const freeShips = r.filter(x=>x.className === "Pincer" && x.isFree);
@@ -276,11 +346,17 @@ function AppContent(){
         if (matchingFreeGroup) {
           const freeGroupShips = freeShips.filter(x=>x.groupId === matchingFreeGroup.groupId);
           const newFreeGroupId = uid();
-          const duplicatedFreeShips = freeGroupShips.map(ship => ({
-            ...ship,
-            id: uid(),
-            groupId: newFreeGroupId
-          }));
+          const duplicatedFreeShips = freeGroupShips.map(ship => {
+            const def = ships[ship.className];
+            const statline = def.statline ? { ...def.statline } : {};
+            
+            return {
+              ...ship,
+              id: uid(),
+              groupId: newFreeGroupId,
+              statline
+            };
+          });
           return [...r, ...duplicatedShips, ...duplicatedFreeShips];
         }
       }
@@ -386,8 +462,27 @@ function AppContent(){
   const handleSignOut = async () => {
     try {
       await signOut(auth);
+      
+      // Clear all localStorage data
+      localStorage.removeItem('va_factions_full');
+      localStorage.removeItem('va_saved_fleets');
+      localStorage.removeItem('va_preferences');
+      localStorage.removeItem('va_theme');
+      
+      // Reset all app state to defaults
       setSavedFleets([]);
-      loadLocalStorageData();
+      setFaction("Loyalists");
+      setPoints(30);
+      setRoster([]);
+      setFleetName("");
+      setNameSubmitted(false);
+      setUseRefits(false);
+      setUseJuggernauts(false);
+      setTab(0);
+      setSaveStatus('idle');
+      setIsEditingName(false);
+      
+      console.log('Successfully signed out and cleared all data');
     } catch (error) {
       console.error('Sign out failed:', error);
     }
@@ -487,38 +582,160 @@ function AppContent(){
   // Refit functions
   function addRefit(shipId, refit) {
     if (!canAddRefit) return;
-    setRoster(r => r.map(x => 
-      x.id === shipId ? { ...x, refit } : x
-    ));
+    
+    // Create capital ship refit object with notes included
+    const capitalShipRefit = {
+      name: refit.name,
+      description: refit.description,
+      effects: refit.effects,
+      notes: refit.notes || [],
+      selectedOption: refit.selectedOption,
+      selectedEffects: refit.selectedEffects || refit.effects,
+      weaponModifications: refit.weaponModifications
+    };
+    
+    setRoster(r => r.map(x => {
+      if (x.id === shipId) {
+        const updatedShip = { ...x, refit: capitalShipRefit };
+        
+        // Auto-assign replacement weapons if the refit has replaceWith effects
+        if (refit.weaponModifications) {
+          refit.weaponModifications.forEach(modification => {
+            if (modification.effects?.replaceWith && modification.conditions) {
+              modification.conditions.forEach(condition => {
+                if (condition.type === 'weaponLocation') {
+                  const location = condition.value;
+                  if (location === 'prow') {
+                    updatedShip.loadout = {
+                      ...updatedShip.loadout,
+                      prow: modification.effects.replaceWith
+                    };
+                  }
+                  // Add other weapon locations (hull, etc.) as needed
+                }
+              });
+            }
+          });
+        }
+        
+        return updatedShip;
+      }
+      return x;
+    }));
   }
 
   function removeRefit(shipId) {
-    setRoster(r => r.map(x => 
-      x.id === shipId ? { ...x, refit: null } : x
-    ));
+    setRoster(r => r.map(ship => {
+      if (ship.id !== shipId) return ship;
+      
+      // Use canonical refit system to properly restore stats
+      if (ship.appliedCanonicalRefit) {
+        // Get original ship definition for stat restoration
+        const shipDef = ships[ship.className];
+        const originalStatline = shipDef.statline ? { ...shipDef.statline } : {};
+        
+        // Remove canonical refit and restore original stats
+        return {
+          ...ship,
+          refit: null,
+          appliedCanonicalRefit: null,
+          statline: originalStatline
+        };
+      }
+      
+      // Fallback for legacy refits
+      return { ...ship, refit: null };
+    }));
   }
 
   function addRefitToGroup(groupId, refit, selectedOption = null) {
     if (!canAddRefit) return;
     
-    // Create squadron refit object with selected option if provided
-    const squadronRefit = {
-      name: refit.name,
-      description: refit.description,
-      effects: refit.effects,
-      selectedOption: selectedOption?.name || null,
-      selectedEffects: selectedOption?.effects || refit.effects
-    };
-    
-    setRoster(r => r.map(x => 
-      x.groupId === groupId ? { ...x, squadronRefit } : x
-    ));
+    setRoster(r => r.map(x => {
+      if (x.groupId === groupId) {
+        // Get the ship definition for stat restoration baseline
+        const shipDef = ships[x.className];
+        if (!shipDef) {
+          console.error('SQUADRON REFIT ERROR: Ship definition not found for', x.className);
+          return x;
+        }
+        
+        // Create ship with baseline stats for canonical refit application
+        const shipWithBaseStats = {
+          ...x,
+          statline: shipDef.statline ? { ...shipDef.statline } : {}
+        };
+        
+        // Create canonical refit format
+        const canonicalRefit = {
+          ...refit,
+          selectedOption: selectedOption // Pass the full option object, not just the name
+        };
+        
+        console.log('🎯 SQUADRON REFIT: Applying canonical refit:', canonicalRefit.name);
+        if (selectedOption) {
+          console.log('🎯 SQUADRON REFIT: With selected option:', selectedOption.name);
+          console.log('🎯 SQUADRON REFIT: Option cost:', selectedOption.cost);
+          console.log('🎯 SQUADRON REFIT: Option gains:', selectedOption.gains);
+        } else {
+          console.log('🎯 SQUADRON REFIT: No option selected, applying base refit');
+        }
+        console.log('🎯 SQUADRON REFIT: Ship before application:', shipWithBaseStats.statline);
+        
+        // Apply canonical refit to get stat changes and other modifications
+        const result = applyCanonicalRefitToShip(shipWithBaseStats, canonicalRefit, 'squadron');
+        
+        if (result.ok) {
+          console.log('✅ SQUADRON REFIT: Applied successfully, new statline:', result.ship.statline);
+          console.log('✅ SQUADRON REFIT: Applied canonical refit stored as:', result.ship.appliedCanonicalRefit);
+          
+          // Create squadron refit metadata (for UI display)
+          const squadronRefit = {
+            name: refit.name,
+            description: refit.description,
+            effects: refit.effects,
+            notes: refit.notes || [],
+            selectedOption: selectedOption?.name || null,
+            selectedEffects: selectedOption?.effects || refit.effects,
+            weaponModifications: refit.weaponModifications
+          };
+          
+          // Return ship with both metadata and applied canonical changes
+          return {
+            ...result.ship,
+            squadronRefit
+          };
+        } else {
+          console.error('❌ SQUADRON REFIT ERROR: Failed to apply:', result.error);
+          return x; // Return unchanged ship if refit application failed
+        }
+      }
+      return x;
+    }));
   }
 
   function removeRefitFromGroup(groupId) {
-    setRoster(r => r.map(x => 
-      x.groupId === groupId ? { ...x, squadronRefit: null } : x
-    ));
+    setRoster(r => r.map(ship => {
+      if (ship.groupId !== groupId) return ship;
+      
+      // Use canonical refit system to properly restore stats
+      if (ship.appliedCanonicalRefit) {
+        // Get original ship definition for stat restoration
+        const shipDef = ships[ship.className];
+        const originalStatline = shipDef.statline ? { ...shipDef.statline } : {};
+        
+        // Remove canonical refit and restore original stats
+        return {
+          ...ship,
+          squadronRefit: null,
+          appliedCanonicalRefit: null,
+          statline: originalStatline
+        };
+      }
+      
+      // Fallback for legacy refits
+      return { ...ship, squadronRefit: null };
+    }));
   }
 
   // Enhanced refit toggle function that saves preferences and clears refits
@@ -710,7 +927,7 @@ function AppContent(){
           </Box>
         </Drawer>
 
-        <Box sx={{ p:2 }}>
+        <Box sx={{ p:2, pb: 8 }}>
           {tab===0 && (
             !nameSubmitted ? (
               <CreateNewFleetView

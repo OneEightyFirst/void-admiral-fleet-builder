@@ -121,15 +121,27 @@ export function randomizeScrapBotWeapons(def) {
 
 // Clean roster data for Firestore (remove undefined values)
 export function cleanRosterForSave(rosterData) {
-  return rosterData.map(ship => {
-    const cleanShip = {};
-    Object.keys(ship).forEach(key => {
-      if (ship[key] !== undefined) {
-        cleanShip[key] = ship[key];
-      }
-    });
-    return cleanShip;
-  });
+  const cleanValue = (value) => {
+    if (value === undefined) {
+      return null; // Convert undefined to null for Firestore compatibility
+    }
+    if (Array.isArray(value)) {
+      return value.map(cleanValue).filter(v => v !== null);
+    }
+    if (value && typeof value === 'object') {
+      const cleaned = {};
+      Object.keys(value).forEach(key => {
+        const cleanedVal = cleanValue(value[key]);
+        if (cleanedVal !== null) {
+          cleaned[key] = cleanedVal;
+        }
+      });
+      return Object.keys(cleaned).length > 0 ? cleaned : null;
+    }
+    return value;
+  };
+
+  return rosterData.map(ship => cleanValue(ship)).filter(ship => ship !== null);
 }
 
 // Get stat name - abbreviated only for longer names that would overflow
@@ -143,9 +155,21 @@ export function getStatDisplayName(statName) {
   return abbreviations[statName] || statName;
 }
 
+// Format stat value with appropriate units
+export function formatStatValue(statName, value) {
+  if (value == null || value === undefined) return '—';
+  
+  // Add units for specific stats
+  if (statName === 'Speed') {
+    return `${value}"`;
+  }
+  
+  return String(value);
+}
+
 // Check if a weapon is a Fighter Bay and return standard stats
 export function getFighterBayStats(weaponName) {
-  if (weaponName === "Fighter Bays") {
+  if (weaponName === "Fighter Bays" || weaponName === "Hive Bays") {
     return {
       targets: "Any",
       attacks: "1d6*",
@@ -155,24 +179,155 @@ export function getFighterBayStats(weaponName) {
   return null;
 }
 
-// Get weapon data with Fighter Bay handling
-export function getWeaponData(weapon, allWeapons = []) {
-  // If it's already a complete weapon object, return it
-  if (weapon && typeof weapon === 'object' && weapon.targets) {
-    return weapon;
-  }
+// Legacy function - replaced by canonical system
+// This is kept only for compatibility until all references are updated
+export function getWeaponData(weapon, allWeapons = [], ship = null) {
+  console.warn('⚠️ Legacy getWeaponData called - should use canonical system');
   
-  // If it's a string (weapon name), look it up or check for Fighter Bay
+  // Basic fallback for any remaining legacy calls
   const weaponName = typeof weapon === 'string' ? weapon : weapon?.name;
-  
-  // Check for Fighter Bay first
   const fighterBayStats = getFighterBayStats(weaponName);
   if (fighterBayStats) {
     return { name: weaponName, ...fighterBayStats };
   }
   
-  // Look up in provided weapons list
-  return allWeapons.find(w => w.name === weaponName) || { name: weaponName };
+  const foundWeapon = allWeapons.find(w => w.name === weaponName);
+  return foundWeapon || { 
+    name: weaponName || "Unknown", 
+    targets: "Any", 
+    attacks: 1, 
+    range: 12 
+  };
+}
+
+// Legacy weapon refit effects function - REMOVED
+// This has been replaced by the canonical refit system in src/utils/refits/weaponData.js
+export function applyWeaponRefitEffects(weaponData, ship) {
+  console.warn('⚠️ Legacy applyWeaponRefitEffects called - should use canonical system');
+  return weaponData;
+}
+
+// Get modified weapon options based on refits
+export function getModifiedWeaponOptions(weaponOptions, ship, location) {
+  console.warn('⚠️ Legacy getModifiedWeaponOptions called - should use canonical system');
+  return weaponOptions;
+  
+
+  
+
+  
+  // Apply weapon modifications if present
+  if (refit?.weaponModifications) {
+    // Check if any modifications apply to this location
+    const applicableModifications = refit.weaponModifications.filter(mod => 
+      mod.conditions?.some(condition => 
+        condition.type === 'weaponLocation' && condition.value === location
+      )
+    );
+
+    // If we have a replaceWith modification, return the replacement weapon
+    for (const modification of applicableModifications) {
+      if (modification.effects?.replaceWith) {
+        return [modification.effects.replaceWith];
+      }
+    }
+  }
+  
+  // Check for refits that add new weapon options (like Carrier Refit)
+  if (refit && refit.name === "Carrier Refit" && location === 'hull') {
+    // Check if ship class matches the requirements (if any)
+    if (!refit.requirements?.shipClasses || refit.requirements.shipClasses.includes(ship.className)) {
+      // Add Launch Bays as an option if not already present
+      const hasLaunchBays = modifiedOptions.some(option => option.name === "Launch Bays");
+      if (!hasLaunchBays) {
+        modifiedOptions.push({ "name": "Launch Bays" });
+      }
+    }
+  }
+
+  // Check for Missile Systems refit (Merchants)
+  if (refit && refit.name === "Missile Systems" && location === 'hull') {
+    // Add Missile Turrets as an option
+    const hasMissileTurrets = modifiedOptions.some(option => option.name === "Missile Turrets");
+    if (!hasMissileTurrets) {
+      modifiedOptions.push({ 
+        "name": "Missile Turrets", 
+        "targets": "Fr/Sd", 
+        "attacks": 3, 
+        "range": "18″" 
+      });
+    }
+  }
+
+  return modifiedOptions;
+}
+
+// Check if a weapon modification should be applied to this weapon
+function shouldApplyWeaponModification(modification, weaponData, ship) {
+  if (!modification.conditions) return true;
+  if (!weaponData || !weaponData.name) return false;
+  
+  return modification.conditions.every(condition => {
+    switch (condition.type) {
+      case 'weaponLocation':
+        // Check if weapon is in specified location (prow, hull)
+        if (condition.value === 'prow' && ship.loadout?.prow?.name === weaponData.name) {
+          return true;
+        }
+        if (condition.value === 'hull' && ship.loadout?.hull?.includes(weaponData.name)) {
+          return true;
+        }
+        return false;
+        
+      case 'weaponType':
+        // Check if weapon name contains specified type
+        const weaponName = weaponData.name.toLowerCase();
+        const conditionValues = condition.values || condition.value ? [condition.value] : [];
+        return conditionValues.some(type => weaponName.includes(type.toLowerCase()));
+        
+      case 'weaponName':
+        // Exact weapon name match
+        return condition.values.includes(weaponData.name);
+        
+      case 'attackRange':
+        // Check if weapon attacks are within specified range
+        const attacks = parseInt(weaponData.attacks) || 0;
+        return attacks >= (condition.min || 0) && attacks <= (condition.max || Infinity);
+        
+      default:
+        return true;
+    }
+  });
+}
+
+// Get attack bonus for a weapon modification
+function getAttackBonus(modification, weaponData, ship) {
+  if (!modification.attackBonus) return 0;
+  
+  // Static bonus
+  if (typeof modification.attackBonus === 'number') {
+    return modification.attackBonus;
+  }
+  
+  // Conditional bonuses based on weapon type
+  if (typeof modification.attackBonus === 'object') {
+    const weaponName = weaponData.name.toLowerCase();
+    
+    // First check for specific weapon type matches
+    for (const [type, bonus] of Object.entries(modification.attackBonus)) {
+      if (type !== 'default' && weaponName.includes(type.toLowerCase())) {
+        return typeof bonus === 'string' ? parseInt(bonus.replace('+', '')) : bonus;
+      }
+    }
+    
+    // If no specific match found, use default if available
+    if (modification.attackBonus.default !== undefined) {
+      const defaultBonus = modification.attackBonus.default;
+      return typeof defaultBonus === 'string' ? parseInt(defaultBonus.replace('+', '')) : defaultBonus;
+    }
+  }
+  
+  return 0;
 }
 
 // Hull slot management functions
@@ -180,14 +335,7 @@ export function calculateTotalHullSlots(shipDef) {
   return shipDef.hull?.select || 0;
 }
 
-export function calculateUsedHullSlots(ship, shipDef) {
-  const totalSlots = calculateTotalHullSlots(shipDef);
-  if (totalSlots === 0) return 0;
-  
-  // Count currently equipped hull weapons
-  const hullWeapons = ship.loadout?.hull || ship.weapons?.hull || ship.hull || [];
-  return hullWeapons.length;
-}
+
 
 export function calculateRefitHullSlotCost(ship) {
   if (!ship.refit) return 0;
@@ -207,16 +355,44 @@ export function calculateRefitHullSlotCost(ship) {
 }
 
 export function calculateAvailableHullSlots(ship, shipDef) {
-  const totalSlots = calculateTotalHullSlots(shipDef);
+  const effectiveSlots = calculateEffectiveHullSlots(ship, shipDef);
   const usedSlots = calculateUsedHullSlots(ship, shipDef);
-  const refitCost = calculateRefitHullSlotCost(ship);
-  
-  return Math.max(0, totalSlots - usedSlots - refitCost);
+  return Math.max(0, effectiveSlots - usedSlots);
 }
 
+// Calculate effective hull weapon slots for a ship (base slots minus refit penalties)
 export function calculateEffectiveHullSlots(ship, shipDef) {
-  const totalSlots = calculateTotalHullSlots(shipDef);
-  const refitCost = calculateRefitHullSlotCost(ship);
+  const baseSlots = shipDef.hull?.select || 0;
+  let reduction = 0;
   
-  return Math.max(0, totalSlots - refitCost);
+  // Check for legacy refit format that reduces hull weapon slots
+  if (ship.refit?.effects?.hull_weapons) {
+    reduction = parseInt(ship.refit.effects.hull_weapons.replace('-', '')) || 0;
+  }
+  
+  // Check for canonical refit format with loseSlots
+  if (ship.appliedCanonicalRefit?.cost?.loseSlots) {
+    for (const lostSlot of ship.appliedCanonicalRefit.cost.loseSlots) {
+      if (lostSlot.slot === 'hull') {
+        reduction += lostSlot.count || 0;
+      }
+    }
+  }
+  
+  return Math.max(0, baseSlots - reduction);
+}
+
+
+
+// Calculate used hull weapon slots
+export function calculateUsedHullSlots(ship, shipDef) {
+  if (!ship.loadout?.hull) return 0;
+  
+  // Filter out beginsWith weapons from the count
+  const beginsWithNames = (shipDef.beginsWith || []).map(w => w.name);
+  const editableWeapons = ship.loadout.hull.filter(weaponName => 
+    !beginsWithNames.includes(weaponName)
+  );
+  
+  return editableWeapons.length;
 }

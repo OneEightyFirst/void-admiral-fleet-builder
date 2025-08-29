@@ -85,7 +85,7 @@ const CreateNewFleetView = ({
               }
             }}
           >
-            {factions ? Object.keys(factions).map(f => (
+            {factions ? Object.keys(factions).filter(f => f !== 'Universal').map(f => (
               <MenuItem key={f} value={f}>{f}</MenuItem>
             )) : []}
           </Select>

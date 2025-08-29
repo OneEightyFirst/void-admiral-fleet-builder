@@ -44,18 +44,32 @@ import BuildViewCard from './BuildViewCard';
 import BuildViewSquadronCard from './BuildViewSquadronCard';
 import RefitModal from './RefitModal';
 import SquadronRefitModal from './SquadronRefitModal';
+import BeginsWithSection from './shared/BeginsWithSection';
 import {
   getFluff,
   getSpecialRules,
   getCommandAbilities,
   getShipCost,
   getStatDisplayName,
-  getWeaponData,
   hasUnplannedConstruction,
   calculateAvailableHullSlots,
   calculateEffectiveHullSlots,
   calculateUsedHullSlots
 } from '../utils/gameUtils';
+
+// Import canonical refit functions
+import {
+  getCanonicalWeaponData as getWeaponData,
+  getCanonicalModifiedWeaponOptions as getModifiedWeaponOptions,
+  getRefitSlotWeapons
+} from '../utils/refits/weaponData.js';
+
+import {
+  applyCanonicalRefitToShip,
+  canApplyCanonicalRefit,
+  removeRefitFromShip,
+  getAvailableRefits
+} from '../utils/refits/shipRefits.js';
 
 const BuildView = ({
   // Fleet data
@@ -113,32 +127,21 @@ const BuildView = ({
   const [refitModalShip, setRefitModalShip] = useState(null);
   const [squadronRefitModalOpen, setSquadronRefitModalOpen] = useState(false);
   const [squadronRefitModalSquadron, setSquadronRefitModalSquadron] = useState(null);
+  const [weaponOptionsRefreshKey, setWeaponOptionsRefreshKey] = useState(0);
 
   const handleOpenRefitModal = (ship) => {
-    console.log('Opening refit modal for ship:', ship);
-    console.log('Modal state before:', { refitModalOpen, refitModalShip });
     setRefitModalShip(ship);
     setRefitModalOpen(true);
-    console.log('Modal state should now be open');
   };
 
   const handleCloseRefitModal = () => {
-    console.log('Closing refit modal');
     setRefitModalOpen(false);
     setRefitModalShip(null);
   };
 
-  const handleSelectRefit = (shipId, refit) => {
-    console.log('Selecting refit:', refit, 'for ship:', shipId);
-    if (refit === null) {
-      removeRefit(shipId);
-    } else {
-      addRefit(shipId, refit);
-    }
-  };
+  // Legacy refit handler replaced by canonical system below
 
   const handleOpenSquadronRefitModal = (squadron) => {
-    console.log('Opening squadron refit modal for squadron:', squadron);
     const groupId = squadron[0].groupId;
     setSquadronRefitModalSquadron({
       groupId: groupId,
@@ -149,18 +152,128 @@ const BuildView = ({
   };
 
   const handleCloseSquadronRefitModal = () => {
-    console.log('Closing squadron refit modal');
     setSquadronRefitModalOpen(false);
     setSquadronRefitModalSquadron(null);
   };
 
+  // Canonical refit handlers
+  const handleSelectRefit = (shipIdOrRefit, refitData = null) => {
+    console.log('REFIT: Modal selected refit:', (refitData || shipIdOrRefit)?.name);
+    
+    if (!refitModalShip) {
+      console.error('REFIT ERROR: No refitModalShip');
+      return;
+    }
+    
+    // Handle both old format (shipId, refit) and new format (refit)
+    const refit = refitData || shipIdOrRefit;
+    
+    // Handle refit removal (clearing)
+    if (refit === null) {
+      console.log('REFIT: Clearing refit from', refitModalShip.className);
+      console.log('REFIT: Current ship state:', {
+        hasRefit: !!refitModalShip.refit,
+        hasCanonicalRefit: !!refitModalShip.appliedCanonicalRefit,
+        currentStats: refitModalShip.statline
+      });
+      
+      // Get original ship definition for stat restoration
+      const shipDef = ships[refitModalShip.className];
+      if (!shipDef) {
+        console.error('REFIT ERROR: Ship definition not found for', refitModalShip.className);
+        return;
+      }
+      
+      const originalStatline = shipDef.statline ? { ...shipDef.statline } : {};
+      console.log('REFIT: Restoring to original stats:', originalStatline);
+      
+      // Remove canonical refit and restore original stats
+      const clearedShip = {
+        ...refitModalShip,
+        refit: null,
+        appliedCanonicalRefit: null,
+        statline: originalStatline,
+        // Also clear any other refit-related properties
+        capabilities: undefined,
+        combatMods: undefined,
+        lostKeywords: undefined,
+        gainedKeywords: undefined,
+        targetProfile: undefined,
+        tokens: undefined
+      };
+      
+      console.log('REFIT: Cleared ship state:', {
+        hasRefit: !!clearedShip.refit,
+        hasCanonicalRefit: !!clearedShip.appliedCanonicalRefit,
+        restoredStats: clearedShip.statline
+      });
+      
+      // Update roster with cleared ship
+      setRoster(currentRoster => {
+        const newRoster = currentRoster.map(ship => 
+          ship.id === refitModalShip.id ? clearedShip : ship
+        );
+        return newRoster;
+      });
+      
+      // Update the modal ship state to reflect the cleared refit
+      setRefitModalShip(clearedShip);
+      
+      console.log('REFIT: Clear completed, modal should stay open');
+      // Don't close modal - allow selecting a different refit
+      return;
+    }
+    
+    // Check if same refit is already applied
+    if (refitModalShip.appliedCanonicalRefit?.name === refit.name) {
+      console.log('REFIT: Same refit already applied, ignoring');
+      handleCloseRefitModal();
+      return;
+    }
+    
+
+    
+    const result = applyCanonicalRefitToShip(refitModalShip, refit, 'capital');
+    
+    if (result.ok) {
+      console.log('REFIT: Applied successfully to', refitModalShip.className);
+      console.log('REFIT: Ship now has appliedCanonicalRefit:', !!result.ship.appliedCanonicalRefit);
+      
+      // Check if refit has weapon additions to trigger refresh
+      const hasWeaponAdditions = refit.selectedOption?.weaponChanges?.add || refit.weaponChanges?.add;
+      console.log('REFIT: Has weapon additions:', !!hasWeaponAdditions);
+      
+      // Update roster with modified ship
+      setRoster(currentRoster => {
+        const newRoster = currentRoster.map(ship => 
+          ship.id === refitModalShip.id ? result.ship : ship
+        );
+        return newRoster;
+      });
+      
+      // Force refresh of weapon options if refit adds weapons
+      if (hasWeaponAdditions) {
+        console.log('REFIT: Triggering weapon options refresh');
+        setWeaponOptionsRefreshKey(prev => prev + 1);
+        // Small delay to ensure state update completes
+        setTimeout(() => {
+          setWeaponOptionsRefreshKey(prev => prev + 1);
+        }, 100);
+      }
+      
+      handleCloseRefitModal();
+    } else {
+      console.error('REFIT ERROR: Failed to apply:', result.error);
+    }
+  };
+
+
+
   const handleApplySquadronRefit = (groupId, refit, selectedOption) => {
-    console.log('Applying squadron refit:', refit, 'option:', selectedOption, 'to group:', groupId);
     addRefitToGroup(groupId, refit, selectedOption);
   };
 
   const handleClearSquadronRefit = (groupId) => {
-    console.log('Clearing squadron refit for group:', groupId);
     removeRefitFromGroup(groupId);
   };
 
@@ -248,7 +361,7 @@ const BuildView = ({
             <FormControl fullWidth size="small" sx={{ mt:1 }}>
               <InputLabel>Faction</InputLabel>
               <Select label="Faction" value={faction} onChange={e=>{ setFaction(e.target.value); setRoster([]); }}>
-                {factions ? Object.keys(factions).map(f=> <MenuItem key={f} value={f}>{f}</MenuItem>) : []}
+                {factions ? Object.keys(factions).filter(f => f !== 'Universal').map(f=> <MenuItem key={f} value={f}>{f}</MenuItem>) : []}
               </Select>
             </FormControl>
 
@@ -440,22 +553,14 @@ const BuildView = ({
                       >
                         {/* Squadron weapon selection content */}
                         <Grid container spacing={2}>
-                          {/* Begins with */}
-                          {(def.beginsWith||[]).length>0 && (
+                          {/* Begins with weapons section */}
+                          {def.beginsWith && def.beginsWith.length > 0 && (
                             <Grid item xs={12}>
-                              <Paper variant="outlined" sx={{ p:1 }}>
-                                <Typography variant="subtitle2" sx={{ fontWeight:800, mb:0.5 }}>Begins with</Typography>
-                                <Stack direction="row" spacing={0.5} sx={{ flexWrap:"wrap" }}>
-                                  {def.beginsWith.map(o=> {
-                                    const weaponData = getWeaponData(o);
-                                    return (
-                                    <MuiTooltip key={o.name} title={`Targets: ${weaponData.targets||"—"} • Attacks: ${weaponData.attacks??"—"} • Range: ${weaponData.range||"—"}`} arrow>
-                                      <Chip size="small" label={o.name} />
-                                    </MuiTooltip>
-                                    );
-                                  })}
-                                </Stack>
-                              </Paper>
+                              <BeginsWithSection 
+                                beginsWith={def.beginsWith}
+                                squadronRefit={squadronShips[0]?.squadronRefit}
+                                getWeaponData={getWeaponData}
+                              />
                             </Grid>
                           )}
 
@@ -494,10 +599,10 @@ const BuildView = ({
                                       <Typography variant="caption" sx={{ fontWeight:700 }}>Prow — Select {def.prow.select}</Typography>
                                     </Box>
                                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                                      {def.prow.options.map(o=> {
+                                      {getModifiedWeaponOptions(def.prow.options, squadShip, 'prow').map(o=> {
                                         const selected = squadShip.loadout.prow?.name === o.name;
                                         return (
-                                          <MuiTooltip key={o.name} title={`Targets: ${getWeaponData(o).targets||"—"} • Attacks: ${getWeaponData(o).attacks??"—"} • Range: ${getWeaponData(o).range||"—"}`} arrow>
+                                          <MuiTooltip key={o.name} title={`Targets: ${getWeaponData(o, [], squadShip).targets||"—"} • Attacks: ${getWeaponData(o, [], squadShip).attacks??"—"} • Range: ${getWeaponData(o, [], squadShip).range||"—"}`} arrow>
                                             <Chip clickable color={selected?"primary":"default"} onClick={()=>pickProw(squadShip.id, o)} label={o.name} />
                                           </MuiTooltip>
                                         );
@@ -507,9 +612,15 @@ const BuildView = ({
                                 )}
 
                                 {/* Hull weapons for this ship */}
-                                {(def.hull.select > 0 || (def.beginsWith && def.beginsWith.length > 0)) && (
+                                {(() => {
+                                  const effectiveSlots = calculateEffectiveHullSlots(squadShip, def);
+                                  return effectiveSlots > 0;
+                                })() && (
                                   <Box>
-                                    {def.hull.select > 0 && (
+                                    {(() => {
+                                      const effectiveSlots = calculateEffectiveHullSlots(squadShip, def);
+                                      return effectiveSlots > 0;
+                                    })() && (
                                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
                                         <Box sx={{
                                           width: 20,
@@ -535,7 +646,7 @@ const BuildView = ({
                                         <Typography variant="caption" sx={{ fontWeight:700 }}>Ship</Typography>
                                         <Typography variant="caption" sx={{ color: 'text.secondary' }}>|</Typography>
                                         <HullIcon size={14} />
-                                        <Typography variant="caption" sx={{ fontWeight:700 }}>Hull — Select {def.hull.select} (mix allowed)</Typography>
+                                        <Typography variant="caption" sx={{ fontWeight:700 }}>Hull — Select {calculateEffectiveHullSlots(squadShip, def)} (mix allowed)</Typography>
                                       </Box>
                                     )}
                                     {hasUnplannedConstruction(faction, factions) && squadShip.loadout.isRandomized ? (
@@ -544,58 +655,73 @@ const BuildView = ({
                                       </Alert>
                                     ) : (
                                       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                                        {def.hull.options.map(o=> {
+                                        {/* Show selectable hull options */}
+                                        {getModifiedWeaponOptions(def.hull.options, squadShip, 'hull').map(o=> {
                                           const currentCount = (squadShip.loadout.hull||[]).filter(name => name === o.name).length;
                                           const totalEditable = (squadShip.loadout.hull || []).filter(n=>!(def.beginsWith||[]).some(b=>b.name===n)).length;
                                           const effectiveSlots = calculateEffectiveHullSlots(squadShip, def);
-                                          const canAdd = totalEditable < effectiveSlots;
-                                          const canRemove = currentCount > 0;
+                                          const canAdd = totalEditable < effectiveSlots && !o.addedByRefit; // Can't add refit weapons manually
+                                          const canRemove = currentCount > 0 && !o.addedByRefit; // Can't remove refit weapons
                                           const isAtLimit = totalEditable >= effectiveSlots;
                                           const hasSelection = currentCount > 0;
                                           const shouldHighlight = isAtLimit && hasSelection;
+                                          const isRefitWeapon = o.addedByRefit;
                                           
                                           return (
-                                            <MuiTooltip key={o.name} title={`Targets: ${getWeaponData(o).targets||"—"} • Attacks: ${getWeaponData(o).attacks??"—"} • Range: ${getWeaponData(o).range||"—"}`} arrow>
+                                            <MuiTooltip key={o.name} title={`Targets: ${getWeaponData(o, [], squadShip).targets||"—"} • Attacks: ${getWeaponData(o, [], squadShip).attacks??"—"} • Range: ${getWeaponData(o, [], squadShip).range||"—"}`} arrow>
                                               <Chip 
-                                                color={shouldHighlight ? "primary" : "default"}
+                                                color={isRefitWeapon ? "warning" : (shouldHighlight ? "primary" : "default")}
                                                 sx={{ 
                                                   '& .MuiChip-label': { 
                                                     display: 'flex', 
                                                     alignItems: 'center', 
                                                     gap: 0.5,
                                                     px: 1
-                                                  } 
+                                                  },
+                                                  ...(isRefitWeapon && {
+                                                    border: '2px solid #ffc107',
+                                                    backgroundColor: 'rgba(255, 193, 7, 0.1)'
+                                                  })
                                                 }}
                                                 label={
                                                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                                                     <Typography variant="caption">
-                                                      {o.name}
+                                                      {o.name} {isRefitWeapon && '(Refit)'}
                                                     </Typography>
-                                                    <IconButton 
-                                                      size="small" 
-                                                      disabled={!canRemove}
-                                                      onClick={(e)=> {
-                                                        e.stopPropagation();
-                                                        removeHullByName(squadShip.id, o.name, def);
-                                                      }}
-                                                      sx={{ p: 0.25, minWidth: 'auto', color: 'inherit' }}
-                                                    >
-                                                      <RemoveIcon fontSize="small" />
-                                                    </IconButton>
-                                                    <Typography variant="body2" sx={{ minWidth: 16, textAlign: 'center', fontSize: '0.75rem' }}>
-                                                      {currentCount}
-                                                    </Typography>
-                                                    <IconButton 
-                                                      size="small" 
-                                                      disabled={!canAdd}
-                                                      onClick={(e)=> {
-                                                        e.stopPropagation();
-                                                        addHull(squadShip.id, o.name, def);
-                                                      }}
-                                                      sx={{ p: 0.25, minWidth: 'auto', color: 'inherit' }}
-                                                    >
-                                                      <PlusIcon fontSize="small" />
-                                                    </IconButton>
+                                                    {!isRefitWeapon && (
+                                                      <>
+                                                        <IconButton 
+                                                          size="small" 
+                                                          disabled={!canRemove}
+                                                          onClick={(e)=> {
+                                                            e.stopPropagation();
+                                                            removeHullByName(squadShip.id, o.name, def);
+                                                          }}
+                                                          sx={{ p: 0.25, minWidth: 'auto', color: 'inherit' }}
+                                                        >
+                                                          <RemoveIcon fontSize="small" />
+                                                        </IconButton>
+                                                        <Typography variant="body2" sx={{ minWidth: 16, textAlign: 'center', fontSize: '0.75rem' }}>
+                                                          {currentCount}
+                                                        </Typography>
+                                                        <IconButton 
+                                                          size="small" 
+                                                          disabled={!canAdd}
+                                                          onClick={(e)=> {
+                                                            e.stopPropagation();
+                                                            addHull(squadShip.id, o.name, def);
+                                                          }}
+                                                          sx={{ p: 0.25, minWidth: 'auto', color: 'inherit' }}
+                                                        >
+                                                          <PlusIcon fontSize="small" />
+                                                        </IconButton>
+                                                      </>
+                                                    )}
+                                                    {isRefitWeapon && (
+                                                      <Typography variant="body2" sx={{ minWidth: 16, textAlign: 'center', fontSize: '0.75rem', fontWeight: 'bold' }}>
+                                                        1
+                                                      </Typography>
+                                                    )}
                                                   </Box>
                                                 }
                                               />
@@ -645,7 +771,7 @@ const BuildView = ({
                                     size="small"
                                     variant="contained"
                                     onClick={() => {
-                                      console.log('Squadron refit button clicked for squadron:', squadronShips);
+
                                       handleOpenSquadronRefitModal(squadronShips);
                                     }}
                                     sx={{
@@ -693,23 +819,7 @@ const BuildView = ({
                       >
                         {/* Weapon selection content */}
                         <Grid container spacing={2}>
-                          {(def.beginsWith||[]).length>0 && (
-                          <Grid item xs={12}>
-                            <Paper variant="outlined" sx={{ p:1 }}>
-                              <Typography variant="subtitle2" sx={{ fontWeight:800, mb:0.5 }}>Begins with</Typography>
-                              <Stack direction="row" spacing={0.5} sx={{ flexWrap:"wrap" }}>
-                                {def.beginsWith.map(o=> {
-                                  const weaponData = getWeaponData(o);
-                                  return (
-                                  <MuiTooltip key={o.name} title={`Targets: ${weaponData.targets||"—"} • Attacks: ${weaponData.attacks??"—"} • Range: ${weaponData.range||"—"}`} arrow>
-                                    <Chip size="small" label={o.name} />
-                                  </MuiTooltip>
-                                  );
-                                })}
-                              </Stack>
-                            </Paper>
-                        </Grid>
-                        )}
+
 
                         <Grid item xs={12}>
                           {def.prow.select > 0 && def.prow.options.length > 0 && (
@@ -719,10 +829,12 @@ const BuildView = ({
                               <Typography variant="subtitle2" sx={{ fontWeight:800 }}>Prow — Select {def.prow.select}</Typography>
                             </Box>
                               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                              {def.prow.options.map(o=> {
+                              {getModifiedWeaponOptions(def.prow.options, s, 'prow').map(o=> {
                                 const selected = s.loadout.prow?.name === o.name;
+                                console.log('TOOLTIP: Ship', s.id, 'has refit:', !!s.appliedCanonicalRefit);
+                                const weaponData = getWeaponData(o, [], s);
                                 return (
-                                  <MuiTooltip key={o.name} title={`Targets: ${getWeaponData(o).targets||"—"} • Attacks: ${getWeaponData(o).attacks??"—"} • Range: ${getWeaponData(o).range||"—"}`} arrow>
+                                  <MuiTooltip key={o.name} title={`Targets: ${weaponData.targets||"—"} • Attacks: ${weaponData.attacks??"—"} • Range: ${weaponData.range||"—"}`} arrow>
                                     <Chip clickable color={selected?"primary":"default"} onClick={()=>pickProw(s.id, o)} label={o.name} />
                                   </MuiTooltip>
                                 );
@@ -732,12 +844,18 @@ const BuildView = ({
                           </Paper>
                           )}
 
-                          {(def.hull.select > 0 || (def.beginsWith && def.beginsWith.length > 0)) && (
+                          {(() => {
+                            const effectiveSlots = calculateEffectiveHullSlots(s, def);
+                            return (effectiveSlots > 0 || (def.beginsWith && def.beginsWith.length > 0));
+                          })() && (
                           <Paper variant="outlined" sx={{ p:1 }}>
-                              {def.hull.select > 0 && (
+                              {(() => {
+                                const effectiveSlots = calculateEffectiveHullSlots(s, def);
+                                return effectiveSlots > 0;
+                              })() && (
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
                               <HullIcon size={16} />
-                              <Typography variant="subtitle2" sx={{ fontWeight:800 }}>Hull — Select {def.hull.select} (mix allowed)</Typography>
+                              <Typography variant="subtitle2" sx={{ fontWeight:800 }}>Hull — Select {calculateEffectiveHullSlots(s, def)} (mix allowed)</Typography>
                             </Box>
                               )}
                               {def.randomizeHull && (
@@ -760,20 +878,14 @@ const BuildView = ({
                                 </Alert>
                               ) : (
                                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                                  {def.hull.options.map(o=> {
+                                  {/* Show beginsWith weapons with selected styling first */}
+                                  {(def.beginsWith || []).map(o => {
                                     const currentCount = (s.loadout.hull||[]).filter(name => name === o.name).length;
-                                    const totalEditable = (s.loadout.hull || []).filter(n=>!(def.beginsWith||[]).some(b=>b.name===n)).length;
-                                    const effectiveSlots = calculateEffectiveHullSlots(s, def);
-                                    const canAdd = totalEditable < effectiveSlots;
-                                    const canRemove = currentCount > 0;
-                                    const isAtLimit = totalEditable >= effectiveSlots;
-                                    const hasSelection = currentCount > 0;
-                                    const shouldHighlight = isAtLimit && hasSelection;
                                     
-                                return (
-                                      <MuiTooltip key={o.name} title={`Targets: ${getWeaponData(o).targets||"—"} • Attacks: ${getWeaponData(o).attacks??"—"} • Range: ${getWeaponData(o).range||"—"}`} arrow>
+                                    return (
+                                      <MuiTooltip key={`begins-${o.name}`} title={`Targets: ${getWeaponData(o, [], s).targets||"—"} • Attacks: ${getWeaponData(o, [], s).attacks??"—"} • Range: ${getWeaponData(o, [], s).range||"—"}`} arrow>
                                         <Chip 
-                                          color={shouldHighlight ? "primary" : "default"}
+                                          color="primary"
                                           sx={{ 
                                             '& .MuiChip-label': { 
                                               display: 'flex', 
@@ -787,31 +899,85 @@ const BuildView = ({
                                               <Typography variant="caption">
                                                 {o.name}
                                               </Typography>
-                                              <IconButton 
-                                                size="small" 
-                                                disabled={!canRemove}
-                                                onClick={(e)=> {
-                                                  e.stopPropagation();
-                                                  removeHullByName(s.id, o.name, def);
-                                                }}
-                                                sx={{ p: 0.25, minWidth: 'auto', color: 'inherit' }}
-                                              >
-                                                <RemoveIcon fontSize="small" />
-                                              </IconButton>
-                                              <Typography variant="body2" sx={{ minWidth: 16, textAlign: 'center', fontSize: '0.75rem' }}>
-                                                {currentCount}
+                                              {currentCount > 1 && (
+                                                <Typography variant="caption" sx={{ fontWeight: 600 }}>
+                                                  x{currentCount}
+                                                </Typography>
+                                              )}
+                                            </Box>
+                                          }
+                                        />
+                                      </MuiTooltip>
+                                    );
+                                  })}
+                                  
+                                  {/* Show selectable hull options */}
+                                  {getModifiedWeaponOptions(def.hull.options, s, 'hull').map((o, index) => {
+                                    const currentCount = (s.loadout.hull||[]).filter(name => name === o.name).length;
+                                    const totalEditable = (s.loadout.hull || []).filter(n=>!(def.beginsWith||[]).some(b=>b.name===n)).length;
+                                    const effectiveSlots = calculateEffectiveHullSlots(s, def);
+                                    const canAdd = totalEditable < effectiveSlots && !o.addedByRefit; // Can't add refit weapons manually
+                                    const canRemove = currentCount > 0 && !o.addedByRefit; // Can't remove refit weapons
+                                    const isAtLimit = totalEditable >= effectiveSlots;
+                                    const hasSelection = currentCount > 0;
+                                    const shouldHighlight = isAtLimit && hasSelection;
+                                    const isRefitWeapon = o.addedByRefit;
+                                    
+                                return (
+                                      <MuiTooltip key={`${o.name}-${weaponOptionsRefreshKey}-${index}`} title={`Targets: ${getWeaponData(o, [], s).targets||"—"} • Attacks: ${getWeaponData(o, [], s).attacks??"—"} • Range: ${getWeaponData(o, [], s).range||"—"}`} arrow>
+                                        <Chip 
+                                          color={isRefitWeapon ? "warning" : (shouldHighlight ? "primary" : "default")}
+                                          sx={{ 
+                                            '& .MuiChip-label': { 
+                                              display: 'flex', 
+                                              alignItems: 'center', 
+                                              gap: 0.5,
+                                              px: 1
+                                            },
+                                            ...(isRefitWeapon && {
+                                              border: '2px solid #ffc107',
+                                              backgroundColor: 'rgba(255, 193, 7, 0.1)'
+                                            })
+                                          }}
+                                          label={
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                              <Typography variant="caption">
+                                                {o.name} {isRefitWeapon && '(Refit)'}
                                               </Typography>
-                                              <IconButton 
-                                                size="small" 
-                                                disabled={!canAdd}
-                                                onClick={(e)=> {
-                                                  e.stopPropagation();
-                                                  addHull(s.id, o.name, def);
-                                                }}
-                                                sx={{ p: 0.25, minWidth: 'auto', color: 'inherit' }}
-                                              >
-                                                <PlusIcon fontSize="small" />
-                                              </IconButton>
+                                              {!isRefitWeapon && (
+                                                <>
+                                                  <IconButton 
+                                                    size="small" 
+                                                    disabled={!canRemove}
+                                                    onClick={(e)=> {
+                                                      e.stopPropagation();
+                                                      removeHullByName(s.id, o.name, def);
+                                                    }}
+                                                    sx={{ p: 0.25, minWidth: 'auto', color: 'inherit' }}
+                                                  >
+                                                    <RemoveIcon fontSize="small" />
+                                                  </IconButton>
+                                                  <Typography variant="body2" sx={{ minWidth: 16, textAlign: 'center', fontSize: '0.75rem' }}>
+                                                    {currentCount}
+                                                  </Typography>
+                                                  <IconButton 
+                                                    size="small" 
+                                                    disabled={!canAdd}
+                                                    onClick={(e)=> {
+                                                      e.stopPropagation();
+                                                      addHull(s.id, o.name, def);
+                                                    }}
+                                                    sx={{ p: 0.25, minWidth: 'auto', color: 'inherit' }}
+                                                  >
+                                                    <PlusIcon fontSize="small" />
+                                                  </IconButton>
+                                                </>
+                                              )}
+                                              {isRefitWeapon && (
+                                                <Typography variant="body2" sx={{ minWidth: 16, textAlign: 'center', fontSize: '0.75rem', fontWeight: 'bold' }}>
+                                                  1
+                                                </Typography>
+                                              )}
                                             </Box>
                                           }
                                         />
@@ -821,14 +987,44 @@ const BuildView = ({
                                 </Box>
                               )}
                             {(() => {
-                              // Account for hull weapon slots consumed by refits
-                              const refitHullCost = s.refit?.cost?.hull_weapons ? parseInt(s.refit.cost.hull_weapons.replace('-', '')) : 0;
-                              const effectiveSlots = def.hull.select - refitHullCost;
+                              // Use the proper effective hull slots calculation that handles both legacy and canonical refits
+                              const effectiveSlots = calculateEffectiveHullSlots(s, def);
                               return editableCount < effectiveSlots && <Alert severity="info" sx={{ mt:1 }}>Choose {effectiveSlots - editableCount} more hull weapon(s).</Alert>;
                             })()}
                           </Paper>
                           )}
                         </Grid>
+
+                        {/* Refit Slot - show weapons added by refits */}
+                        {(() => {
+                          const refitWeapons = getRefitSlotWeapons(s);
+                          return refitWeapons.length > 0 && (
+                            <Grid item xs={12}>
+                              <Paper variant="outlined" sx={{ p: 1 }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                                  {refitWeapons[0]?.originalSlot === 'turret' ? <HullIcon size={16} /> : <ProwIcon size={16} />}
+                                  <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
+                                    {refitWeapons[0]?.originalSlot === 'turret' ? 'Hull' : 'Prow'} — Refit
+                                  </Typography>
+                                </Box>
+                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                                  {refitWeapons.map((weapon, index) => {
+                                    const weaponData = getWeaponData(weapon, [], s);
+                                    return (
+                                      <MuiTooltip 
+                                        key={`refit-${weapon.name}-${index}`} 
+                                        title={`Targets: ${weaponData.targets||"—"} • Attacks: ${weaponData.attacks??"—"} • Range: ${weaponData.range||"—"}`} 
+                                        arrow
+                                      >
+                                        <Chip color="warning" label={weapon.name} />
+                                      </MuiTooltip>
+                                    );
+                                  })}
+                                </Box>
+                              </Paper>
+                            </Grid>
+                          );
+                        })()}
 
                         {/* Refit Button - only for capital ships when refits are enabled */}
                         {useRefits && !def.squadron && (
@@ -855,7 +1051,7 @@ const BuildView = ({
                                     variant="contained"
                                     disabled={!canAddRefit && !s.refit}
                                     onClick={() => {
-                                      console.log('Refit button clicked for ship:', s);
+
                                       handleOpenRefitModal(s);
                                     }}
                                     sx={{
@@ -907,8 +1103,8 @@ const BuildView = ({
           disabled={saveStatus === 'saving'}
           sx={{ 
             position: 'fixed', 
-            bottom: 24, 
-            right: 24,
+            bottom: 16, 
+            right: 16,
             zIndex: 1000,
             bgcolor: saveStatus === 'saved' ? '#4caf50' : undefined,
             '&:hover': {
