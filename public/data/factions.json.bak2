@@ -1,0 +1,6436 @@
+{
+  "Loyalists": {
+    "fluff": "Loyalists are those who are yet to give up on the galactic hegemony. They fight against increasingly bleak odds to preserve order against a galaxy filled with renegades, pirates and alien monstrosities. Loyalist fleets field heavy ships with reinforced prows. They are experts at long ranged missile attacks followed by deadly broadside bombardments made with cannons and lasers.",
+    "specialRules": [
+      {
+        "name": "Armoured Prows",
+        "description": "Loyalist ships treat the armour values of their non-frigate ships as being one point higher against attacks originating from their front arcs. This has no effect against bombing runs. This does not stack with the +1 armour bonus for ships sealing their hatches."
+      },
+      {
+        "name": "Dictatorial Command",
+        "description": "Loyalist fleets may roll one additional command dice in each round. They may have up to seven command dice on the board at one time. This ability is lost if they lose their flagship."
+      }
+    ],
+    "commandAbilities": [
+      {
+        "dice": 1,
+        "name": "Charge Shields",
+        "description": "Use when you activate a ship/squadron. Those ship(s) immediately regain all lost shields."
+      },
+      {
+        "dice": 2,
+        "name": "Maneuvering Thrusters",
+        "description": "Use when you activate a ship/squadron. The ship(s) may immediately make a turn up to 90 degrees."
+      },
+      {
+        "dice": 3,
+        "name": "Devastating Firepower",
+        "description": "Use before shooting with one of your ships/squadrons. All of their cannons are at +1 to hit this activation."
+      },
+      {
+        "dice": 4,
+        "name": "Pulse Lasers",
+        "description": "Use before shooting with one of your ships/squadrons. This activation, their lasers inflict two hits on a natural roll of 6."
+      },
+      {
+        "dice": 5,
+        "name": "Advanced Missiles",
+        "description": "Use before shooting with one of your ships/squadrons. All of their missiles gain +1 to hit for this activation."
+      },
+      {
+        "dice": 6,
+        "name": "Full Speed Ahead",
+        "description": "Use when you activate one of your capital ships. It may not turn, but increases its maximum speed by 6\"."
+      }
+    ],
+    "ships": {
+      "Galleon": {
+        "size": "Large",
+        "points": 9,
+        "statline": {
+          "Hull": 10,
+          "Speed": 6,
+          "Armour": 3,
+          "Shields": 4,
+          "Flak": 3
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Missile Pods",
+              "targets": "Front",
+              "attacks": 8,
+              "range": "18″"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Front",
+              "attacks": 4,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 3,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "18″"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Sides",
+              "attacks": 2,
+              "range": "18″"
+            },
+            {
+              "name": "Fighter Bays"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Destroyer": {
+        "size": "Medium",
+        "points": 6,
+        "statline": {
+          "Hull": 6,
+          "Speed": 8,
+          "Armour": 3,
+          "Shields": 3,
+          "Flak": 2
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Missile Pods",
+              "targets": "Front",
+              "attacks": 6,
+              "range": "18″"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Front",
+              "attacks": 4,
+              "range": "12″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 2,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Sides",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Fighter Bays"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Corvette": {
+        "size": "Small",
+        "points": 3,
+        "statline": {
+          "Hull": 4,
+          "Speed": 10,
+          "Armour": 2,
+          "Shields": 2,
+          "Flak": 1
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Missile Pods",
+              "targets": "Front",
+              "attacks": 4,
+              "range": "18″"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Front",
+              "attacks": 2,
+              "range": "12″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Sides",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Fighter Bays"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Frigate": {
+        "size": "Squadron",
+        "points": 1,
+        "statline": {
+          "Hull": 1,
+          "Speed": 12,
+          "Armour": 2,
+          "Shields": 1,
+          "Flak": 1
+        },
+        "beginsWith": [
+          {
+            "name": "Cannon Turrets",
+            "targets": "Fr/Sd",
+            "attacks": 2,
+            "range": "12″"
+          }
+        ],
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannon Turrets",
+              "targets": "Fr/Sd",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Front",
+              "attacks": 1,
+              "range": "12″"
+            },
+            {
+              "name": "Missile Pods",
+              "targets": "Front",
+              "attacks": 2,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 0,
+          "options": []
+        },
+        "squadron": true
+      }
+    },
+    "factionRefits": {
+      "capitalShipRefits": [
+        {
+          "name": "Up-gunned Prow",
+          "description": "Your ship loses the benefits of armoured prows but adds +2 to the attacks of its prow mounted missiles or +1 to the attacks of its prow mounted lasers.",
+          "scope": "capital",
+          "cost": {
+            "loseKeywords": [
+              "Armoured Prows"
+            ]
+          },
+          "weaponChanges": {
+            "modify": [
+              {
+                "selector": {
+                  "slot": "prow",
+                  "kindAny": [
+                    "missiles"
+                  ]
+                },
+                "changes": {
+                  "attacksDelta": 2
+                }
+              },
+              {
+                "selector": {
+                  "slot": "prow",
+                  "kindAny": [
+                    "lasers"
+                  ]
+                },
+                "changes": {
+                  "attacksDelta": 1
+                }
+              }
+            ]
+          },
+          "notes": [
+            "Lose Armoured Prows special rule",
+            "Prow missiles gain +2 attacks",
+            "Prow lasers gain +1 attack"
+          ]
+        }
+      ],
+      "squadronRefits": [
+        {
+          "name": "Sloped Armour",
+          "description": "Your frigate squadron subtract 2″ from their speed but gain the advantage of armoured prows.",
+          "scope": "squadron",
+          "gains": {
+            "addKeywords": [
+              "Armoured Prows"
+            ],
+            "statDeltas": {
+              "Speed": -2
+            }
+          },
+          "notes": [
+            "Speed reduced by 2\"",
+            "Gain Armoured Prows special rule"
+          ]
+        }
+      ]
+    }
+  },
+  "Renegades": {
+    "fluff": "Renegades are those who have broken with the galactic hegemony, leaving tyranny in exchange for the promise of freedom. However, with the galaxy collapsing around them, they have taken to raiding and piracy in order to survive. Their ships are focused around long ranged turrets coupled with powerful laser batteries that wither the defenses of their enemies from afar.",
+    "specialRules": [
+      {
+        "name": "Shadow From the Void",
+        "description": "Renegade fleets may wait for their opponent to finish setting up their entire fleet before deploying any of their ships."
+      },
+      {
+        "name": "Agile Maneuvers",
+        "description": "Renegade enslaver squadrons may choose to make a bonus turn, up to 45 degrees, at the start of their movement."
+      }
+    ],
+    "commandAbilities": [
+      {
+        "dice": 1,
+        "name": "Scramble Fighters",
+        "description": "Use when you activate a ship with fighter bays. That ship immediately gains one fighter token."
+      },
+      {
+        "dice": 2,
+        "name": "Engine Overcharge",
+        "description": "Use when you activate a ship/squadron. Increase their movement speed by +2 for this activation."
+      },
+      {
+        "dice": 3,
+        "name": "Devastating Firepower",
+        "description": "Use before shooting with one of your ships/squadrons. All of their cannons are at +1 to hit this activation."
+      },
+      {
+        "dice": 4,
+        "name": "Point Defense",
+        "description": "Use when one of your ships is declared the target of a bombing run. Add +2 to your ship's flak value for this activation."
+      },
+      {
+        "dice": 5,
+        "name": "Hit and Run",
+        "description": "Use at the end of a capital ship's activation. The ship makes a turn up to 450 and moves half its speed directly forwards."
+      },
+      {
+        "dice": 6,
+        "name": "Signal Jam",
+        "description": "Use when you activate a ship/squadron within 12\" of an enemy. Remove one die from the opponents command board."
+      }
+    ],
+    "ships": {
+      "Dreadnought": {
+        "size": "Large",
+        "points": 9,
+        "statline": {
+          "Hull": 10,
+          "Speed": 6,
+          "Armour": 3,
+          "Shields": 4,
+          "Flak": 3
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannon Turrets",
+              "targets": "Fr/Sd",
+              "attacks": 6,
+              "range": "18″"
+            },
+            {
+              "name": "Laser Turrets",
+              "targets": "Fr/Sd",
+              "attacks": 3,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 3,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "24″"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Sides",
+              "attacks": 2,
+              "range": "24″"
+            },
+            {
+              "name": "Fighter Bays"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Subjugator": {
+        "size": "Medium",
+        "points": 6,
+        "statline": {
+          "Hull": 6,
+          "Speed": 8,
+          "Armour": 3,
+          "Shields": 3,
+          "Flak": 2
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannon Turrets",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "18″"
+            },
+            {
+              "name": "Laser Turrets",
+              "targets": "Fr/Sd",
+              "attacks": 2,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 2,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "18″"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Sides",
+              "attacks": 2,
+              "range": "18″"
+            },
+            {
+              "name": "Fighter Bays"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Vanguard": {
+        "size": "Small",
+        "points": 3,
+        "statline": {
+          "Hull": 4,
+          "Speed": 10,
+          "Armour": 2,
+          "Shields": 2,
+          "Flak": 1
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannon Turrets",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Laser Turrets",
+              "targets": "Fr/Sd",
+              "attacks": 2,
+              "range": "12″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "18″"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Sides",
+              "attacks": 2,
+              "range": "18″"
+            },
+            {
+              "name": "Fighter Bays"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Enslaver": {
+        "size": "Squadron",
+        "points": 1,
+        "statline": {
+          "Hull": 1,
+          "Speed": 12,
+          "Armour": 2,
+          "Shields": 1,
+          "Flak": 1
+        },
+        "beginsWith": [
+          {
+            "name": "Cannon Turrets",
+            "targets": "Fr/Sd",
+            "attacks": 2,
+            "range": "12″"
+          }
+        ],
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Fr/Sd",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Front",
+              "attacks": 1,
+              "range": "12″"
+            },
+            {
+              "name": "Missile Pods",
+              "targets": "Front",
+              "attacks": 2,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 0,
+          "options": []
+        },
+        "squadron": true
+      }
+    },
+    "factionRefits": {
+      "capitalShipRefits": [
+        {
+          "name": "Prow Launch Bays",
+          "description": "Your ship exchanges its prow weapons for a single launch bay.",
+          "scope": "capital",
+          "weaponChanges": {
+            "replace": [
+              {
+                "slot": "prow",
+                "selector": {
+                  "slot": "prow"
+                },
+                "to": {
+                  "name": "Launch Bays",
+                  "kind": "launch_bays",
+                  "targets": "Any",
+                  "attacks": {
+                    "dice": "1d6"
+                  },
+                  "range": 18
+                }
+              }
+            ]
+          },
+          "notes": [
+            "Prow weapons replaced with Launch Bays"
+          ]
+        }
+      ],
+      "squadronRefits": [
+        {
+          "name": "Marauders",
+          "description": "Your enslaver squadron may not use agile maneuvers but double their attack dice rolled during boarding actions as either attacker or defender.",
+          "scope": "squadron",
+          "notes": [
+            "Cannot use Agile Maneuvers special rule",
+            "Double attack dice during boarding actions"
+          ]
+        }
+      ]
+    }
+  },
+  "Ancients": {
+    "fluff": "The ancient ones have traveled the stars long before the galactic hegemony ever took root. It is said that they are the outcasts of a distant, powerful empire far beyond the galactic reach. Ancient ships are smaller and more fragile than those of their human counterparts, but they have powerful shield systems and deadly weaponry that more than make up for this.",
+    "specialRules": [
+      {
+        "name": "Superior Shields",
+        "description": "Ancient ships may use their shield systems to deflect damage from sources which normally ignore shields. This includes bombing runs, missile attacks, boarding actions, ramming and self destructing ships. It does not include asteroids."
+      },
+      {
+        "name": "Enhanced Weapons Systems",
+        "description": "Ancient ships gain a +1 bonus to hit with attacks from lasers, missiles and cannons."
+      },
+      {
+        "name": "Few in Number",
+        "description": "Ancient fleets begin with 20% fewer points than other factions. This means that in a standard 30 point game they only get to take 24 points worth of ships."
+      }
+    ],
+    "commandAbilities": [
+      {
+        "dice": 1,
+        "name": "Clairvoyance",
+        "description": "Use before shooting with one of your ships/squadrons. This activation, Ignore the -1 penalty for shooting into terrain."
+      },
+      {
+        "dice": 2,
+        "name": "Void Flicker",
+        "description": "Use when you activate a squadron of Whispers. For this activation, they may ignore all terrain effects while moving."
+      },
+      {
+        "dice": 3,
+        "name": "Rapid Maneuver",
+        "description": "Use when you activate a ship/squadron. All of their turns during their normal movement may be up to 90 degrees."
+      },
+      {
+        "dice": 4,
+        "name": "Evasion",
+        "description": "Use when one of your ships is targeted by an enemy ship. Shooting for this activation is at -1 to hit your ship."
+      },
+      {
+        "dice": 5,
+        "name": "Quick Shots",
+        "description": "Use when you activate a ship/squadron. They may perform their shooting before their movement, instead of after."
+      },
+      {
+        "dice": 6,
+        "name": "Agile Hit and Run",
+        "description": "Use at the end of a capital ship's activation. The ship makes a turn up to 900 and moves half its speed directly forwards."
+      }
+    ],
+    "ships": {
+      "Leviathan": {
+        "size": "Large",
+        "points": 9,
+        "statline": {
+          "Hull": 8,
+          "Speed": 8,
+          "Armour": 2,
+          "Shields": 6,
+          "Flak": 3
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Front",
+              "attacks": 8,
+              "range": "18″"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Front",
+              "attacks": 4,
+              "range": "18″"
+            },
+            {
+              "name": "Missile Pods",
+              "targets": "Front",
+              "attacks": 8,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 3,
+          "options": [
+            {
+              "name": "Cannon Turret",
+              "targets": "Fr/Sd",
+              "attacks": 3,
+              "range": "12″"
+            },
+            {
+              "name": "Fighter Bays"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Luminary": {
+        "size": "Medium",
+        "points": 6,
+        "statline": {
+          "Hull": 6,
+          "Speed": 10,
+          "Armour": 2,
+          "Shields": 5,
+          "Flak": 2
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Front",
+              "attacks": 8,
+              "range": "12″"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Front",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Missile Pods",
+              "targets": "Front",
+              "attacks": 6,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 2,
+          "options": [
+            {
+              "name": "Cannon Turret",
+              "targets": "Fr/Sd",
+              "attacks": 3,
+              "range": "12″"
+            },
+            {
+              "name": "Fighter Bays"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Star Weaver": {
+        "size": "Small",
+        "points": 3,
+        "statline": {
+          "Hull": 4,
+          "Speed": 12,
+          "Armour": 1,
+          "Shields": 4,
+          "Flak": 1
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Front",
+              "attacks": 6,
+              "range": "12″"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Front",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Missile Pods",
+              "targets": "Front",
+              "attacks": 4,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannon Turret",
+              "targets": "Fr/Sd",
+              "attacks": 3,
+              "range": "12″"
+            },
+            {
+              "name": "Fighter Bays"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Whisper": {
+        "size": "Squadron",
+        "points": 1,
+        "statline": {
+          "Hull": 1,
+          "Speed": 14,
+          "Armour": 1,
+          "Shields": 3,
+          "Flak": 1
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Front",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Missile Pods",
+              "targets": "Front",
+              "attacks": 4,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 0,
+          "options": []
+        },
+        "squadron": true
+      }
+    },
+    "factionRefits": {
+      "capitalShipRefits": [
+        {
+          "name": "Shadow Star",
+          "description": "Your star weaver subtracts one from its shields, but in return it is treated as being a small target.",
+          "scope": "capital",
+          "requirements": {
+            "shipClassesAny": [
+              "Star Weaver"
+            ]
+          },
+          "gains": {
+            "statDeltas": {
+              "Shields": -1
+            }
+          },
+          "notes": [
+            "Shields reduced by 1",
+            "Treated as small target"
+          ]
+        }
+      ],
+      "squadronRefits": [
+        {
+          "name": "Death Whispers",
+          "description": "Your whisper squadron subtract two from their shields value, but they add +2 to the attacks of their prow weapons (+1 for lasers).",
+          "scope": "squadron",
+          "gains": {
+            "statDeltas": {
+              "Shields": -2
+            }
+          },
+          "weaponChanges": {
+            "modify": [
+              {
+                "selector": {
+                  "slot": "prow",
+                  "kindAny": [
+                    "lasers"
+                  ]
+                },
+                "changes": {
+                  "attacksDelta": 1
+                }
+              },
+              {
+                "selector": {
+                  "slot": "prow"
+                },
+                "changes": {
+                  "attacksDelta": 2
+                }
+              }
+            ]
+          },
+          "notes": [
+            "Shields reduced by 2",
+            "Prow weapons gain +2 attacks",
+            "Prow lasers gain +1 attack (instead of +2)"
+          ]
+        }
+      ]
+    }
+  },
+  "Brutes": {
+    "fluff": "Brutes are mutants from the most inhospitable parts of the galaxy. They have a long history of piracy and violence. Brute vessels are normally ramshackle and crude, built by scavenging parts and bolting them together. Brute ships are slower than most and their weapons often lack range. But their durability and short-ranged firepower are truly formidable.",
+    "specialRules": [
+      {
+        "name": "Piratical",
+        "description": "Brutes receive +1 to all dice rolls made during a boarding action, as either the attacker or the defender."
+      },
+      {
+        "name": "Ramming Prows",
+        "description": "Brute ships roll +2 attack dice whenever ramming enemy vessels. They may continue their activation even if they suffer hull damage while ramming."
+      },
+      {
+        "name": "Scavenger Craft",
+        "description": "Whenever a brute ship launches a bombing run, its bombers receive a -1 penalty to hit if the target of the attack is more than 12\" away."
+      }
+    ],
+    "commandAbilities": [
+      {
+        "dice": 1,
+        "name": "Pirate Tactics",
+        "description": "Use when you activate a ship/squadron. They move freely through asteroid and debris fields this activation."
+      },
+      {
+        "dice": 2,
+        "name": "Full Speed Ahead",
+        "description": "Use when you activate one of your capital ships. It may not turn, but increases its maximum speed by 6\"."
+      },
+      {
+        "dice": 3,
+        "name": "Reckless Boarding",
+        "description": "Use after shooting with one of your capital ships. They may preform an imediate boarding action."
+      },
+      {
+        "dice": 4,
+        "name": "Point Blank Firepower",
+        "description": "Use before shooting with one of your ships/squadrons. Receive +1 to hit against targets within 6\" this activation."
+      },
+      {
+        "dice": 5,
+        "name": "Perseverance",
+        "description": "Use before shooting with one of your ships. Ignore the penalty for being below half starting hull points for this activation."
+      },
+      {
+        "dice": 6,
+        "name": "Iron Locusts",
+        "description": "Use when you activate a squadron of Cutters. They may immediately make a turn up to 90 degrees."
+      }
+    ],
+    "ships": {
+      "Plunderer": {
+        "size": "Large",
+        "points": 9,
+        "statline": {
+          "Hull": 12,
+          "Speed": 4,
+          "Armour": 3,
+          "Shields": 3,
+          "Flak": 3
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Front",
+              "attacks": 12,
+              "range": "12″"
+            },
+            {
+              "name": "Missile Tubes",
+              "targets": "Front",
+              "attacks": 8,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 3,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Short Cannons",
+              "targets": "Sides",
+              "attacks": 8,
+              "range": "6″"
+            },
+            {
+              "name": "Fighter Bays"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Corsair": {
+        "size": "Medium",
+        "points": 6,
+        "statline": {
+          "Hull": 8,
+          "Speed": 6,
+          "Armour": 3,
+          "Shields": 2,
+          "Flak": 2
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Front",
+              "attacks": 10,
+              "range": "12″"
+            },
+            {
+              "name": "Missile Tubes",
+              "targets": "Front",
+              "attacks": 6,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 2,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Short Cannons",
+              "targets": "Sides",
+              "attacks": 8,
+              "range": "6″"
+            },
+            {
+              "name": "Fighter Bays"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Marauder": {
+        "size": "Small",
+        "points": 3,
+        "statline": {
+          "Hull": 6,
+          "Speed": 8,
+          "Armour": 2,
+          "Shields": 1,
+          "Flak": 1
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Front",
+              "attacks": 8,
+              "range": "12″"
+            },
+            {
+              "name": "Missile Tubes",
+              "targets": "Front",
+              "attacks": 4,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Short Cannons",
+              "targets": "Sides",
+              "attacks": 8,
+              "range": "6″"
+            },
+            {
+              "name": "Fighter Bays"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Cutter": {
+        "size": "Squadron",
+        "points": 1,
+        "statline": {
+          "Hull": 1,
+          "Speed": 10,
+          "Armour": 2,
+          "Shields": 1,
+          "Flak": 1
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannon Turrets",
+              "targets": "Fr/Sd",
+              "attacks": 6,
+              "range": "6″"
+            },
+            {
+              "name": "Cannons",
+              "targets": "Front",
+              "attacks": 6,
+              "range": "12″"
+            },
+            {
+              "name": "Missile Tubes",
+              "targets": "Front",
+              "attacks": 4,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 0,
+          "options": []
+        },
+        "squadron": true
+      }
+    },
+    "factionRefits": {
+      "capitalShipRefits": [
+        {
+          "name": "Heavy Rockets",
+          "description": "Your ship reduces the range of its prow mounted missile tubes by 6\", but adds +4 to their attacks.",
+          "scope": "capital",
+          "weaponChanges": {
+            "modify": [
+              {
+                "selector": {
+                  "slot": "prow",
+                  "nameAny": [
+                    "Missile Tubes"
+                  ]
+                },
+                "changes": {
+                  "attacksDelta": 4,
+                  "rangeDelta": -6
+                }
+              }
+            ]
+          },
+          "notes": [
+            "Prow Missile Tubes gain +4 attacks",
+            "Prow Missile Tubes range reduced by 6\""
+          ]
+        }
+      ],
+      "squadronRefits": [
+        {
+          "name": "Quick Cutters",
+          "description": "Your squadron of cutters subtract 2 from the attacks of their prow weapons, but add +2\" to their speed.",
+          "scope": "squadron",
+          "gains": {
+            "statDeltas": {
+              "Speed": 2
+            }
+          },
+          "weaponChanges": {
+            "modify": [
+              {
+                "selector": {
+                  "slot": "prow"
+                },
+                "changes": {
+                  "attacksDelta": -2
+                }
+              }
+            ]
+          },
+          "notes": [
+            "Speed increased by 2\"",
+            "Prow weapons lose 2 attacks"
+          ]
+        }
+      ]
+    }
+  },
+  "Cyborgs": {
+    "fluff": "The Cyborgs were augmented by the galactic hegemony to act as enforcers. Since then they have broken their programing and now seek to carve out a new future with themselves as the dominant power. The cyborgs are few in number, but their technology and crew-skills are beyond exceptional. Their fleets are very durable and their weapons punch well above their weight class.",
+    "specialRules": [
+      {
+        "name": "Elite Troops",
+        "description": "Cyborgs receive +1 to all dice rolls made during a boarding action, as either the attacker or the defender."
+      },
+      {
+        "name": "Enhanced Weapons Systems",
+        "description": "Cyborg ships gain a +1 bonus to hit with attacks from lasers, missiles and cannons."
+      },
+      {
+        "name": "Few in Number",
+        "description": "Cyborg fleets begin with 20% fewer points than other factions. This means that in a standard 30 point game they only get to take 24 points worth of ships."
+      }
+    ],
+    "commandAbilities": [
+      {
+        "dice": 1,
+        "name": "Charge Shields",
+        "description": "Use when you activate a ship/squadron. The ship(s) immediately regain all lost shields."
+      },
+      {
+        "dice": 2,
+        "name": "Overcharge Engines",
+        "description": "Use when you activate a ship/squadron. Increase their movement speed by +2 for this activation."
+      },
+      {
+        "dice": 3,
+        "name": "Perseverance",
+        "description": "Use before shooting with one of your ships. Ignore the penalty for being below half starting hull points for this activation."
+      },
+      {
+        "dice": 4,
+        "name": "Point Defense",
+        "description": "Use when one of your ships is declared the target of a bombing run. Add +2 to your ship's flak value for this activation."
+      },
+      {
+        "dice": 5,
+        "name": "Advanced Missiles",
+        "description": "Use before shooting with one of your ships/squadrons. All of their missiles gain +1 to hit for this activation."
+      },
+      {
+        "dice": 6,
+        "name": "Evasion",
+        "description": "Use when one of your ships is targeted by an enemy ship. Shooting for this activation is at -1 to hit your ship."
+      }
+    ],
+    "ships": {
+      "Harbinger": {
+        "size": "Large",
+        "points": 9,
+        "statline": {
+          "Hull": 10,
+          "Speed": 8,
+          "Armour": 3,
+          "Shields": 5,
+          "Flak": 4
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannon Turrets",
+              "targets": "Fr/Sd",
+              "attacks": 8,
+              "range": "12″"
+            },
+            {
+              "name": "Missile Pods",
+              "targets": "Front",
+              "attacks": 8,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 3,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Sides",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Fighter Bays"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Tempest": {
+        "size": "Medium",
+        "points": 6,
+        "statline": {
+          "Hull": 6,
+          "Speed": 10,
+          "Armour": 3,
+          "Shields": 4,
+          "Flak": 3
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannon Turrets",
+              "targets": "Fr/Sd",
+              "attacks": 6,
+              "range": "12″"
+            },
+            {
+              "name": "Missile Pods",
+              "targets": "Front",
+              "attacks": 6,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 2,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Sides",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Fighter Bays"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Strider": {
+        "size": "Small",
+        "points": 3,
+        "statline": {
+          "Hull": 4,
+          "Speed": 12,
+          "Armour": 2,
+          "Shields": 3,
+          "Flak": 2
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannon Turrets",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Missile Pods",
+              "targets": "Front",
+              "attacks": 4,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Sides",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Fighter Bays"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Gunship": {
+        "size": "Squadron",
+        "points": 1,
+        "statline": {
+          "Hull": 1,
+          "Speed": 12,
+          "Armour": 2,
+          "Shields": 2,
+          "Flak": 1
+        },
+        "beginsWith": [
+          {
+            "name": "Cannon Turrets",
+            "targets": "Fr/Sd",
+            "attacks": 2,
+            "range": "12″"
+          }
+        ],
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannon Turrets",
+              "targets": "Fr/Sd",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Front",
+              "attacks": 1,
+              "range": "12″"
+            },
+            {
+              "name": "Missile Pods",
+              "targets": "Front",
+              "attacks": 2,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 0,
+          "options": []
+        },
+        "squadron": true
+      }
+    },
+    "factionRefits": {
+      "capitalShipRefits": [
+        {
+          "name": "Inspection Ship",
+          "description": "Your ship can not launch bombing runs. When boarding enemy ships it adds +1 to its attacks for each fighter token it currently has.",
+          "scope": "capital",
+          "notes": [
+            "Cannot launch bombing runs",
+            "Boarding: +1 attack per fighter token"
+          ]
+        }
+      ],
+      "squadronRefits": [
+        {
+          "name": "Heavy Boarding Craft",
+          "description": "Your gunship squadron subtracts 2\" from their speed but double their attack dice rolled during boarding actions as either attacker or defender.",
+          "scope": "squadron",
+          "gains": {
+            "statDeltas": {
+              "Speed": -2
+            }
+          },
+          "notes": [
+            "Double attack dice for boarding actions (attacker or defender)"
+          ]
+        }
+      ]
+    }
+  },
+  "Insectoids": {
+    "fluff": "Insectoids have long been exploited by the hegemony—their queens held hostage and their drones controlled by a cocktail of artificial pheromones. With galactic unrest, many hives have been able to break away from hegemonic rule and are seeking vengeance on the human species. Insectoids specialize in swarming with squadrons of smaller vessels and clouds of biological fighter-craft.",
+    "specialRules": [
+      {
+        "name": "Bio-ships",
+        "description": "Insectoid ships cannot be boarded, but may initiate boarding actions of their own. They gain +1 on all of their dice during boarding actions."
+      },
+      {
+        "name": "Predatory",
+        "description": "When insectoid ships initiate a ramming action, they can make a single 45 degree turn following at least 4 inches of movement."
+      },
+      {
+        "name": "The Swarm",
+        "description": "For each squadron of Pincers you include in your list, you may include an additional free Pincer squadron, armed as you choose. For the purpose of victory points, pincers are worth 1/2 of a point each. You may only spend up to half of your fleets total points on Pincer squadrons."
+      }
+    ],
+    "commandAbilities": [
+      {
+        "dice": 1,
+        "name": "Chitinous Swarm",
+        "description": "Use when you finish activating a squadron of Pincers. Immediately activate another Pincer squadron."
+      },
+      {
+        "dice": 2,
+        "name": "Angry Maw",
+        "description": "Use when you declare a ramming action with a ship/squadron. Your ship(s) add two attack dice to their ram."
+      },
+      {
+        "dice": 3,
+        "name": "Barbed Spines",
+        "description": "Use before shooting with one of your ships/squadrons. All of their spine cannons are at +1 to hit this activation."
+      },
+      {
+        "dice": 4,
+        "name": "Acidic Spray",
+        "description": "Use before shooting with one of your ships/squadrons. This activation, their lasers inflict two hits on a natural roll of 6."
+      },
+      {
+        "dice": 5,
+        "name": "Spawn Fighters",
+        "description": "Use when you activate a ship with hive bays. That ship immediately gains one fighter token."
+      },
+      {
+        "dice": 6,
+        "name": "Stinging Cloud",
+        "description": "Use when you initiate a bombing run. Add one to each of your dice to determine the number of attacks."
+      }
+    ],
+    "ships": {
+      "Hive Queen": {
+        "size": "Large",
+        "points": 9,
+        "statline": {
+          "Hull": 10,
+          "Speed": 6,
+          "Armour": 3,
+          "Shields": 3,
+          "Flak": 3
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Spine Cannons",
+              "targets": "Front",
+              "attacks": 12,
+              "range": "12″"
+            },
+            {
+              "name": "Bio-Missiles",
+              "targets": "Front",
+              "attacks": 8,
+              "range": "18″"
+            },
+            {
+              "name": "Laser Spitters",
+              "targets": "Front",
+              "attacks": 6,
+              "range": "12″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 3,
+          "options": [
+            {
+              "name": "Spine Cannons",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Hive Bays"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Mandible": {
+        "size": "Medium",
+        "points": 6,
+        "statline": {
+          "Hull": 8,
+          "Speed": 8,
+          "Armour": 2,
+          "Shields": 2,
+          "Flak": 2
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Spine Cannons",
+              "targets": "Front",
+              "attacks": 8,
+              "range": "12″"
+            },
+            {
+              "name": "Bio-Missiles",
+              "targets": "Front",
+              "attacks": 6,
+              "range": "18″"
+            },
+            {
+              "name": "Laser Spitters",
+              "targets": "Front",
+              "attacks": 4,
+              "range": "12″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 2,
+          "options": [
+            {
+              "name": "Spine Cannons",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Hive Bays"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Stinger": {
+        "size": "Small",
+        "points": 3,
+        "statline": {
+          "Hull": 4,
+          "Speed": 10,
+          "Armour": 2,
+          "Shields": 1,
+          "Flak": 2
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Spine Cannons",
+              "targets": "Front",
+              "attacks": 6,
+              "range": "12″"
+            },
+            {
+              "name": "Bio-Missiles",
+              "targets": "Front",
+              "attacks": 4,
+              "range": "18″"
+            },
+            {
+              "name": "Laser Spitters",
+              "targets": "Front",
+              "attacks": 2,
+              "range": "12″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Spine Cannons",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Hive Bays"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Pincer": {
+        "size": "Squadron",
+        "points": 1,
+        "statline": {
+          "Hull": 1,
+          "Speed": 10,
+          "Armour": 2,
+          "Shields": 0,
+          "Flak": 1
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Spine Cannons",
+              "targets": "Front",
+              "attacks": 4,
+              "range": "6″"
+            },
+            {
+              "name": "Laser Spitters",
+              "targets": "Front",
+              "attacks": 2,
+              "range": "6″"
+            },
+            {
+              "name": "Bio-Missiles",
+              "targets": "Front",
+              "attacks": 2,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 0,
+          "options": []
+        },
+        "squadron": true
+      }
+    },
+    "factionRefits": {
+      "capitalShipRefits": [
+        {
+          "name": "Crushing Appendages",
+          "description": "Your ship subtracts 2 from the attacks of its prow weapon, but all of its ramming attacks get +1 to hit.",
+          "scope": "capital",
+          "weaponChanges": {
+            "modify": [
+              {
+                "selector": {
+                  "slot": "prow"
+                },
+                "changes": {
+                  "attacksDelta": -2
+                }
+              }
+            ]
+          },
+          "notes": [
+            "Ramming attacks get +1 to hit"
+          ]
+        }
+      ],
+      "squadronRefits": [
+        {
+          "name": "Micro Hives",
+          "description": "Your pincer squadron does not benefit from the swarm special rule. Exchange their prow weapons for a launch bay.",
+          "scope": "squadron",
+          "weaponChanges": {
+            "replace": [
+              {
+                "slot": "prow",
+                "selector": {
+                  "slot": "prow"
+                },
+                "to": {
+                  "name": "Hive Bays",
+                  "kind": "launch_bays",
+                  "targets": "Any",
+                  "attacks": {
+                    "dice": "1d6",
+                    "star": true
+                  },
+                  "range": 18
+                }
+              }
+            ]
+          },
+          "tokens": {
+            "hasHiveBays": true
+          },
+          "notes": [
+            "Does not benefit from swarm special rule",
+            "Prow weapons replaced with Hive Bays"
+          ]
+        }
+      ]
+    }
+  },
+  "Mining Guilds": {
+    "fluff": "The Mining Guilds are older than even the Hegemony and have established themselves in baron sectors and at the edge of asteroid belts. They harvest valuable minerals under grueling and dangerous conditions and are no strangers to conflict. Mining guild fleets are slow and defensive, able to turn their mining equipment into powerful weapons at a moment's notice.",
+    "specialRules": [
+      {
+        "name": "Deflectors",
+        "description": "Mining guild ships reduce the number of dice rolled when moving through asteroid fields by 1. They ignore all hits from debris fields."
+      },
+      {
+        "name": "Rear Plating",
+        "description": "Mining guild ships have armoured engines, meaning that enemy ships do not get a +1 to hit when targeting their rear arcs."
+      },
+      {
+        "name": "Mining Charges",
+        "description": "Mining charges work exactly the same as missiles, but do not suffer the -1 to hit for firing at short range or the penalty to hit targets inside of terrain."
+      }
+    ],
+    "commandAbilities": [
+      {
+        "dice": 1,
+        "name": "Mineral Scanners",
+        "description": "Use before shooting with one of your ships/squadrons. This activation, Ignore the -1 penalty for shooting into terrain."
+      },
+      {
+        "dice": 2,
+        "name": "Glance Off",
+        "description": "Use when one of your ships rams or is rammed. The enemy ship suffers -2 on their ramming attack rolls."
+      },
+      {
+        "dice": 3,
+        "name": "Primed Charges",
+        "description": "Use before shooting with one of your ships/squadrons. This activation, their mining charges receive +1 to hit."
+      },
+      {
+        "dice": 4,
+        "name": "Defensive Tactics",
+        "description": "Use after you finish shooting with a ship/squadron. They may immediately seal their hatches."
+      },
+      {
+        "dice": 5,
+        "name": "Focused Beam",
+        "description": "Use before shooting with one of your ships/squadrons. This activation, their drilling lasers extend their range to 18\"."
+      },
+      {
+        "dice": 6,
+        "name": "Haul Iron",
+        "description": "Use when you activate a ship/squadron. This activation, add +2 to their speed. This cannot be used on a Guild Fortress."
+      }
+    ],
+    "ships": {
+      "Guild Fortress": {
+        "size": "Large",
+        "points": 9,
+        "statline": {
+          "Hull": 10,
+          "Speed": 4,
+          "Armour": 4,
+          "Shields": 4,
+          "Flak": 3
+        },
+        "beginsWith": [
+          {
+            "name": "Cannon Turret",
+            "targets": "360°",
+            "attacks": 8,
+            "range": "18″"
+          }
+        ],
+        "prow": {
+          "select": 0,
+          "options": []
+        },
+        "hull": {
+          "select": 3,
+          "options": [
+            {
+              "name": "Blasting Cannon",
+              "targets": "360°",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Drilling Laser",
+              "targets": "360°",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Fighter Bays"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Rock Hauler": {
+        "size": "Medium",
+        "points": 6,
+        "statline": {
+          "Hull": 6,
+          "Speed": 6,
+          "Armour": 3,
+          "Shields": 3,
+          "Flak": 2
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannon Turret",
+              "targets": "Fr/Sd",
+              "attacks": 6,
+              "range": "18″"
+            },
+            {
+              "name": "Mining Charges",
+              "targets": "Rear",
+              "attacks": 10,
+              "range": "6″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 2,
+          "options": [
+            {
+              "name": "Blasting Cannon",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Drilling Laser",
+              "targets": "Sides",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Mining Charges",
+              "targets": "Sides",
+              "attacks": 6,
+              "range": "6″"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Digger": {
+        "size": "Small",
+        "points": 3,
+        "statline": {
+          "Hull": 4,
+          "Speed": 6,
+          "Armour": 3,
+          "Shields": 2,
+          "Flak": 1
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannon Turret",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Mining Charges",
+              "targets": "Rear",
+              "attacks": 6,
+              "range": "6″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Blasting Cannon",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Drilling Laser",
+              "targets": "Sides",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Mining Charges",
+              "targets": "Sides",
+              "attacks": 6,
+              "range": "6″"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Defender": {
+        "size": "Squadron",
+        "points": 1,
+        "statline": {
+          "Hull": 1,
+          "Speed": 8,
+          "Armour": 2,
+          "Shields": 1,
+          "Flak": 2
+        },
+        "beginsWith": [
+          {
+            "name": "Cannon Turret",
+            "targets": "Fr/Sd",
+            "attacks": 2,
+            "range": "12″"
+          }
+        ],
+        "prow": {
+          "select": 0,
+          "options": []
+        },
+        "hull": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Blasting Cannon",
+              "targets": "Fr/Sd",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Drilling Laser",
+              "targets": "Front",
+              "attacks": 1,
+              "range": "12″"
+            },
+            {
+              "name": "Mining Charges",
+              "targets": "Sides",
+              "attacks": 6,
+              "range": "6″"
+            }
+          ]
+        },
+        "squadron": true
+      }
+    },
+    "factionRefits": {
+      "capitalShipRefits": [
+        {
+          "name": "Carrier Refit",
+          "description": "Your digger or rock hauler may select launch bays as a hull weapon option.",
+          "scope": "capital",
+          "requirements": {
+            "shipClassesAny": [
+              "Digger",
+              "Rock Hauler"
+            ]
+          },
+          "notes": [
+            "Allows Launch Bays as hull weapon option for Diggers and Rock Haulers"
+          ]
+        }
+      ],
+      "squadronRefits": [
+        {
+          "name": "Auto-Drillers",
+          "description": "Your defender squadron lose their prow cannon turret and replace it with a laser.",
+          "scope": "squadron",
+          "weaponChanges": {
+            "replace": [
+              {
+                "slot": "any",
+                "selector": {
+                  "slot": "any",
+                  "nameAny": [
+                    "Cannon Turret"
+                  ]
+                },
+                "to": {
+                  "name": "Light Laser",
+                  "kind": "lasers",
+                  "targets": "Fr/Sd",
+                  "attacks": 1,
+                  "range": 12
+                }
+              }
+            ],
+            "add": [
+              {
+                "slot": "any",
+                "weapon": {
+                  "name": "Light Laser",
+                  "kind": "lasers",
+                  "targets": "Fr/Sd",
+                  "attacks": 1,
+                  "range": 12
+                }
+              }
+            ]
+          },
+          "gains": {},
+          "notes": [
+            "Prow cannon turret replaced with Light Laser"
+          ]
+        }
+      ]
+    }
+  },
+  "Merchants": {
+    "fluff": "Merchant convoys are forces assembled by the wealthiest individuals in the galaxy with the expressed purpose of moving goods and earning a profit. These convoys are often dragged into the conflicts plaguing the galaxy, and while the merchants are not warriors by trade, they have more than a few tricks up their sleeves when it comes to defending themselves.",
+    "specialRules": [
+      {
+        "name": "Mercantile",
+        "description": "Merchant capital ships that leave the battlefield only grant one third of their points to the opposing player."
+      },
+      {
+        "name": "Wealthy",
+        "description": "Merchant fleets may include 20% more points in ships. This means that in a standard 30 point game they may include up to 36 points of ships."
+      },
+      {
+        "name": "Civilian Crews",
+        "description": "Merchant ships suffer a -1 penalty to all of their rolls made while boarding or being boarded."
+      }
+    ],
+    "commandAbilities": [
+      {
+        "dice": 1,
+        "name": "Emergency FTL",
+        "description": "Use when you activate a ship. Remove it from the battlefield. It counts as having left the board."
+      },
+      {
+        "dice": 2,
+        "name": "Defensive Tactics",
+        "description": "Use after you finish shooting with a ship/squadron. They may immediately seal their hatches."
+      },
+      {
+        "dice": 3,
+        "name": "Maintain Distance",
+        "description": "Use before shooting with one of your ships/squadrons. Receive +1 to hit against targets over 6\" this activation."
+      },
+      {
+        "dice": 4,
+        "name": "Anti-Piracy Measures",
+        "description": "Use when one of your ships is boarded. Subtract two from the number of boarding attacks made by the enemy ship."
+      },
+      {
+        "dice": 5,
+        "name": "Protect the Goods",
+        "description": "Use when you declare intercepting enemy bombers or missiles. Add one to each die to determine the attacks negated."
+      },
+      {
+        "dice": 6,
+        "name": "Improvisation",
+        "description": "Use when you activate a ship. Do not spend this die. Instead move it to any location on the command board."
+      }
+    ],
+    "ships": {
+      "Fortified Barge": {
+        "size": "Large",
+        "points": 9,
+        "statline": {
+          "Hull": 12,
+          "Speed": 6,
+          "Armour": 2,
+          "Shields": 4,
+          "Flak": 3
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannon Turret",
+              "targets": "Sides/Rear",
+              "attacks": 6,
+              "range": "12″"
+            },
+            {
+              "name": "Laser Turrets",
+              "targets": "Sides/Rear",
+              "attacks": 3,
+              "range": "12″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 3,
+          "options": [
+            {
+              "name": "Cannon Turret",
+              "targets": "Fr/Sd",
+              "attacks": 3,
+              "range": "12″"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Sides",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Fighter Bays"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Armoured Transport": {
+        "size": "Medium",
+        "points": 6,
+        "statline": {
+          "Hull": 6,
+          "Speed": 8,
+          "Armour": 2,
+          "Shields": 3,
+          "Flak": 2
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannon Turret",
+              "targets": "Sides/Rear",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Laser Turrets",
+              "targets": "Sides/Rear",
+              "attacks": 2,
+              "range": "12″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 2,
+          "options": [
+            {
+              "name": "Cannon Turret",
+              "targets": "Fr/Sd",
+              "attacks": 3,
+              "range": "12″"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Sides",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Fighter Bays"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Supply Ship": {
+        "size": "Small",
+        "points": 3,
+        "statline": {
+          "Hull": 6,
+          "Speed": 8,
+          "Armour": 1,
+          "Shields": 2,
+          "Flak": 1
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannon Turrets",
+              "targets": "Sides/Rear",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Laser Turrets",
+              "targets": "Sides/Rear",
+              "attacks": 1,
+              "range": "12″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannon Turret",
+              "targets": "Fr/Sd",
+              "attacks": 3,
+              "range": "12″"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Sides",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Fighter Bays"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Bodyguard": {
+        "size": "Squadron",
+        "points": 1,
+        "statline": {
+          "Hull": 1,
+          "Speed": 10,
+          "Armour": 2,
+          "Shields": 1,
+          "Flak": 1
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannon Turrets",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Front",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Missile Pods",
+              "targets": "Front",
+              "attacks": 4,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 0,
+          "options": []
+        },
+        "squadron": true
+      }
+    },
+    "factionRefits": {
+      "capitalShipRefits": [
+        {
+          "name": "Missile Systems",
+          "description": "Your ship may select missile turrets as a hull weapon option.",
+          "scope": "capital",
+          "weaponChanges": {
+            "unlockOptions": [
+              {
+                "slot": "hull",
+                "allowNamesAny": [
+                  "Missile Turrets"
+                ]
+              }
+            ]
+          },
+          "notes": [
+            "Allows Missile Turrets as hull weapon option"
+          ]
+        }
+      ],
+      "squadronRefits": [
+        {
+          "name": "Rearguard",
+          "description": "Your squadron of bodyguards subtract 2\" from their speed. Their weapons gain a 360 degree arc of fire.",
+          "scope": "squadron",
+          "gains": {
+            "statDeltas": {
+              "Speed": -2
+            }
+          },
+          "weaponChanges": {
+            "modify": [
+              {
+                "selector": {
+                  "slot": "any"
+                },
+                "changes": {
+                  "setTargets": "360"
+                }
+              }
+            ]
+          },
+          "notes": [
+            "Speed reduced by 2\"",
+            "All weapons gain 360° arc of fire"
+          ]
+        }
+      ]
+    }
+  },
+  "Disciples": {
+    "fluff": "The Disciples are religious zealots on a grand crusade to liberate the souls of the galaxy's population. Thanks to the tenets of their faith, those who can not be converted in life can still be redeemed in death. The disciples lack in tactical prowess and military experience, but are crazed enough to fling themselves into even the most dangerous fight, heedless of the cost.",
+    "specialRules": [
+      {
+        "name": "Fearless",
+        "description": "The weapons of the disciples never suffer any penalties for their ships being below half their maximum hull points."
+      },
+      {
+        "name": "Cleansing Flame",
+        "description": "Whenever a disciple's capital ship self destructs, the explosion hits all vessels within 3\" of it, be they friend or foe (see page 16). However, they only ignore the shields of ships they are in base contact with."
+      },
+      {
+        "name": "Rain of Rockets",
+        "description": "Hull mounted missile racks ignore the penalty for shooting at targets within 6 inches."
+      }
+    ],
+    "commandAbilities": [
+      {
+        "dice": 1,
+        "name": "Blaze of Glory",
+        "description": "Use when one of your capital ships is destroyed. It is counted as self destructing (see cleansing flame)."
+      },
+      {
+        "dice": 2,
+        "name": "Zeal",
+        "description": "Use when one of your ships boards an enemy or is boarded. Add +1 to each of its attack rolls for this boarding action."
+      },
+      {
+        "dice": 3,
+        "name": "Burning Spears",
+        "description": "Use before shooting with a squadron of Torchbearers. This activation, they double the attacks of their prow weapons."
+      },
+      {
+        "dice": 4,
+        "name": "One way Trip",
+        "description": "Use when you initiate a bombing run. Add one to each of your dice to determine the number of attacks."
+      },
+      {
+        "dice": 5,
+        "name": "Brimstone Rockets",
+        "description": "Use before shooting with one of your ships/squadrons. This activation, its missiles ignore the enemy flak value."
+      },
+      {
+        "dice": 6,
+        "name": "Sabotage",
+        "description": "Use when you activate a capital ship within 12\" of an enemy ship. The enemy vessel gains a sitting duck token."
+      }
+    ],
+    "ships": {
+      "Grand Sanctum": {
+        "size": "Large",
+        "points": 9,
+        "statline": {
+          "Hull": 10,
+          "Speed": 6,
+          "Armour": 3,
+          "Shields": 4,
+          "Flak": 3
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannon Turrets",
+              "targets": "Fr/Sd",
+              "attacks": 8,
+              "range": "18″"
+            },
+            {
+              "name": "Laser Turrets",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 3,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "18″"
+            },
+            {
+              "name": "Missile Racks",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "18″"
+            },
+            {
+              "name": "Fighter Bays"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Resplendent": {
+        "size": "Medium",
+        "points": 6,
+        "statline": {
+          "Hull": 6,
+          "Speed": 8,
+          "Armour": 3,
+          "Shields": 3,
+          "Flak": 2
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannon Turrets",
+              "targets": "Fr/Sd",
+              "attacks": 6,
+              "range": "12″"
+            },
+            {
+              "name": "Laser Turrets",
+              "targets": "Fr/Sd",
+              "attacks": 3,
+              "range": "12″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 2,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Missile Racks",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "18″"
+            },
+            {
+              "name": "Fighter Bays"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Herald": {
+        "size": "Small",
+        "points": 3,
+        "statline": {
+          "Hull": 4,
+          "Speed": 10,
+          "Armour": 2,
+          "Shields": 2,
+          "Flak": 1
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannon Turrets",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Laser Turrets",
+              "targets": "Fr/Sd",
+              "attacks": 2,
+              "range": "12″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Missile Racks",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "18″"
+            },
+            {
+              "name": "Fighter Bays"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Torchbearer": {
+        "size": "Squadron",
+        "points": 1,
+        "statline": {
+          "Hull": 1,
+          "Speed": 12,
+          "Armour": 2,
+          "Shields": 1,
+          "Flak": 1
+        },
+        "beginsWith": [
+          {
+            "name": "Cannon Turrets",
+            "targets": "Fr/Sd",
+            "attacks": 2,
+            "range": "12″"
+          }
+        ],
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Fr/Sd",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Front",
+              "attacks": 1,
+              "range": "12″"
+            },
+            {
+              "name": "Missile Pods",
+              "targets": "Front",
+              "attacks": 2,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 0,
+          "options": []
+        },
+        "squadron": true
+      }
+    },
+    "factionRefits": {
+      "capitalShipRefits": [
+        {
+          "name": "Command Chapel",
+          "description": "Your ship loses one of its hull mounted weapons. So long as your ship remains on the table you may roll an extra dice on your command board.",
+          "scope": "capital",
+          "cost": {
+            "loseSlots": [
+              {
+                "slot": "hull",
+                "count": 1
+              }
+            ]
+          },
+          "notes": [
+            "Hull weapon slots reduced by 1",
+            "May roll extra command dice while ship remains on table"
+          ]
+        }
+      ],
+      "squadronRefits": [
+        {
+          "name": "Rigged to Blow",
+          "description": "Your torchbearer squadron are rigged with bombs. If they ram or are rammed they are automatically destroyed but they will roll 2 extra ramming attacks.",
+          "scope": "squadron",
+          "ramming": {
+            "attacksDelta": 2,
+            "autoSelfDestructOnRam": true
+          },
+          "notes": [
+            "Auto-destroyed when ramming or rammed",
+            "Roll 2 extra ramming attacks when ramming/rammed"
+          ]
+        }
+      ]
+    }
+  },
+  "Scrap Bots": {
+    "fluff": "Scrap bots were created long ago to collect and re-purpose debris scattered around the galactic flotsam. Over the centuries their programing has gone more than a little haywire, especially once they realized that the best way to find scrap was to blow things up. They now build massive junk-flotillas to wage war on anyone and anything.",
+    "specialRules": [
+      {
+        "name": "Unplanned Construction",
+        "description": "do not select weapons for your ships. At the start of the game roll randomly for each hull weapon D6: 1-2 cannons, 2-4 lasers, 5-6 missiles."
+      },
+      {
+        "name": "Drone Bays",
+        "description": "Drone bays launch drone tokens. These work exactly like fighter tokens but can not be sent out on bombing runs."
+      },
+      {
+        "name": "Industrious",
+        "description": "Scrap Bots fleets may include 20% more points in ships. This means that in a standard 30 point game they may include up to 36 points of ships."
+      }
+    ],
+    "commandAbilities": [
+      {
+        "dice": 1,
+        "name": "Reconstruct",
+        "description": "Use when you activate a ship. It may spend its drone tokens to recover lost hull points on a one to one basis."
+      },
+      {
+        "dice": 2,
+        "name": "Erratic Warheads",
+        "description": "Use before shooting with one of your ships/squadrons. This activation, its missiles ignore the enemy flak value."
+      },
+      {
+        "dice": 3,
+        "name": "Blocking Protocol",
+        "description": "Use when a ship is targeted by enemy cannons. It may spend a drone token to reduce the incoming attacks by D6."
+      },
+      {
+        "dice": 4,
+        "name": "Junk Run",
+        "description": "Use when you activate a squadron of junk runners. During this activation they gain +4\" speed."
+      },
+      {
+        "dice": 5,
+        "name": "Salvage Scrap",
+        "description": "Use when a ship is destroyed (friend or foe) select one of your ships within 6\" to immediately recover one lost hull point."
+      },
+      {
+        "dice": 6,
+        "name": "Drone Shield",
+        "description": "Use when one of your ships is targeted by enemy lasers. You may sacrifice drone tokens as though they were shields."
+      }
+    ],
+    "ships": {
+      "Refuse Hub": {
+        "size": "Large",
+        "points": 9,
+        "statline": {
+          "Hull": 12,
+          "Speed": 6,
+          "Armour": 3,
+          "Shields": 2,
+          "Flak": 2
+        },
+        "beginsWith": [
+          {
+            "name": "Drone Bay"
+          },
+          {
+            "name": "Drone Bay"
+          }
+        ],
+        "prow": {
+          "select": 0,
+          "options": []
+        },
+        "hull": {
+          "select": 3,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Fr/Sd",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Missiles",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "18″"
+            }
+          ]
+        },
+        "randomizeHull": true,
+        "squadron": false
+      },
+      "Trash Packer": {
+        "size": "Medium",
+        "points": 6,
+        "statline": {
+          "Hull": 8,
+          "Speed": 8,
+          "Armour": 2,
+          "Shields": 2,
+          "Flak": 2
+        },
+        "beginsWith": [
+          {
+            "name": "Drone Bay"
+          }
+        ],
+        "prow": {
+          "select": 0,
+          "options": []
+        },
+        "hull": {
+          "select": 2,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Fr/Sd",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Missiles",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "18″"
+            }
+          ]
+        },
+        "randomizeHull": true,
+        "squadron": false
+      },
+      "Scrap Collector": {
+        "size": "Small",
+        "points": 3,
+        "statline": {
+          "Hull": 4,
+          "Speed": 8,
+          "Armour": 2,
+          "Shields": 2,
+          "Flak": 1
+        },
+        "beginsWith": [
+          {
+            "name": "Drone Bay"
+          }
+        ],
+        "prow": {
+          "select": 0,
+          "options": []
+        },
+        "hull": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Fr/Sd",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Missiles",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "18″"
+            }
+          ]
+        },
+        "randomizeHull": true,
+        "squadron": false
+      },
+      "Junk Runner": {
+        "size": "Squadron",
+        "points": 1,
+        "statline": {
+          "Hull": 1,
+          "Speed": 8,
+          "Armour": 2,
+          "Shields": 1,
+          "Flak": 1
+        },
+        "prow": {
+          "select": 0,
+          "options": []
+        },
+        "hull": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Fr/Sd",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Missiles",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "18″"
+            }
+          ]
+        },
+        "randomizeHull": true,
+        "squadron": true
+      }
+    },
+    "factionRefits": {
+      "capitalShipRefits": [
+        {
+          "name": "Drone Bombs",
+          "description": "Your ship exchanges one or more of its drone launchers for missiles.",
+          "scope": "capital",
+          "weaponChanges": {
+            "replace": [
+              {
+                "slot": "any",
+                "selector": {
+                  "slot": "any",
+                  "nameAny": [
+                    "Drone Launchers"
+                  ]
+                },
+                "to": {
+                  "name": "Missiles",
+                  "kind": "missiles",
+                  "targets": "Fr/Sd",
+                  "attacks": 3,
+                  "range": 18
+                }
+              }
+            ]
+          },
+          "notes": [
+            "Exchange Drone Launchers for Missiles"
+          ]
+        }
+      ],
+      "squadronRefits": [
+        {
+          "name": "Drone Haulers",
+          "description": "Your squadron exchanges their hull weapons for drone bays.",
+          "scope": "squadron",
+          "weaponChanges": {
+            "replace": [
+              {
+                "slot": "hull",
+                "selector": {
+                  "slot": "hull"
+                },
+                "to": {
+                  "name": "Drone Bays",
+                  "kind": "launch_bays",
+                  "targets": "-",
+                  "attacks": "-",
+                  "range": "-"
+                }
+              }
+            ]
+          },
+          "tokens": {
+            "hasDroneBays": true
+          },
+          "notes": [
+            "Hull weapons replaced with Drone Bays",
+            "Follow drone token rules"
+          ]
+        }
+      ]
+    }
+  },
+  "Dusk Wraiths": {
+    "fluff": "Long ago an ancient civilization rivaled the power of the emerging Galactic Hegemony, but they where wiped out by a deadly bio-weapon. Those few who survived were forced to seal their dying bodies in necro-suits and flee to the darkest corners of the galaxy. Long have they plotted their revenge against the living.",
+    "specialRules": [
+      {
+        "name": "Leech Lasers",
+        "description": "Whenever leech lasers deal damage to a target's shields, the attacking ship may immediately recover lost shields equal to the damage dealt."
+      },
+      {
+        "name": "Energy Drain",
+        "description": "Whenever an enemy ship is activated, it suffers 1 damage to its shields for each Dusk Wraith ship within 6\"."
+      },
+      {
+        "name": "Terrifying Decor",
+        "description": "Whenever an enemy ship boards one of yours, their boarding attacks are made at a -1 penalty."
+      }
+    ],
+    "commandAbilities": [
+      {
+        "dice": 1,
+        "name": "Vampiric Warhead",
+        "description": "Use when you deal hull damage to an enemy ship using missiles. That ship immediately gains a sitting duck token."
+      },
+      {
+        "dice": 2,
+        "name": "Risen Warriors",
+        "description": "Use when you board an enemy ship with one of your capital ships. Roll 2 additional boarding attacks."
+      },
+      {
+        "dice": 3,
+        "name": "Shadow Shroud",
+        "description": "Use when one of your ships is targeted by an enemy ship. Shooting for this activation is at -1 to hit your ship."
+      },
+      {
+        "dice": 4,
+        "name": "Beguile",
+        "description": "Use when you activate a ship within 12\" of an enemy ship. You may immediately turn the enemy ship up to 45 degrees."
+      },
+      {
+        "dice": 5,
+        "name": "Void Flicker",
+        "description": "Use when you activate a squadron of Dark Thralls. For this activation, they may ignore terrain effects while moving."
+      },
+      {
+        "dice": 6,
+        "name": "Carrion Feast",
+        "description": "Use when a ship is destroyed (friend or foe) select one of your ships within 6\" to immediately recover one lost hull point."
+      }
+    ],
+    "ships": {
+      "Night Sovereign": {
+        "size": "Large",
+        "points": 9,
+        "statline": {
+          "Hull": 8,
+          "Speed": 6,
+          "Armour": 3,
+          "Shields": 4,
+          "Flak": 3
+        },
+        "prow": {
+          "select": 2,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Leech Lasers",
+              "targets": "Fr/Sd",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Missiles",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 2,
+          "options": [
+            {
+              "name": "Fighter Bays"
+            },
+            {
+              "name": "Leech Lasers",
+              "targets": "Sides",
+              "attacks": 2,
+              "range": "12″"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Gate Keeper": {
+        "size": "Medium",
+        "points": 6,
+        "statline": {
+          "Hull": 6,
+          "Speed": 8,
+          "Armour": 2,
+          "Shields": 4,
+          "Flak": 2
+        },
+        "prow": {
+          "select": 2,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Leech Lasers",
+              "targets": "Fr/Sd",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Missiles",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Fighter Bays"
+            },
+            {
+              "name": "Leech Lasers",
+              "targets": "Sides",
+              "attacks": 2,
+              "range": "12″"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Umbral Phantom": {
+        "size": "Small",
+        "points": 3,
+        "statline": {
+          "Hull": 4,
+          "Speed": 10,
+          "Armour": 1,
+          "Shields": 3,
+          "Flak": 2
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Leech Lasers",
+              "targets": "Fr/Sd",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Missiles",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Fighter Bays"
+            },
+            {
+              "name": "Leech Lasers",
+              "targets": "Sides",
+              "attacks": 2,
+              "range": "12″"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Dark Thrall": {
+        "size": "Squadron",
+        "points": 1,
+        "statline": {
+          "Hull": 1,
+          "Speed": 10,
+          "Armour": 1,
+          "Shields": 2,
+          "Flak": 2
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Leech Lasers",
+              "targets": "Front",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Missiles",
+              "targets": "Front",
+              "attacks": 4,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 0,
+          "options": []
+        },
+        "squadron": true
+      }
+    },
+    "factionRefits": {
+      "capitalShipRefits": [
+        {
+          "name": "Leech Laser Array",
+          "description": "Your ship subtracts 2 from its shields and gains a battery of leech lasers.",
+          "scope": "capital",
+          "gains": {
+            "statDeltas": {
+              "Shields": -2
+            }
+          },
+          "weaponChanges": {
+            "add": [
+              {
+                "slot": "hull",
+                "weapon": {
+                  "name": "Leech Laser",
+                  "kind": "lasers",
+                  "targets": "Fr/Sd",
+                  "attacks": 3,
+                  "range": 18
+                }
+              }
+            ]
+          },
+          "notes": [
+            "Shields reduced by 2",
+            "Gain Leech Laser battery weapon"
+          ]
+        }
+      ],
+      "squadronRefits": [
+        {
+          "name": "Attack Thralls",
+          "description": "Your squadron of dark thralls subtract one from their flak value and gain +2\" to their speed.",
+          "scope": "squadron",
+          "gains": {
+            "statDeltas": {
+              "Flak": -1,
+              "Speed": 2
+            }
+          },
+          "notes": [
+            "Flak reduced by 1",
+            "Speed increased by 2\""
+          ]
+        }
+      ]
+    }
+  },
+  "Liberationists": {
+    "fluff": "For centuries, the peoples of the galaxy have cried out for freedom! Rebel cells have formed in every major colony, gathering ships and resources. Everywhere all at once these liberationists strike at the dying vestiges of the Galactic Hegemony. Though they have little in common, all have heard the cry for interstellar self-determination!",
+    "specialRules": [
+      {
+        "name": "Mega Cannons",
+        "description": "These cannons treat all normal hits as rolls of a six (even if 6s were required.)"
+      },
+      {
+        "name": "Cyclone Gun",
+        "description": "These are treated as cannons but do not score double hits on rolls of 6."
+      },
+      {
+        "name": "Motley Crew",
+        "description": "Every capital ship in your fleet starts the game with random capital ship advancement (as seen on page 50 of the Void Admiral rules)"
+      },
+      {
+        "name": "Individualistic",
+        "description": "Your fleet has no flagship but will always roll five command dice."
+      }
+    ],
+    "commandAbilities": [
+      {
+        "dice": 1,
+        "name": "Gunship Drift",
+        "description": "Use after you finish moving a squadron of liberty gunships. They may all immediately turn up to 90 degrees."
+      },
+      {
+        "dice": 2,
+        "name": "Trigger Happy",
+        "description": "Use before shooting with one of your ships/squadrons. This activation, their cyclone guns each gain +2 attacks."
+      },
+      {
+        "dice": 3,
+        "name": "Missile Bombardment",
+        "description": "Use before shooting with one of your ships/squadrons. This activation, their missiles increase their range to 24\"."
+      },
+      {
+        "dice": 4,
+        "name": "Hull-Breaker Rounds",
+        "description": "Use before shooting with one of your ships/squadrons. This activation, their mega cannons get +1 to hit."
+      },
+      {
+        "dice": 5,
+        "name": "Rebel Aces",
+        "description": "Use when you initiate a bombing run. Add one to each of your dice to determine the number of attacks."
+      },
+      {
+        "dice": 6,
+        "name": "Strong and Independent",
+        "description": "Use when you finish activating a capital ship and it is outside of 12\" from any allies. It gains a hatches sealed token."
+      }
+    ],
+    "ships": {
+      "Manifest Glory": {
+        "size": "Large",
+        "points": 9,
+        "statline": {
+          "Hull": 10,
+          "Speed": 6,
+          "Armour": 3,
+          "Shields": 3,
+          "Flak": 3
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cyclone Guns",
+              "targets": "Front",
+              "attacks": 16,
+              "range": "12″"
+            },
+            {
+              "name": "Missiles",
+              "targets": "Front",
+              "attacks": 8,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 3,
+          "options": [
+            {
+              "name": "Fighter Bays"
+            },
+            {
+              "name": "Cyclone Guns",
+              "targets": "Sides",
+              "attacks": 6,
+              "range": "12″"
+            },
+            {
+              "name": "Mega Cannons",
+              "targets": "Sides",
+              "attacks": 2,
+              "range": "18″"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Democratizer": {
+        "size": "Medium",
+        "points": 6,
+        "statline": {
+          "Hull": 6,
+          "Speed": 8,
+          "Armour": 3,
+          "Shields": 3,
+          "Flak": 2
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cyclone Guns",
+              "targets": "Front",
+              "attacks": 12,
+              "range": "12″"
+            },
+            {
+              "name": "Missiles",
+              "targets": "Front",
+              "attacks": 6,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 2,
+          "options": [
+            {
+              "name": "Fighter Bays"
+            },
+            {
+              "name": "Cyclone Guns",
+              "targets": "Sides",
+              "attacks": 6,
+              "range": "12″"
+            },
+            {
+              "name": "Mega Cannons",
+              "targets": "Sides",
+              "attacks": 2,
+              "range": "18″"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Freedom Finder": {
+        "size": "Small",
+        "points": 3,
+        "statline": {
+          "Hull": 4,
+          "Speed": 10,
+          "Armour": 2,
+          "Shields": 2,
+          "Flak": 1
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cyclone Guns",
+              "targets": "Front",
+              "attacks": 8,
+              "range": "12″"
+            },
+            {
+              "name": "Missiles",
+              "targets": "Front",
+              "attacks": 4,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Fighter Bays"
+            },
+            {
+              "name": "Cyclone Guns",
+              "targets": "Sides",
+              "attacks": 6,
+              "range": "12″"
+            },
+            {
+              "name": "Mega Cannons",
+              "targets": "Sides",
+              "attacks": 2,
+              "range": "18″"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Liberty Gunship": {
+        "size": "Squadron",
+        "points": 1,
+        "statline": {
+          "Hull": 1,
+          "Speed": 10,
+          "Armour": 2,
+          "Shields": 1,
+          "Flak": 1
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cyclone Guns",
+              "targets": "Front",
+              "attacks": 6,
+              "range": "12″"
+            },
+            {
+              "name": "Mega Cannons",
+              "targets": "Front",
+              "attacks": 2,
+              "range": "18″"
+            },
+            {
+              "name": "Missiles",
+              "targets": "Front",
+              "attacks": 4,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 0,
+          "options": []
+        },
+        "squadron": true
+      }
+    },
+    "factionRefits": {
+      "capitalShipRefits": [
+        {
+          "name": "Cyclone Turret",
+          "description": "Your ship loses the benefits of motley crew, but adds a cyclone gun turret.",
+          "scope": "capital",
+          "cost": {
+            "loseKeywords": [
+              "Motley Crew"
+            ]
+          },
+          "weaponChanges": {
+            "add": [
+              {
+                "slot": "hull",
+                "weapon": {
+                  "name": "Cyclone Gun",
+                  "kind": "cannons",
+                  "targets": "Fr/Sd",
+                  "attacks": 3,
+                  "range": 12
+                }
+              }
+            ]
+          },
+          "notes": [
+            "Lose Motley Crew special rule",
+            "Gain Cyclone Gun turret weapon"
+          ]
+        }
+      ],
+      "squadronRefits": [
+        {
+          "name": "Artillery Gunships",
+          "description": "Your squadron of liberty gunships subtract 1\" from their speed and add +2 to the attacks of their prow weapons (+1 for mega cannons).",
+          "scope": "squadron",
+          "gains": {
+            "statDeltas": {
+              "Speed": -1
+            }
+          },
+          "weaponChanges": {
+            "modify": [
+              {
+                "selector": {
+                  "slot": "prow",
+                  "nameAny": [
+                    "Mega Cannons"
+                  ]
+                },
+                "changes": {
+                  "attacksDelta": 1
+                }
+              },
+              {
+                "selector": {
+                  "slot": "prow"
+                },
+                "changes": {
+                  "attacksDelta": 2
+                }
+              }
+            ]
+          },
+          "notes": [
+            "Speed reduced by 1\"",
+            "Prow weapons gain +2 attacks (+1 for Mega Cannons)"
+          ]
+        }
+      ]
+    }
+  },
+  "Fungoids": {
+    "fluff": "Furtive nebula worlds bathed in cosmic radiation are often home to fungoid life. These unusual beings build their star-ships from a mixture of both fungal and inorganic materials. Though they traditionally shy away from conflict, the fungoids have been driven to war, hoping to finally stamp out animalian life.",
+    "specialRules": [
+      {
+        "name": "Spore Tokens",
+        "description": "When a ship with spore tokens activates, it suffers one damage to its shields for each spore token it has. Fungoid ships instead recover lost shields for each spore token they have. Ships then remove all of their spore tokens at the start of their movement. Ships may never have more than three spore tokens at once."
+      },
+      {
+        "name": "Break Apart",
+        "description": "fungoid ships gain one spore token for each hull damage they sustain."
+      },
+      {
+        "name": "Spore Missiles",
+        "description": "These missiles do not double their hits on rolls of 6. However, for each hit they inflict on an enemy ship, that ship receives one spore token."
+      }
+    ],
+    "commandAbilities": [
+      {
+        "dice": 1,
+        "name": "Regenerative Spores",
+        "description": "Use when you activate a ship. Instead of recovering shields, each spore token it has repairs a lost hull point."
+      },
+      {
+        "dice": 2,
+        "name": "Migrating Spores",
+        "description": "Use when you activate a ship. Instead of recovering shields, move each spore the ship has to any other ship within 12\"."
+      },
+      {
+        "dice": 3,
+        "name": "Explosion of Spores",
+        "description": "Use when one of your capital ships is destroyed. Place one spore token on each ship within 12\"."
+      },
+      {
+        "dice": 4,
+        "name": "Persistent Spores",
+        "description": "Use when you or your opponent activates a ship/squadron. The ship's spore tokens are not removed this activation."
+      },
+      {
+        "dice": 5,
+        "name": "Spore Amplification",
+        "description": "Use when you target an enemy ship with lasers. Roll additional attacks equal to the number of spore tokens on the target ship."
+      },
+      {
+        "dice": 6,
+        "name": "Spore Corrosion",
+        "description": "Use when you target an enemy ship with cannons. Roll two additional attacks for each spore token on the target ship."
+      }
+    ],
+    "ships": {
+      "Fungal Behemoth": {
+        "size": "Large",
+        "points": 9,
+        "statline": {
+          "Hull": 10,
+          "Speed": 6,
+          "Armour": 3,
+          "Shields": 4,
+          "Flak": 3
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Spore Missiles",
+              "targets": "Front",
+              "attacks": 8,
+              "range": "18″"
+            },
+            {
+              "name": "Mycho-Cannons",
+              "targets": "Fr/Sd",
+              "attacks": 8,
+              "range": "18″"
+            },
+            {
+              "name": "Hypha-Lasers",
+              "targets": "Front",
+              "attacks": 4,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 3,
+          "options": [
+            {
+              "name": "Mycho-Cannons",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "18″"
+            },
+            {
+              "name": "Hypha-Lasers",
+              "targets": "Sides",
+              "attacks": 2,
+              "range": "18″"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Myotic Marauder": {
+        "size": "Medium",
+        "points": 6,
+        "statline": {
+          "Hull": 8,
+          "Speed": 8,
+          "Armour": 2,
+          "Shields": 3,
+          "Flak": 2
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Spore Missiles",
+              "targets": "Front",
+              "attacks": 6,
+              "range": "18″"
+            },
+            {
+              "name": "Mycho-Cannons",
+              "targets": "Fr/Sd",
+              "attacks": 6,
+              "range": "12″"
+            },
+            {
+              "name": "Hypha-Lasers",
+              "targets": "Front",
+              "attacks": 3,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 2,
+          "options": [
+            {
+              "name": "Mycho-Cannons",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Hypha-Lasers",
+              "targets": "Sides",
+              "attacks": 2,
+              "range": "12″"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Saprophytic Scout": {
+        "size": "Small",
+        "points": 3,
+        "statline": {
+          "Hull": 4,
+          "Speed": 10,
+          "Armour": 2,
+          "Shields": 2,
+          "Flak": 2
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Spore Missiles",
+              "targets": "Front",
+              "attacks": 4,
+              "range": "18″"
+            },
+            {
+              "name": "Mycho-Cannons",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Hypha-Lasers",
+              "targets": "Front",
+              "attacks": 2,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Mycho-Cannons",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Hypha-Lasers",
+              "targets": "Sides",
+              "attacks": 2,
+              "range": "12″"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "'Shroom": {
+        "size": "Squadron",
+        "points": 1,
+        "statline": {
+          "Hull": 1,
+          "Speed": 10,
+          "Armour": 1,
+          "Shields": 2,
+          "Flak": 2
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Mycho-Cannons",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Hypha-Lasers",
+              "targets": "Fr/Sd",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Spore Missiles",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 0,
+          "options": []
+        },
+        "squadron": true
+      }
+    },
+    "factionRefits": {
+      "capitalShipRefits": [
+        {
+          "name": "Spore Banks",
+          "description": "Your ship/squadron may exchange their hull mounted weapons for spore banks on a one for one basis.",
+          "scope": "capital",
+          "weaponChanges": {
+            "replace": [
+              {
+                "slot": "hull",
+                "selector": {
+                  "slot": "hull"
+                },
+                "to": {
+                  "name": "Spore Banks",
+                  "kind": "launch_bays",
+                  "targets": "-",
+                  "attacks": "-",
+                  "range": "-"
+                }
+              }
+            ]
+          },
+          "tokens": {
+            "hasHiveBays": true
+          },
+          "notes": [
+            "Hull weapons replaced with Spore Banks",
+            "Deploy two spore tokens each",
+            "Can place spore tokens on carrier or other ships in fleet"
+          ]
+        }
+      ],
+      "squadronRefits": [
+        {
+          "name": "Spore Banks",
+          "description": "Your ship/squadron may exchange their hull mounted weapons for spore banks on a one for one basis.",
+          "scope": "squadron",
+          "weaponChanges": {
+            "replace": [
+              {
+                "slot": "hull",
+                "selector": {
+                  "slot": "hull"
+                },
+                "to": {
+                  "name": "Spore Banks",
+                  "kind": "launch_bays",
+                  "targets": "-",
+                  "attacks": "-",
+                  "range": "-"
+                }
+              }
+            ]
+          },
+          "tokens": {
+            "hasHiveBays": true
+          },
+          "notes": [
+            "Hull weapons replaced with Spore Banks",
+            "Deploy two spore tokens each",
+            "Can place spore tokens on carrier or other ships in fleet"
+          ]
+        }
+      ]
+    }
+  },
+  "Lost Colony": {
+    "fluff": "Betrayed by the Galactic Hegemony and trapped on the far side of a wormhole, the lost fleets of the Human Alliance were forced to establish colonies on barren worlds. Finally their ancestors have returned, seeking answers and perhaps vengeance. They are carving a path through the outer reaches, bound for the core worlds.",
+    "specialRules": [
+      {
+        "name": "Fleet Logistics",
+        "description": "Lost Colony capital ships may spend fighter tokens from allied ships within 6\" of them as though they were their own."
+      },
+      {
+        "name": "Ionized Hulls",
+        "description": "Lost Colony ships have outdated shield technology. Their ships may only recharge lost shields if they have a hatches sealed token."
+      },
+      {
+        "name": "Carrier Fleet",
+        "description": "Lost Colony ships with fighter bays may each deploy an extra fighter token at the start of the game."
+      }
+    ],
+    "commandAbilities": [
+      {
+        "dice": 1,
+        "name": "Scramble Fighters",
+        "description": "Use when you activate a ship with fighter bays. That ship immediately gains one fighter token."
+      },
+      {
+        "dice": 2,
+        "name": "Assault Boats",
+        "description": "Use when you board an enemy ship. You may spend one fighter token to add +D6 boarding attacks."
+      },
+      {
+        "dice": 3,
+        "name": "Torpedo Bombers",
+        "description": "Use when one of your ships shoots with missiles. It may spend fighter tokens to add +D6 attacks per token spent."
+      },
+      {
+        "dice": 4,
+        "name": "Combined Firepower",
+        "description": "Use when one of your ships shoots with cannons. It may spend fighter tokens to add +D6 attacks per token spent."
+      },
+      {
+        "dice": 5,
+        "name": "Point Defense",
+        "description": "Use when one of your ships is declared the target of a bombing run. Add +2 to your ship's flak value for this activation."
+      },
+      {
+        "dice": 6,
+        "name": "Quick Launch",
+        "description": "Use when you activate a ship with launch bays and a hatches sealed token. It immediately gains one fighter token."
+      }
+    ],
+    "ships": {
+      "Battle Tanker": {
+        "size": "Large",
+        "points": 9,
+        "statline": {
+          "Hull": 10,
+          "Speed": 6,
+          "Armour": 3,
+          "Shields": 4,
+          "Flak": 3
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Missile Pods",
+              "targets": "Front",
+              "attacks": 8,
+              "range": "18″"
+            },
+            {
+              "name": "Cannons",
+              "targets": "Fr/Sd",
+              "attacks": 8,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 3,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "18″"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Sides",
+              "attacks": 2,
+              "range": "18″"
+            },
+            {
+              "name": "Fighter Bays"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Ironclad": {
+        "size": "Medium",
+        "points": 6,
+        "statline": {
+          "Hull": 6,
+          "Speed": 8,
+          "Armour": 3,
+          "Shields": 3,
+          "Flak": 2
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Missile Pods",
+              "targets": "Front",
+              "attacks": 6,
+              "range": "18″"
+            },
+            {
+              "name": "Cannons",
+              "targets": "Fr/Sd",
+              "attacks": 6,
+              "range": "12″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 2,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Sides",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Fighter Bays"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Survey Ship": {
+        "size": "Small",
+        "points": 3,
+        "statline": {
+          "Hull": 4,
+          "Speed": 12,
+          "Armour": 2,
+          "Shields": 2,
+          "Flak": 1
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Missile Pods",
+              "targets": "Front",
+              "attacks": 4,
+              "range": "18″"
+            },
+            {
+              "name": "Cannons",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "12″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Sides",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Fighter Bays"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Supply Frigate": {
+        "size": "Squadron",
+        "points": 1,
+        "statline": {
+          "Hull": 1,
+          "Speed": 8,
+          "Armour": 2,
+          "Shields": 1,
+          "Flak": 2
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannon Turrets",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Laser Turrets",
+              "targets": "Fr/Sd",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Missile Pods",
+              "targets": "Front",
+              "attacks": 4,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 0,
+          "options": []
+        },
+        "squadron": true
+      }
+    },
+    "factionRefits": {
+      "capitalShipRefits": [
+        {
+          "name": "Light Carrier",
+          "description": "Your survey ship subtracts 4″ from its speed, adds +1 to its flak score and gains the option to exchange its prow weapon for a launch bay.",
+          "scope": "capital",
+          "requirements": {
+            "shipClassesAny": [
+              "Survey Ship"
+            ]
+          },
+          "gains": {
+            "statDeltas": {
+              "Speed": -4,
+              "Flak": 1
+            }
+          },
+          "weaponChanges": {
+            "unlockOptions": [
+              {
+                "slot": "prow",
+                "allowNamesAny": [
+                  "Launch Bays"
+                ]
+              }
+            ]
+          },
+          "notes": [
+            "Survey Ships only",
+            "Speed reduced by 4\"",
+            "Flak increased by 1",
+            "Can select Launch Bays for prow weapon"
+          ]
+        }
+      ],
+      "squadronRefits": [
+        {
+          "name": "Attack Frigates",
+          "description": "Your supply frigate squadron subtract -1 from their flak value and add +4″ to their speed.",
+          "scope": "squadron",
+          "gains": {
+            "statDeltas": {
+              "Flak": -1,
+              "Speed": 4
+            }
+          },
+          "notes": [
+            "Flak reduced by 1",
+            "Speed increased by 4\""
+          ]
+        }
+      ]
+    }
+  },
+  "Technocrats": {
+    "fluff": "The last century of Hegemonic rule has been one of stagnation and stifling bureaucracy. Many of humanities greatest scientists abandoned the core worlds and set up secluded research stations along the outer reaches. Recent conflicts have stopped most forms of research—other than, of course, weapons testing.",
+    "specialRules": [
+      {
+        "name": "High Frequency Shields",
+        "description": "Technocrats always treat their ship's flak value as being equal to its current shield strength. Technocrat squadrons can't use flak support."
+      },
+      {
+        "name": "Advanced Weapons",
+        "description": "Technocrat cannons and missiles ignore all ranged penalties, and their lasers ignore the penalty for attacking small targets."
+      },
+      {
+        "name": "Scientists",
+        "description": "Technocrat ships suffer a -1 penalty to all of their rolls made while boarding or being boarded."
+      }
+    ],
+    "commandAbilities": [
+      {
+        "dice": 1,
+        "name": "Weapon Transposition",
+        "description": "Use when you activate a ship/squadron. Exchange its weapons for any assortment of weapons available to its class."
+      },
+      {
+        "dice": 2,
+        "name": "Charge Shields",
+        "description": "Use when you activate a ship/squadron. Those ship(s) immediately regain all lost shields."
+      },
+      {
+        "dice": 3,
+        "name": "Toxic Miasma",
+        "description": "Use when you board an enemy with a capital ship. Roll no boarding attacks. Deal D3 damage to the target's hull."
+      },
+      {
+        "dice": 4,
+        "name": "Bypass Shield Frequency",
+        "description": "Use before shooting with one of your ships/squadrons. For this activation its lasers ignore enemy shields."
+      },
+      {
+        "dice": 5,
+        "name": "Micro Wormhole",
+        "description": "Use when you activate one of your ships. Move it to anywhere on the table, facing any direction. End its activation."
+      },
+      {
+        "dice": 6,
+        "name": "Teleporter Bomb",
+        "description": "Use before you shoot with a capital ship. Target an enemy ship within 6\" who's shields are down. Deal one hull damage."
+      }
+    ],
+    "ships": {
+      "Galactic": {
+        "size": "Large",
+        "points": 9,
+        "statline": {
+          "Hull": 10,
+          "Speed": 8,
+          "Armour": 3,
+          "Shields": 5,
+          "Flak": 0
+        },
+        "prow": {
+          "select": 0,
+          "options": []
+        },
+        "hull": {
+          "select": 4,
+          "options": [
+            {
+              "name": "Lasers",
+              "targets": "Fr/Sd",
+              "attacks": 2,
+              "range": "18″"
+            },
+            {
+              "name": "Pulse Cannons",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "18″"
+            },
+            {
+              "name": "Proton Missiles",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "18″"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Researcher": {
+        "size": "Medium",
+        "points": 6,
+        "statline": {
+          "Hull": 6,
+          "Speed": 10,
+          "Armour": 3,
+          "Shields": 4,
+          "Flak": 0
+        },
+        "prow": {
+          "select": 0,
+          "options": []
+        },
+        "hull": {
+          "select": 3,
+          "options": [
+            {
+              "name": "Lasers",
+              "targets": "Fr/Sd",
+              "attacks": 2,
+              "range": "18″"
+            },
+            {
+              "name": "Pulse Cannons",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "18″"
+            },
+            {
+              "name": "Proton Missiles",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "18″"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Explorer": {
+        "size": "Small",
+        "points": 3,
+        "statline": {
+          "Hull": 4,
+          "Speed": 12,
+          "Armour": 2,
+          "Shields": 3,
+          "Flak": 0
+        },
+        "prow": {
+          "select": 0,
+          "options": []
+        },
+        "hull": {
+          "select": 2,
+          "options": [
+            {
+              "name": "Lasers",
+              "targets": "Fr/Sd",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Pulse Cannons",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Proton Missiles",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "12″"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Orderly": {
+        "size": "Squadron",
+        "points": 1,
+        "statline": {
+          "Hull": 1,
+          "Speed": 12,
+          "Armour": 2,
+          "Shields": 2,
+          "Flak": 0
+        },
+        "prow": {
+          "select": 0,
+          "options": []
+        },
+        "hull": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Lasers",
+              "targets": "Fr/Sd",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Pulse Cannons",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Proton Missiles",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "12″"
+            }
+          ]
+        },
+        "squadron": true
+      }
+    },
+    "factionRefits": {
+      "capitalShipRefits": [
+        {
+          "name": "Technocrat Carrier",
+          "description": "Your ship may select launch bays as a hull weapon option (not transportable).",
+          "scope": "capital",
+          "weaponChanges": {
+            "unlockOptions": [
+              {
+                "slot": "hull",
+                "allowNamesAny": [
+                  "Launch Bays"
+                ]
+              }
+            ]
+          },
+          "notes": [
+            "Allows Launch Bays as hull weapon option",
+            "Launch Bays are not transportable"
+          ]
+        }
+      ],
+      "squadronRefits": [
+        {
+          "name": "Stealth Field",
+          "description": "Your squadron of Orderlies subtract 1 from their shields value. Enemy shooting always treats them as being inside of terrain (even when they aren't).",
+          "scope": "squadron",
+          "gains": {
+            "statDeltas": {
+              "Shields": -1
+            }
+          },
+          "targetProfile": {
+            "alwaysTreatedAsInTerrain": true
+          },
+          "notes": [
+            "Shields reduced by 1",
+            "Always treated as being inside terrain for enemy shooting"
+          ]
+        }
+      ]
+    }
+  },
+  "Shadow Weavers": {
+    "fluff": "The Shadow Weavers are a traveling troupe of entertainers, sooth sayers and scribes. They move from world to world, speaking with the locals and recording their stories. Little is known of their motives, save that they seem to be looking for something or perhaps someone. They enter conflict mercilessly, without warning or provocation.",
+    "specialRules": [
+      {
+        "name": "Stealth Fields",
+        "description": "Shadow Weaver ships can not seal their hatches. Whenever a Shadow Weaver ship ends its activation outside of 12\" of any enemy vessels, it gains a special stealth token that lasts until it is next activated. Shooting and bombing run attacks made against ships with a stealth token are at -1 to hit."
+      },
+      {
+        "name": "Holographic Deception",
+        "description": "After deployment, before the start of the game, the Shadow Weaver player may remove and re-deploy up to half of their ships/squadrons."
+      },
+      {
+        "name": "Assassin's Blades",
+        "description": "Shadow Weaver lasers double all hits against enemy ships when attacking them in their rear arc."
+      }
+    ],
+    "commandAbilities": [
+      {
+        "dice": 1,
+        "name": "Chronological Disruption",
+        "description": "Use when you finish an activation. Choose an unactivated enemy ship/squadron. Your opponent must activate them."
+      },
+      {
+        "dice": 2,
+        "name": "Twisting Shadows",
+        "description": "Use when you activate a squadron. One ship remains stationary. Remove and place the others anywhere within 2\" of it."
+      },
+      {
+        "dice": 3,
+        "name": "Stealth Augments",
+        "description": "Use when you finish activating a ship within 12\" of an enemy ship. Your ship gains a stealth token."
+      },
+      {
+        "dice": 4,
+        "name": "Deadly Weave",
+        "description": "Use when your opponent moves a ship through terrain. It suffers four attacks, hitting on a 4+ (with double hits on 6s)."
+      },
+      {
+        "dice": 5,
+        "name": "Phantom Shift",
+        "description": "Use when you activate a capital ship. You may immediately Move that ship 3\" in any direction without changing its facing."
+      },
+      {
+        "dice": 6,
+        "name": "Storm Missiles",
+        "description": "Use before shooting with a ship/squadron. This activation their missiles get +1 to hit and do not ignore shields."
+      }
+    ],
+    "ships": {
+      "Matriarch": {
+        "size": "Large",
+        "points": 9,
+        "statline": {
+          "Hull": 8,
+          "Speed": 8,
+          "Armour": 2,
+          "Shields": 5,
+          "Flak": 3
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Front",
+              "attacks": 8,
+              "range": "18″"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Front",
+              "attacks": 4,
+              "range": "18″"
+            },
+            {
+              "name": "Missile Pods",
+              "targets": "Front",
+              "attacks": 8,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 3,
+          "options": [
+            {
+              "name": "Cannon Turret",
+              "targets": "Fr/Sd",
+              "attacks": 3,
+              "range": "12″"
+            },
+            {
+              "name": "Fighter Bays"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Moon Dancer": {
+        "size": "Medium",
+        "points": 6,
+        "statline": {
+          "Hull": 6,
+          "Speed": 10,
+          "Armour": 2,
+          "Shields": 4,
+          "Flak": 2
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Front",
+              "attacks": 8,
+              "range": "12″"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Front",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Missile Pods",
+              "targets": "Front",
+              "attacks": 6,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 2,
+          "options": [
+            {
+              "name": "Cannon Turret",
+              "targets": "Fr/Sd",
+              "attacks": 3,
+              "range": "12″"
+            },
+            {
+              "name": "Fighter Bays"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Night Runner": {
+        "size": "Small",
+        "points": 3,
+        "statline": {
+          "Hull": 4,
+          "Speed": 12,
+          "Armour": 1,
+          "Shields": 3,
+          "Flak": 1
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Front",
+              "attacks": 6,
+              "range": "12″"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Front",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Missile Pods",
+              "targets": "Front",
+              "attacks": 4,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannon Turret",
+              "targets": "Fr/Sd",
+              "attacks": 3,
+              "range": "12″"
+            },
+            {
+              "name": "Fighter Bays"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Dusk Shifter": {
+        "size": "Squadron",
+        "points": 1,
+        "statline": {
+          "Hull": 1,
+          "Speed": 14,
+          "Armour": 1,
+          "Shields": 2,
+          "Flak": 1
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Front",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Missile Pods",
+              "targets": "Front",
+              "attacks": 4,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 0,
+          "options": []
+        },
+        "squadron": true
+      }
+    },
+    "factionRefits": {
+      "capitalShipRefits": [
+        {
+          "name": "Laser Blades",
+          "description": "Your ship exchanges one of its hull weapons for a short ranged laser.",
+          "scope": "capital",
+          "weaponChanges": {
+            "replace": [
+              {
+                "slot": "hull",
+                "selector": {
+                  "slot": "hull"
+                },
+                "to": {
+                  "name": "Blade Lasers",
+                  "kind": "lasers",
+                  "targets": "Fr/Sd",
+                  "attacks": 2,
+                  "range": 6
+                }
+              }
+            ]
+          },
+          "notes": [
+            "Exchange one hull weapon for Blade Lasers",
+            "Short range but powerful laser weapon"
+          ]
+        }
+      ],
+      "squadronRefits": [
+        {
+          "name": "Advanced Scouts",
+          "description": "Your squadron of dusk shifters may not be selected for holographic deception. They may however be deployed up to 6\" outside of your deployment zone.",
+          "scope": "squadron",
+          "cost": {
+            "loseKeywords": [
+              "Holographic Deception"
+            ]
+          },
+          "deployment": {
+            "deployOutsideZoneInches": 6
+          },
+          "notes": [
+            "Cannot use Holographic Deception",
+            "Deploy up to 6\" outside deployment zone"
+          ]
+        }
+      ]
+    }
+  },
+  "Scavengers": {
+    "fluff": "Wherever there is conflict there are sure to be Scavenger clans, lurking about and waiting to pick apart the husks of fallen ships for valuable technology and supplies. It is rare that these raiders involve themselves in full-scale conflict, but sometimes the opportunity is too great for them to resist.",
+    "specialRules": [
+      {
+        "name": "Inertial Shielding",
+        "description": "Scavengers do not recover lost shields at the start of the round. Instead, for every 4\" a Scavenger ship moves, they may restore one lost shield."
+      },
+      {
+        "name": "Pillagers",
+        "description": "Whenever a scavenger ship boards an enemy ship and deals one or more damage, gain one bonus victory point (does not work if the enemy ship self-destructs)."
+      },
+      {
+        "name": "Ambushers",
+        "description": "During the first turn of the game your opponent rolls no command dice."
+      },
+      {
+        "name": "Sew Chaos",
+        "description": "At the start of the turn your opponent gains one fewer command dice for each of their capital ships within 6\" of one or more scavenger ships."
+      }
+    ],
+    "commandAbilities": [
+      {
+        "dice": 1,
+        "name": "Pirate Tactics",
+        "description": "Use when you activate a squadron of Bandits or Ruffians. They make an immediately turn up to 90 degrees."
+      },
+      {
+        "dice": 2,
+        "name": "Iron Locusts",
+        "description": "Use when you activate a ship/squadron. They move freely through asteroid and debris fields this activation."
+      },
+      {
+        "dice": 3,
+        "name": "Hit and Run",
+        "description": "Use at the end of a capital ship's activation. The ship makes a turn up to 450 and moves half its speed directly forwards."
+      },
+      {
+        "dice": 4,
+        "name": "Electromagnetic Pulse",
+        "description": "Use when you board an enemy ship. They may not self-destruct, and your boarding attacks gain +1 to hit."
+      },
+      {
+        "dice": 5,
+        "name": "Electromagnetic Warhead",
+        "description": "Use when you deal hull damage to an enemy ship using missiles. That ship immediately gains a sitting duck token."
+      },
+      {
+        "dice": 6,
+        "name": "Tricks and Traps",
+        "description": "Use when your opponent moves a ship through terrain. It suffers four attacks, hitting on a 4+ (with double hits on 6s)."
+      }
+    ],
+    "ships": {
+      "Hellion": {
+        "size": "Medium",
+        "points": 6,
+        "statline": {
+          "Hull": 8,
+          "Speed": 8,
+          "Armour": 2,
+          "Shields": 3,
+          "Flak": 2
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannon Turrets",
+              "targets": "Fr/Sd",
+              "attacks": 6,
+              "range": "12″"
+            },
+            {
+              "name": "Missiles",
+              "targets": "Front",
+              "attacks": 6,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 2,
+          "options": [
+            {
+              "name": "Fighter Bays"
+            },
+            {
+              "name": "Cannons",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Quad-Lasers",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "6″"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Outlaw": {
+        "size": "Small",
+        "points": 3,
+        "statline": {
+          "Hull": 4,
+          "Speed": 12,
+          "Armour": 2,
+          "Shields": 2,
+          "Flak": 1
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannon Turrets",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Missiles",
+              "targets": "Front",
+              "attacks": 4,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Fighter Bays"
+            },
+            {
+              "name": "Cannons",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Quad-Lasers",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "6″"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Ruffian": {
+        "size": "Squadron",
+        "points": 2,
+        "statline": {
+          "Hull": 2,
+          "Speed": 10,
+          "Armour": 2,
+          "Shields": 2,
+          "Flak": 1
+        },
+        "prow": {
+          "select": 0,
+          "options": []
+        },
+        "hull": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Missiles",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "18″"
+            },
+            {
+              "name": "Cannons",
+              "targets": "Sides",
+              "attacks": 6,
+              "range": "12″"
+            },
+            {
+              "name": "Quad-Lasers",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "6″"
+            }
+          ]
+        },
+        "squadron": true
+      },
+      "Bandit": {
+        "size": "Squadron",
+        "points": 1,
+        "statline": {
+          "Hull": 1,
+          "Speed": 12,
+          "Armour": 2,
+          "Shields": 1,
+          "Flak": 1
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Missiles",
+              "targets": "Front",
+              "attacks": 4,
+              "range": "18″"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Front",
+              "attacks": 2,
+              "range": "12″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 0,
+          "options": []
+        },
+        "squadron": true
+      }
+    },
+    "factionRefits": {
+      "capitalShipRefits": [
+        {
+          "name": "Pirate Crews",
+          "description": "Your ship sacrifices one of its hull mounted weapons, but may roll two extra attacks in any boarding action it participates in (as attacker or defender).",
+          "scope": "capital",
+          "cost": {
+            "loseSlots": [
+              {
+                "slot": "hull",
+                "count": 1
+              }
+            ]
+          },
+          "boarding": {
+            "attacksDelta": 2
+          },
+          "notes": [
+            "Hull weapon slots reduced by 1",
+            "Roll 2 extra attacks in boarding actions (attacker or defender)"
+          ]
+        }
+      ],
+      "squadronRefits": [
+        {
+          "name": "Armoured Ruffians",
+          "description": "Your squadron of ruffians can increase their armour values by +1. They reduce their speed down to 6\".",
+          "scope": "squadron",
+          "requirements": {
+            "shipClassesAny": [
+              "Ruffian"
+            ]
+          },
+          "gains": {
+            "statDeltas": {
+              "Armour": 1
+            }
+          },
+          "constraints": {
+            "speedMin": 6,
+            "speedMax": 6
+          },
+          "notes": [
+            "Ruffian squadrons only",
+            "Armour increased by 1",
+            "Speed set to exactly 6\""
+          ]
+        }
+      ]
+    }
+  },
+  "Cragborn": {
+    "fluff": "The Cragborn come from high gravity worlds surrounded by asteroid belts. They are themselves creatures with a rock-like appearance. Cragborn ships are crafted from asteroids and are fitted with engines, weapons and shields. While historically content to war amongst themselves, their tribes have become increasingly aggressive.",
+    "specialRules": [
+      {
+        "name": "Earthen Shield",
+        "description": "Cragborn shields can block missiles and bombing run attacks. Additionally crag-born ships treat their armour as 2 versus lasers (instead of 1)."
+      },
+      {
+        "name": "Can't Stop Won't Stop",
+        "description": "Cragborn ships must move 6\" before each turn (instead of the usual 4\") Additionally if they don't move at least 4\" during their activation, they suffer one automatic hull damage in addition to gaining a sitting duck token."
+      },
+      {
+        "name": "Meteoric Impact",
+        "description": "Crag-born ships get +2 to hit when rolling ramming attacks."
+      }
+    ],
+    "commandAbilities": [
+      {
+        "dice": 1,
+        "name": "Rock Wardens",
+        "description": "Use when you declare intercepting enemy bombers or missiles. Add one to each die to determine the attacks negated."
+      },
+      {
+        "dice": 2,
+        "name": "Alter Trajectory",
+        "description": "Use when you finish activating a capital ship. They may immediately turn up to 45 degrees."
+      },
+      {
+        "dice": 3,
+        "name": "Gain Momentum",
+        "description": "Use when you activate a ship/squadron. This activation, add +2 to their speed."
+      },
+      {
+        "dice": 4,
+        "name": "Stone to Stone",
+        "description": "Use when you activate a ship/squadron. They move freely through asteroid and debris fields this activation."
+      },
+      {
+        "dice": 5,
+        "name": "Focusing Crystals",
+        "description": "Use before shooting with one of your ships/squadrons. This activation, their laser crystals extend their range to 18\""
+      },
+      {
+        "dice": 6,
+        "name": "Shard Bombardment",
+        "description": "Use before shooting with one of your ships/squadrons. This activation, their missiles increase their range to 24\"."
+      }
+    ],
+    "ships": {
+      "Asteroid Bastion": {
+        "size": "Large",
+        "points": 9,
+        "statline": {
+          "Hull": 10,
+          "Speed": 6,
+          "Armour": 4,
+          "Shields": 3,
+          "Flak": 3
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Lasers Crystals",
+              "targets": "Fr/Re",
+              "attacks": 6,
+              "range": "12″"
+            },
+            {
+              "name": "Debris Cannons",
+              "targets": "Fr/Re",
+              "attacks": 14,
+              "range": "6″"
+            },
+            {
+              "name": "Shard Missiles",
+              "targets": "Fr/Re",
+              "attacks": 8,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 3,
+          "options": [
+            {
+              "name": "Shard Missiles",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "18″"
+            },
+            {
+              "name": "Fighter Bays"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Cosmic Boulder": {
+        "size": "Medium",
+        "points": 6,
+        "statline": {
+          "Hull": 6,
+          "Speed": 8,
+          "Armour": 4,
+          "Shields": 2,
+          "Flak": 2
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Lasers Crystals",
+              "targets": "Fr/Re",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Debris Cannons",
+              "targets": "Fr/Re",
+              "attacks": 10,
+              "range": "6″"
+            },
+            {
+              "name": "Shard Missiles",
+              "targets": "Fr/Re",
+              "attacks": 6,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 2,
+          "options": [
+            {
+              "name": "Shard Missiles",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "18″"
+            },
+            {
+              "name": "Fighter Bays"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Stone Drifter": {
+        "size": "Small",
+        "points": 3,
+        "statline": {
+          "Hull": 4,
+          "Speed": 10,
+          "Armour": 3,
+          "Shields": 1,
+          "Flak": 1
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Lasers Crystals",
+              "targets": "Fr/Re",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Debris Cannons",
+              "targets": "Fr/Re",
+              "attacks": 6,
+              "range": "6″"
+            },
+            {
+              "name": "Shard Missiles",
+              "targets": "Fr/Re",
+              "attacks": 4,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Shard Missiles",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "18″"
+            },
+            {
+              "name": "Fighter Bays"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Meteor Chunk": {
+        "size": "Squadron",
+        "points": 1,
+        "statline": {
+          "Hull": 1,
+          "Speed": 10,
+          "Armour": 3,
+          "Shields": 0,
+          "Flak": 1
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Lasers Crystals",
+              "targets": "Fr/Sd",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Debris Cannons",
+              "targets": "Fr/Sd",
+              "attacks": 6,
+              "range": "6″"
+            },
+            {
+              "name": "Shard Missiles",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 0,
+          "options": []
+        },
+        "squadron": true
+      }
+    },
+    "factionRefits": {
+      "capitalShipRefits": [
+        {
+          "name": "Crystalline Composite",
+          "description": "Your ship may select laser crystals as a hull weapon option.",
+          "scope": "capital",
+          "weaponChanges": {
+            "unlockOptions": [
+              {
+                "slot": "hull",
+                "allowNamesAny": [
+                  "Laser Crystals"
+                ]
+              }
+            ]
+          },
+          "notes": [
+            "Allows Laser Crystals as hull weapon option"
+          ]
+        }
+      ],
+      "squadronRefits": [
+        {
+          "name": "Oversized Chunks",
+          "description": "Your squadron of meteor chunks subtract -1 from their speed but add +1 to their hull. Note that they will not be considered small target anymore.",
+          "scope": "squadron",
+          "requirements": {
+            "shipClassesAny": [
+              "Meteor Chunk"
+            ]
+          },
+          "gains": {
+            "statDeltas": {
+              "Speed": -1,
+              "Hull": 1
+            }
+          },
+          "targetProfile": {
+            "smallTarget": false
+          },
+          "notes": [
+            "Meteor Chunks only",
+            "Speed reduced by 1\"",
+            "Hull increased by 1",
+            "No longer considered small target"
+          ]
+        }
+      ]
+    }
+  },
+  "Pack Hunters": {
+    "fluff": "Pack hunters from beyond the outer reach are known raid outlying sectors for sport. Little is known of these terrible warriors, only that they wear the pelts of great beasts and that they are deadly in melee combat. These raids have become more common in recent times—as if the hunters can smell blood in the void.",
+    "specialRules": [
+      {
+        "name": "Hunter's Spears",
+        "description": "These missiles treat all normal hits as rolls of a six (even if 6s were required.) This only works against targets who's shields are down."
+      },
+      {
+        "name": "Fearsome Attackers",
+        "description": "Pack Hunters treat all normal hits as rolls of a six during boarding actions, but only when they are the attacker."
+      },
+      {
+        "name": "Hunter's Prey",
+        "description": "'Call the Hunt' Delegates a special prey token that remains in play until the target is destroyed. All ships in the hunting pack gain a +1 to hit against the prey when shooting and boarding. A new prey token can never be issued until the target is destroyed."
+      }
+    ],
+    "commandAbilities": [
+      {
+        "dice": 1,
+        "name": "Call the Hunt",
+        "description": "Use as you activate your flagship. Declare an enemy ship to receive a special prey token (see above)."
+      },
+      {
+        "dice": 2,
+        "name": "Shadow Spears",
+        "description": "Use before shooting with one of your ships/squadrons. This activation, its missiles ignore the enemy flak value."
+      },
+      {
+        "dice": 3,
+        "name": "Small Game",
+        "description": "Use before you shoot with a ship or squadron. They may ignore the -1 penalty to hit for small targets."
+      },
+      {
+        "dice": 4,
+        "name": "Refractive Armour",
+        "description": "Use when one of your ships is targeted by enemy shooting. Lasers suffer a -2 penalty to hit your ship this activation."
+      },
+      {
+        "dice": 5,
+        "name": "Pack Tactics",
+        "description": "Use when you activate a squadron of Jackals. They may immediately make a turn up to 90 degrees."
+      },
+      {
+        "dice": 6,
+        "name": "Slashing Claws",
+        "description": "Use before you shoot with a ship or squadron. Each of their cannons gain +2 attacks when targeting enemies within 6\"."
+      }
+    ],
+    "ships": {
+      "Hunter's Hall": {
+        "size": "Large",
+        "points": 9,
+        "statline": {
+          "Hull": 10,
+          "Speed": 8,
+          "Armour": 4,
+          "Shields": 0,
+          "Flak": 4
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Hunter's Spears",
+              "targets": "Front",
+              "attacks": 6,
+              "range": "18″"
+            },
+            {
+              "name": "Cannons",
+              "targets": "Front",
+              "attacks": 8,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 3,
+          "options": [
+            {
+              "name": "Hunter's Spears",
+              "targets": "Sides",
+              "attacks": 3,
+              "range": "18″"
+            },
+            {
+              "name": "Cannons",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "18″"
+            },
+            {
+              "name": "Fighter Bay"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Mastiff": {
+        "size": "Medium",
+        "points": 6,
+        "statline": {
+          "Hull": 6,
+          "Speed": 8,
+          "Armour": 4,
+          "Shields": 0,
+          "Flak": 2
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Hunter's Spears",
+              "targets": "Front",
+              "attacks": 4,
+              "range": "18″"
+            },
+            {
+              "name": "Cannons",
+              "targets": "Front",
+              "attacks": 6,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 2,
+          "options": [
+            {
+              "name": "Hunter's Spears",
+              "targets": "Sides",
+              "attacks": 3,
+              "range": "18″"
+            },
+            {
+              "name": "Cannons",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "18″"
+            },
+            {
+              "name": "Fighter Bay"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Blood Hound": {
+        "size": "Small",
+        "points": 3,
+        "statline": {
+          "Hull": 4,
+          "Speed": 10,
+          "Armour": 3,
+          "Shields": 0,
+          "Flak": 1
+        },
+        "prow": {
+          "select": 0,
+          "options": []
+        },
+        "hull": {
+          "select": 2,
+          "options": [
+            {
+              "name": "Hunter's Spears",
+              "targets": "Sides",
+              "attacks": 3,
+              "range": "18″"
+            },
+            {
+              "name": "Cannons",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "18″"
+            },
+            {
+              "name": "Fighter Bay",
+              "note": "A Blood Hound may only have one Fighter Bay."
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Jackal": {
+        "size": "Squadron",
+        "points": 1,
+        "statline": {
+          "Hull": 1,
+          "Speed": 10,
+          "Armour": 3,
+          "Shields": 0,
+          "Flak": 1
+        },
+        "prow": {
+          "select": 0,
+          "options": []
+        },
+        "hull": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "18″"
+            },
+            {
+              "name": "Hunter's Spears",
+              "targets": "Sides",
+              "attacks": 3,
+              "range": "18″"
+            }
+          ]
+        },
+        "squadron": true
+      }
+    },
+    "factionRefits": {
+      "capitalShipRefits": [
+        {
+          "name": "Boarding Pods",
+          "description": "Your ship loses one of its hull mounted weapons. It may both board and shoot in the same activation, though not at the same target.",
+          "scope": "capital",
+          "cost": {
+            "loseSlots": [
+              {
+                "slot": "hull",
+                "count": 1
+              }
+            ]
+          },
+          "gains": {
+            "capabilities": {
+              "boardAndShootSameActivation": true
+            }
+          },
+          "notes": [
+            "Hull weapon slots reduced by 1",
+            "Can board and shoot in same activation (different targets)"
+          ]
+        }
+      ],
+      "squadronRefits": [
+        {
+          "name": "Beast Cages",
+          "description": "Your squadron of jakals subtract 6″ from their weapons range but double their attack dice rolled during boarding actions as either attacker or defender.",
+          "scope": "squadron",
+          "weaponChanges": {
+            "modify": [
+              {
+                "selector": {
+                  "slot": "any"
+                },
+                "changes": {
+                  "rangeDelta": -6
+                }
+              }
+            ]
+          },
+          "boarding": {
+            "multiplier": 2
+          },
+          "notes": [
+            "All weapon ranges reduced by 6\"",
+            "Double boarding attack dice (attacker or defender)"
+          ]
+        }
+      ]
+    }
+  },
+  "Psychic Slugs": {
+    "fluff": "A vindictive species of psychic mollusks are known to be the Galactic Hegemony's oldest confidants. They alone have been granted the rights to manage their own minor empire outside of Hegemonic laws. With the galaxy descending into conflict, these greasy gastropods are eager to expand their domain.",
+    "specialRules": [
+      {
+        "name": "Sludge Rockets",
+        "description": "For each point of hull damage these missiles inflict on an enemy ship, the target also suffers 1 damage to its shields."
+      },
+      {
+        "name": "Heavy Fighters",
+        "description": "Psychic Slug fighters may not issue bombing runs against targets outside of 12\" away. However, their bombing run attacks gain +1 to hit."
+      },
+      {
+        "name": "Absorb Secrets",
+        "description": "At the start of the turn, you gain one additional command dice for each enemy capital ship within 6\" of one (or more) of your ships."
+      }
+    ],
+    "commandAbilities": [
+      {
+        "dice": 1,
+        "name": "Unwitting Saboteur",
+        "description": "Use when you activate a ship within 12\" of an enemy ship. The enemy vessel gains a sitting duck token."
+      },
+      {
+        "dice": 2,
+        "name": "Spoil Plans",
+        "description": "Use when you activate a ship within 12\" of an enemy. Remove one die from the opponents command board."
+      },
+      {
+        "dice": 3,
+        "name": "Cloud Vision",
+        "description": "Use when one of your ships is targeted by an enemy ship. Shooting for this activation is at -1 to hit your ship."
+      },
+      {
+        "dice": 4,
+        "name": "Beguile",
+        "description": "Use when you activate a ship within 12\" of an enemy ship. You may immediately turn the enemy ship up to 45 degrees."
+      },
+      {
+        "dice": 5,
+        "name": "Induce Betrayal",
+        "description": "Use when you activate a ship within 12\" of an enemy ship. The enemy ship loses all of its fighter tokens."
+      },
+      {
+        "dice": 6,
+        "name": "Clairvoyance",
+        "description": "Use before shooting with one of your ships/squadrons. This activation, Ignore the -1 penalty for shooting into terrain."
+      }
+    ],
+    "ships": {
+      "Psychic Throne": {
+        "size": "Large",
+        "points": 9,
+        "statline": {
+          "Hull": 12,
+          "Speed": 4,
+          "Armour": 2,
+          "Shields": 5,
+          "Flak": 3
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Lasers",
+              "targets": "Front",
+              "attacks": 4,
+              "range": "18″"
+            },
+            {
+              "name": "Sludge Rockets",
+              "targets": "Front",
+              "attacks": 10,
+              "range": "12″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 3,
+          "options": [
+            {
+              "name": "Fighter Bays"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Sides",
+              "attacks": 2,
+              "range": "18″"
+            },
+            {
+              "name": "Cannons",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "18″"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Mind Master": {
+        "size": "Medium",
+        "points": 6,
+        "statline": {
+          "Hull": 8,
+          "Speed": 6,
+          "Armour": 2,
+          "Shields": 4,
+          "Flak": 2
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Lasers",
+              "targets": "Front",
+              "attacks": 3,
+              "range": "18″"
+            },
+            {
+              "name": "Sludge Rockets",
+              "targets": "Front",
+              "attacks": 8,
+              "range": "12″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 2,
+          "options": [
+            {
+              "name": "Fighter Bays"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Sides",
+              "attacks": 2,
+              "range": "18″"
+            },
+            {
+              "name": "Cannons",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "18″"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Thought Taker": {
+        "size": "Small",
+        "points": 3,
+        "statline": {
+          "Hull": 6,
+          "Speed": 6,
+          "Armour": 2,
+          "Shields": 2,
+          "Flak": 1
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Lasers",
+              "targets": "Front",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Sludge Rockets",
+              "targets": "Front",
+              "attacks": 6,
+              "range": "12″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Fighter Bays"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Sides",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Cannons",
+              "targets": "Sides",
+              "attacks": 4,
+              "range": "12″"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Servile": {
+        "size": "Squadron",
+        "points": 1,
+        "statline": {
+          "Hull": 2,
+          "Speed": 8,
+          "Armour": 2,
+          "Shields": 1,
+          "Flak": 1
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannons",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Front",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Sludge Rockets",
+              "targets": "Front",
+              "attacks": 4,
+              "range": "12″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 0,
+          "options": []
+        },
+        "squadron": true
+      }
+    },
+    "factionRefits": {
+      "capitalShipRefits": [
+        {
+          "name": "Psychic Amplifier",
+          "description": "Your ship subtracts two from its shields. So long as your ship remains on the table you may roll an extra dice on your command board.",
+          "scope": "capital",
+          "gains": {
+            "statDeltas": {
+              "Shields": -2
+            }
+          },
+          "notes": [
+            "Shields reduced by 2",
+            "May roll extra command dice while ship remains on table"
+          ]
+        }
+      ],
+      "squadronRefits": [
+        {
+          "name": "Sluggish Servile",
+          "description": "Your squadron of serviles subtract 2″ from their speed. They gain +1 to their shields value.",
+          "scope": "squadron",
+          "gains": {
+            "statDeltas": {
+              "Speed": -2,
+              "Shields": 1
+            }
+          },
+          "notes": [
+            "Speed reduced by 2\"",
+            "Shields increased by 1"
+          ]
+        }
+      ]
+    }
+  },
+  "Noble Houses": {
+    "fluff": "With the impending Hegemonic collapse, many planetary governors have fled to the safety of the core worlds. This mass-migration has caused an upheaval in the power dynamics of the established noble houses, with many weaker families being pushed out. Exiled houses are forced to take to the stars in the hopes of finding a new haven.",
+    "specialRules": [
+      {
+        "name": "Cull the Rabble",
+        "description": "Noble House ships never suffer the -1 penalty to hit small targets."
+      },
+      {
+        "name": "Tight Ranks",
+        "description": "Noble House capital ships add +1 to their flak values for each honour guard ship within 2\"."
+      },
+      {
+        "name": "Reflexive Shielding",
+        "description": "Whenever a Noble House ship gains a hatches sealed token, it immediately may recover one lost point of shields."
+      }
+    ],
+    "commandAbilities": [
+      {
+        "dice": 1,
+        "name": "Escape Pods",
+        "description": "Use when one of your capital ships is destroyed. Your opponent receives one less victory point for destroying it."
+      },
+      {
+        "dice": 2,
+        "name": "Elite House Guards",
+        "description": "Use when one of your ships is boarded. You may roll two additional attacks to repel the boarders."
+      },
+      {
+        "dice": 3,
+        "name": "Maintain Distance",
+        "description": "Use before shooting with one of your ships/squadrons. Receive +1 to hit against targets over 6\" this activation."
+      },
+      {
+        "dice": 4,
+        "name": "Superiority",
+        "description": "Use when you activate a ship/squadron. All of their turns during their normal movement may be up to 90 degrees."
+      },
+      {
+        "dice": 5,
+        "name": "Sworn Shield",
+        "description": "Use after you finish shooting with a squadron of honour guard. They may immediately seal their hatches."
+      },
+      {
+        "dice": 6,
+        "name": "Scramble Fighters",
+        "description": "Use when you activate a ship with fighter bays. That ship immediately gains one fighter token."
+      }
+    ],
+    "ships": {
+      "Sovereign": {
+        "size": "Large",
+        "points": 9,
+        "statline": {
+          "Hull": 10,
+          "Speed": 6,
+          "Armour": 3,
+          "Shields": 5,
+          "Flak": 3
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannon Turret",
+              "targets": "Sides/Rear",
+              "attacks": 6,
+              "range": "12″"
+            },
+            {
+              "name": "Laser Turrets",
+              "targets": "Sides/Rear",
+              "attacks": 3,
+              "range": "12″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 3,
+          "options": [
+            {
+              "name": "Cannon Turrets",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Laser Turrets",
+              "targets": "Fr/Sd",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Fighter Bays"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Scepter": {
+        "size": "Medium",
+        "points": 6,
+        "statline": {
+          "Hull": 6,
+          "Speed": 8,
+          "Armour": 3,
+          "Shields": 4,
+          "Flak": 2
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannon Turrets",
+              "targets": "Sides/Rear",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Laser Turrets",
+              "targets": "Sides/Rear",
+              "attacks": 2,
+              "range": "12″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 2,
+          "options": [
+            {
+              "name": "Cannon Turrets",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Laser Turrets",
+              "targets": "Fr/Sd",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Fighter Bays"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Emblem": {
+        "size": "Small",
+        "points": 3,
+        "statline": {
+          "Hull": 4,
+          "Speed": 12,
+          "Armour": 2,
+          "Shields": 2,
+          "Flak": 1
+        },
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannon Turrets",
+              "targets": "Sides/Rear",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Laser Turrets",
+              "targets": "Sides/Rear",
+              "attacks": 2,
+              "range": "12″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannon Turrets",
+              "targets": "Fr/Sd",
+              "attacks": 4,
+              "range": "12″"
+            },
+            {
+              "name": "Laser Turrets",
+              "targets": "Fr/Sd",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Fighter Bays"
+            }
+          ]
+        },
+        "squadron": false
+      },
+      "Honour Guard": {
+        "size": "Squadron",
+        "points": 1,
+        "statline": {
+          "Hull": 1,
+          "Speed": 12,
+          "Armour": 2,
+          "Shields": 1,
+          "Flak": 1
+        },
+        "beginsWith": [
+          {
+            "name": "Cannon Turrets",
+            "targets": "Fr/Sd",
+            "attacks": 2,
+            "range": "12″"
+          }
+        ],
+        "prow": {
+          "select": 1,
+          "options": [
+            {
+              "name": "Cannon Turrets",
+              "targets": "Fr/Sd",
+              "attacks": 2,
+              "range": "12″"
+            },
+            {
+              "name": "Lasers",
+              "targets": "Fr/Sd",
+              "attacks": 1,
+              "range": "12″"
+            },
+            {
+              "name": "Missile Pods",
+              "targets": "Front",
+              "attacks": 2,
+              "range": "18″"
+            }
+          ]
+        },
+        "hull": {
+          "select": 0,
+          "options": []
+        },
+        "squadron": true
+      }
+    },
+    "factionRefits": {
+      "capitalShipRefits": [
+        {
+          "name": "Superior Missile Systems",
+          "description": "Your ship may select missile turrets as a hull weapons option.",
+          "scope": "capital",
+          "weaponChanges": {
+            "unlockOptions": [
+              {
+                "slot": "hull",
+                "allowNamesAny": [
+                  "Missile Turrets"
+                ]
+              }
+            ]
+          },
+          "notes": [
+            "Allows Missile Turrets as hull weapon option"
+          ]
+        }
+      ],
+      "squadronRefits": [
+        {
+          "name": "Noble Crests",
+          "description": "Your squadron of honour guard may sacrifice their hull mounted cannons to gain +1 to their shield value.",
+          "scope": "squadron",
+          "cost": {
+            "loseSlots": [
+              {
+                "slot": "hull",
+                "count": 1
+              }
+            ]
+          },
+          "gains": {
+            "statDeltas": {
+              "Shields": 1
+            }
+          },
+          "requirements": {
+            "hasWeapon": [
+              {
+                "slot": "hull",
+                "nameAny": [
+                  "Cannons"
+                ]
+              }
+            ]
+          },
+          "notes": [
+            "Sacrifice hull mounted cannons",
+            "Shields increased by 1"
+          ]
+        }
+      ]
+    }
+  },
+  "Universal": {
+    "fluff": "Universal refits available to all factions.",
+    "specialRules": [],
+    "commandAbilities": [],
+    "ships": {},
+    "factionRefits": {
+    "capitalShipRefits": [
+      {
+        "name": "Dorsal Laser Turret",
+        "description": "Your ship sacrifices one from its shields rating to gain a light laser turret, or two shields for a heavy laser turret.",
+          "scope": "capital",
+        "options": [
+          {
+            "name": "Light Laser Turret",
+              "cost": {
+                "statDeltas": {
+                  "Shields": -1
+                }
+              },
+              "gains": {
+                "capabilities": {}
+              },
+              "weaponChanges": {
+                "add": [
+                  {
+                    "slot": "turret",
+                    "weapon": {
+                      "name": "Light Laser",
+                      "kind": "lasers",
+                      "targets": "Fr/Sd",
+                      "attacks": 1,
+                      "range": 12
+                    }
+                  }
+                ]
+              },
+              "notes": ["Gains Light Laser turret (Fr/Sd, 1 attack, 12\")"]
+          },
+          {
+            "name": "Heavy Laser Turret", 
+              "cost": {
+                "statDeltas": {
+                  "Shields": -2
+                }
+              },
+              "gains": {
+                "capabilities": {}
+              },
+              "weaponChanges": {
+                "add": [
+                  {
+                    "slot": "turret",
+                    "weapon": {
+                      "name": "Heavy Laser",
+                      "kind": "lasers",
+                      "targets": "Fr/Sd",
+                      "attacks": 2,
+                      "range": 12
+                    }
+                  }
+                ]
+              },
+              "notes": ["Gains Heavy Laser turret (Fr/Sd, 2 attacks, 12\")"]
+            }
+          ],
+          "notes": ["Sacrifice shields for laser turret"]
+      },
+      {
+        "name": "Dorsal Cannon Turret",
+        "description": "Your ship sacrifices one from its flak rating to gain a light cannon turret, or two flak for a heavy cannon turret.",
+          "scope": "capital",
+        "options": [
+          {
+            "name": "Light Cannon Turret",
+              "cost": {
+                "statDeltas": {
+                  "Flak": -1
+                }
+              },
+              "gains": {
+                "capabilities": {}
+              },
+              "weaponChanges": {
+                "add": [
+                  {
+                    "slot": "turret",
+                    "weapon": {
+                      "name": "Light Cannons",
+                      "kind": "cannons",
+                      "targets": "Fr/Sd",
+                      "attacks": 2,
+                      "range": 12
+                    }
+                  }
+                ]
+              },
+              "notes": ["Gains Light Cannon turret (Fr/Sd, 2 attacks, 12\")"]
+          },
+          {
+            "name": "Heavy Cannon Turret",
+              "cost": {
+                "statDeltas": {
+                  "Flak": -2
+                }
+              },
+              "gains": {
+                "capabilities": {}
+              },
+              "weaponChanges": {
+                "add": [
+                  {
+                    "slot": "turret",
+                    "weapon": {
+                      "name": "Heavy Cannons",
+                      "kind": "cannons",
+                      "targets": "Fr/Sd",
+                      "attacks": 4,
+                      "range": 12
+                    }
+                  }
+                ]
+              },
+              "notes": ["Gains Heavy Cannon turret (Fr/Sd, 4 attacks, 12\")"]
+            }
+          ],
+          "notes": ["Sacrifice flak for cannon turret"]
+      },
+      {
+        "name": "Additional Shields",
+        "description": "Your ship sacrifices one of its flak for an extra point of shields.",
+          "scope": "capital",
+          "requirements": {
+            "shipTagsAny": [],
+            "shipClassesAny": [],
+            "hasWeapon": []
+          },
+          "cost": {
+            "statDeltas": {
+              "Flak": -1
+            }
+          },
+          "gains": {
+            "statDeltas": {
+              "Shields": 1
+            }
+          },
+          "notes": ["Trade flak for shields"]
+      },
+      {
+        "name": "Enhanced Flak",
+        "description": "Your ship sacrifices one of its shields for an extra point of flak.",
+          "scope": "capital",
+          "requirements": {
+            "shipTagsAny": [],
+            "shipClassesAny": [],
+            "hasWeapon": []
+          },
+          "cost": {
+            "statDeltas": {
+              "Shields": -1
+            }
+          },
+          "gains": {
+            "statDeltas": {
+              "Flak": 1
+            }
+          },
+          "notes": ["Trade shields for flak"]
+      },
+      {
+        "name": "Extended Hull",
+        "description": "Your ship subtracts 2″ from its speed in exchange for +1 to its hull. Or it may exchange 4″ from its speed for +2 hull. Ships may not reduce speed below 4″.",
+          "scope": "capital",
+          "requirements": {
+            "shipTagsAny": [],
+            "shipClassesAny": [],
+            "hasWeapon": []
+          },
+          "constraints": {
+            "speedMin": 4
+          },
+        "options": [
+          {
+            "name": "+1 Hull",
+              "cost": {
+                "statDeltas": {
+                  "Speed": -2
+                }
+              },
+              "gains": {
+                "statDeltas": {
+                  "Hull": 1
+                }
+              },
+              "notes": ["Speed -2\", Hull +1"]
+          },
+          {
+            "name": "+2 Hull",
+              "cost": {
+                "statDeltas": {
+                  "Speed": -4
+                }
+              },
+              "gains": {
+                "statDeltas": {
+                  "Hull": 2
+                }
+              },
+              "notes": ["Speed -4\", Hull +2"]
+            }
+          ],
+          "notes": ["Trade speed for hull points"]
+      },
+      {
+        "name": "Advanced Shield Batteries",
+        "description": "Your ship sacrifices one of its hull weapon slots to gain +2 to its shield value.",
+          "scope": "capital",
+          "requirements": {
+            "shipTagsAny": [],
+            "shipClassesAny": [],
+            "hasWeapon": []
+          },
+          "cost": {
+            "loseSlots": [
+              {
+                "slot": "hull",
+                "count": 1
+              }
+            ]
+          },
+          "gains": {
+            "statDeltas": {
+              "Shields": 2
+            }
+          },
+          "notes": ["Lose hull weapon slot for +2 shields"]
+      },
+      {
+        "name": "Heavy Armour",
+        "description": "Your ship sacrifices one shield and one flak in exchange for +1 armour (max 3).",
+          "scope": "capital",
+          "requirements": {
+            "shipTagsAny": [],
+            "shipClassesAny": [],
+            "hasWeapon": []
+          },
+          "constraints": {
+            "armourMax": 3
+          },
+          "cost": {
+            "statDeltas": {
+              "Shields": -1,
+              "Flak": -1
+            }
+          },
+          "gains": {
+            "statDeltas": {
+              "Armour": 1
+            }
+          },
+          "notes": ["Trade shields + flak for armour (max 3)"]
+      },
+      {
+        "name": "Enhanced Engines",
+        "description": "Your ship subtracts one from its armour value in exchange for +4″ speed.",
+          "scope": "capital",
+          "requirements": {
+            "shipTagsAny": [],
+            "shipClassesAny": [],
+            "hasWeapon": []
+          },
+          "cost": {
+            "statDeltas": {
+              "Armour": -1
+            }
+          },
+          "gains": {
+            "statDeltas": {
+              "Speed": 4
+            }
+          },
+          "notes": ["Trade armour for +4\" speed"]
+      }
+    ],
+    "squadronRefits": [
+      {
+          "name": "Enhanced Flak",
+          "description": "A squadron sacrifices 1 point from their shields to gain +1 to their flak value.",
+          "scope": "squadron",
+          "requirements": {
+            "shipTagsAny": [],
+            "shipClassesAny": [],
+            "hasWeapon": []
+          },
+          "cost": {
+            "statDeltas": {
+              "Shields": -1
+            }
+          },
+          "gains": {
+            "statDeltas": {
+              "Flak": 1
+            }
+          },
+          "notes": ["Trade shields for flak"]
+        },
+        {
+          "name": "Enhanced Shields",
+          "description": "A squadron sacrifices 1 point from their flak to gain +1 to their shield value. Squadrons with a flak score of zero may no longer offer flak support.",
+          "scope": "squadron",
+          "requirements": {
+            "shipTagsAny": [],
+            "shipClassesAny": [],
+            "hasWeapon": []
+          },
+          "cost": {
+            "statDeltas": {
+              "Flak": -1
+            }
+          },
+          "gains": {
+            "statDeltas": {
+              "Shields": 1
+            }
+          },
+          "notes": ["Trade flak for shields", "Ships with 0 flak cannot provide flak support"]
+        },
+        {
+          "name": "Bulky Design",
+          "description": "A squadron gains +1 to their hull value. They must subtract 1 from either their shields, or their flak value.",
+          "scope": "squadron",
+          "requirements": {
+            "shipTagsAny": [],
+            "shipClassesAny": [],
+            "hasWeapon": []
+          },
+          "options": [
+            {
+              "name": "Subtract from Shields",
+              "cost": {
+                "statDeltas": {
+                  "Shields": -1
+                }
+              },
+              "gains": {
+                "statDeltas": {
+                  "Hull": 1
+                }
+              },
+              "notes": ["Hull +1, Shields -1", "Ships with >1 hull not small targets"]
+            },
+            {
+              "name": "Subtract from Flak",
+              "cost": {
+                "statDeltas": {
+                  "Flak": -1
+                }
+              },
+              "gains": {
+                "statDeltas": {
+                  "Hull": 1
+                }
+              },
+              "notes": ["Hull +1, Flak -1", "Ships with >1 hull not small targets"]
+            }
+          ],
+          "notes": ["Hull +1, choose to lose shields or flak", "Ships with >1 hull not small targets"]
+        }
+      ]
+    }
+  }
+}
