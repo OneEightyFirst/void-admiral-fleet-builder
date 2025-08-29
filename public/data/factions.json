@@ -871,7 +871,11 @@
               },
               {
                 "selector": {
-                  "slot": "prow"
+                  "slot": "prow",
+                  "kindAny": [
+                    "cannons",
+                    "missiles"
+                  ]
                 },
                 "changes": {
                   "attacksDelta": 2
