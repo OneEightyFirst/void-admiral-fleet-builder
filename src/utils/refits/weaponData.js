@@ -286,6 +286,32 @@ export function getCanonicalModifiedWeaponOptions(weaponOptions, ship, location)
 }
 
 /**
+ * Check if a weapon option should be replaced based on selector
+ * @param {Object} option - Weapon option to check
+ * @param {Object} selector - Replacement selector
+ * @returns {boolean}
+ */
+function shouldReplaceCanonicalOption(option, selector) {
+  // If selector specifies specific weapon names, check those
+  if (selector.nameAny) {
+    return selector.nameAny.includes(option.name);
+  }
+  
+  // If selector specifies weapon kinds, check those
+  if (selector.kindAny) {
+    const optionKind = option.kind || inferWeaponKind(option.name);
+    return selector.kindAny.includes(optionKind);
+  }
+  
+  // If selector only specifies slot, replace all weapons in that slot
+  if (selector.slot && !selector.nameAny && !selector.kindAny) {
+    return true;
+  }
+  
+  return false;
+}
+
+/**
  * Get weapons from refit additions for display in dedicated refit slot UI
  * @param {Object} ship - Ship object with appliedCanonicalRefit
  * @returns {Array} Array of refit weapons with their original slot info

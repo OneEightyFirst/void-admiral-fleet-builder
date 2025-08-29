@@ -561,18 +561,17 @@
                 },
                 "to": {
                   "name": "Launch Bays",
-                  "kind": "launch_bays",
-                  "targets": "Any",
-                  "attacks": {
-                    "dice": "1d6"
-                  },
+                  "kind": "bays",
+                  "targets": "360",
+                  "attacks": "1d6",
                   "range": 18
                 }
               }
             ]
           },
           "notes": [
-            "Prow weapons replaced with Launch Bays"
+            "Prow weapons replaced with Launch Bays",
+            "Launch Bays: 360° targeting, 1d6 attacks, 18\" range"
           ]
         }
       ],
