@@ -323,12 +323,108 @@ const BuildView = ({
 
 
 
+  // Wrapper function to add Micro Hives logic to squadron refit application
+  const handleAddRefitToGroup = (groupId, refit, selectedOption) => {
+    console.log('🔧 Adding refit to group:', groupId, refit.name);
+    
+    // Apply the refit manually with ship definition access
+    setRoster(currentRoster => {
+      const newRoster = currentRoster.map(ship => {
+        if (ship.groupId === groupId) {
+          // Get ship definition for beginsWith weapons
+          const shipDef = ships[ship.className];
+          console.log('🔧 SQUADRON_REFIT: Ship def beginsWith:', shipDef?.beginsWith);
+          
+          // Apply the canonical refit with ship definition
+          const result = applyCanonicalRefitToShip(ship, refit, selectedOption, shipDef);
+          if (result.success) {
+            console.log('🔧 SQUADRON_REFIT: Applied successfully');
+            return result.ship;
+          } else {
+            console.error('Failed to apply squadron refit:', result.error);
+            return ship;
+          }
+        }
+        return ship;
+      });
+
+      // Handle Micro Hives special logic after normal refit application
+      if (faction === 'Insectoids' && refit.name === 'Micro Hives') {
+        console.log('🐛 MICRO HIVES: Removing one free Pincer squadron');
+        
+        // Find a free Pincer squadron to remove (not the one getting the refit)
+        const freePincerGroupToRemove = newRoster.find(ship => 
+          ship.className === 'Pincer' && 
+          ship.isFree === true && 
+          ship.groupId !== groupId
+        )?.groupId;
+
+        if (freePincerGroupToRemove) {
+          console.log('🐛 MICRO HIVES: Removing free Pincer squadron:', freePincerGroupToRemove);
+          // Remove all ships from that squadron group
+          return newRoster.filter(ship => ship.groupId !== freePincerGroupToRemove);
+        } else {
+          console.log('🐛 MICRO HIVES: No free Pincer squadrons found to remove');
+        }
+      }
+
+      return newRoster;
+    });
+  };
+
+  // Wrapper function to add Micro Hives logic to squadron refit removal
+  const handleRemoveRefitFromGroup = (groupId) => {
+    console.log('🔧 Removing refit from group:', groupId);
+    
+    // Check if this group had Micro Hives refit before removing it
+    const groupShips = roster.filter(ship => ship.groupId === groupId);
+    const hadMicroHives = groupShips.length > 0 && 
+                         groupShips[0].appliedCanonicalRefit?.name === 'Micro Hives';
+    
+    // First remove the refit using the parent function
+    removeRefitFromGroup(groupId);
+    
+    // Then handle Micro Hives special logic
+    if (faction === 'Insectoids' && hadMicroHives) {
+      console.log('🐛 MICRO HIVES REMOVAL: Adding back one free Pincer squadron');
+      
+      setRoster(currentRoster => {
+        // Add back one free Pincer squadron
+        const shipDef = ships['Pincer'];
+        if (shipDef) {
+          const timestamp = Date.now();
+          const newGroupId = `micro-hives-restored-${timestamp}`;
+          const squadronSize = 3; // Pincer squadrons are typically 3 ships
+          
+          const newPincerSquadron = [];
+          for (let i = 0; i < squadronSize; i++) {
+            newPincerSquadron.push({
+              id: `pincer-${timestamp}-${i}`,
+              className: 'Pincer',
+              groupId: newGroupId,
+              isFree: true,
+              statline: { ...shipDef.statline },
+              loadout: {
+                prow: shipDef.prow?.options?.[0] || null, // Default to first prow option
+                hull: []
+              }
+            });
+          }
+          
+          console.log('🐛 MICRO HIVES REMOVAL: Added free Pincer squadron with', squadronSize, 'ships');
+          return [...currentRoster, ...newPincerSquadron];
+        }
+        return currentRoster;
+      });
+    }
+  };
+
   const handleApplySquadronRefit = (groupId, refit, selectedOption) => {
-    addRefitToGroup(groupId, refit, selectedOption);
+    handleAddRefitToGroup(groupId, refit, selectedOption);
   };
 
   const handleClearSquadronRefit = (groupId) => {
-    removeRefitFromGroup(groupId);
+    handleRemoveRefitFromGroup(groupId);
   };
 
   return (
@@ -608,10 +704,10 @@ const BuildView = ({
                         {/* Squadron weapon selection content */}
                         <Grid container spacing={2}>
                           {/* Begins with weapons section */}
-                          {def.beginsWith && def.beginsWith.length > 0 && (
+                          {((squadronShips[0]?.beginsWith && squadronShips[0].beginsWith.length > 0) || (def.beginsWith && def.beginsWith.length > 0)) && (
                             <Grid item xs={12}>
                               <BeginsWithSection 
-                                beginsWith={def.beginsWith}
+                                beginsWith={squadronShips[0]?.beginsWith || def.beginsWith}
                                 squadronRefit={squadronShips[0]?.squadronRefit}
                                 getWeaponData={getWeaponData}
                               />

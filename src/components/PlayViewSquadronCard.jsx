@@ -192,37 +192,7 @@ const PlayViewSquadronCard = ({ squadron, faction, shipDef }) => {
         </Grid>
       </Box>
 
-      {/* Squadron Refit Information Section */}
-      {firstShip?.appliedCanonicalRefit && (
-        <Box sx={{
-          backgroundColor: '#2a2a2a',
-          borderTop: '1px solid',
-          borderTopColor: 'primary.main',
-          px: 2,
-          py: 1
-        }}>
-          <Typography variant="subtitle2" sx={{ 
-            fontWeight: 600,
-            color: 'primary.main',
-            mb: 0.5
-          }}>
-            Squadron Refit: {firstShip.appliedCanonicalRefit.name}
-          </Typography>
-          {firstShip.appliedCanonicalRefit.notes && (
-            <Box>
-              {firstShip.appliedCanonicalRefit.notes.map((note, index) => (
-                <Typography key={index} variant="caption" sx={{ 
-                  display: 'block',
-                  color: 'text.secondary',
-                  fontSize: '0.75rem'
-                }}>
-                  • {note}
-                </Typography>
-              ))}
-            </Box>
-          )}
-        </Box>
-      )}
+
 
       {/* Weapons Section */}
       {/* Weapon Headers Bar */}
@@ -387,6 +357,34 @@ const PlayViewSquadronCard = ({ squadron, faction, shipDef }) => {
         )}
       </Box>
 
+      {/* Squadron Refit Notes */}
+      {firstShip.appliedCanonicalRefit?.notes && firstShip.appliedCanonicalRefit.notes.length > 0 && (
+        <Box sx={{ 
+          backgroundColor: '#1a1a1a', 
+          px: 2, 
+          py: 1, 
+          borderTop: '1px solid #333' 
+        }}>
+          <Typography variant="caption" sx={{ fontWeight: 600, color: '#d4af37', display: 'block', mb: 0.5 }}>
+            Squadron Refit: {firstShip.appliedCanonicalRefit.name}
+          </Typography>
+          {firstShip.appliedCanonicalRefit.notes.map((note, index) => (
+            <Typography
+              key={index}
+              variant="caption"
+              sx={{
+                display: 'block',
+                color: 'rgba(255, 255, 255, 0.6)',
+                fontSize: '0.75rem',
+                lineHeight: 1.2,
+                mb: index < firstShip.appliedCanonicalRefit.notes.length - 1 ? 0.25 : 0
+              }}
+            >
+              • {note}
+            </Typography>
+          ))}
+        </Box>
+      )}
 
     </Card>
   );

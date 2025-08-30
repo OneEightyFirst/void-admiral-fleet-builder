@@ -256,10 +256,20 @@ export function getCanonicalModifiedWeaponOptions(weaponOptions, ship, location)
   if (weaponChanges.unlockOptions) {
     for (const unlock of weaponChanges.unlockOptions) {
       if (unlock.slot === location || unlock.slot === "any") {
+        // Support for unlocking existing weapon names
         if (unlock.allowNamesAny) {
           for (const weaponName of unlock.allowNamesAny) {
             if (!modifiedOptions.some(opt => opt.name === weaponName)) {
               modifiedOptions.push(cleanWeaponSpec({ name: weaponName }));
+            }
+          }
+        }
+        
+        // Support for adding new weapon options
+        if (unlock.options) {
+          for (const newWeapon of unlock.options) {
+            if (!modifiedOptions.some(opt => opt.name === newWeapon.name)) {
+              modifiedOptions.push(cleanWeaponSpec(newWeapon));
             }
           }
         }

@@ -724,13 +724,20 @@ function AppContent(){
         const shipDef = ships[ship.className];
         const originalStatline = shipDef.statline ? { ...shipDef.statline } : {};
         
-        // Remove canonical refit and restore original stats
-        return {
+        // Create a clean ship without refit modifications
+        const cleanedShip = {
           ...ship,
           squadronRefit: null,
           appliedCanonicalRefit: null,
           statline: originalStatline
         };
+        
+        // Remove any modified beginsWith weapons (restore to original ship definition)
+        if (ship.beginsWith) {
+          delete cleanedShip.beginsWith;
+        }
+        
+        return cleanedShip;
       }
       
       // Fallback for legacy refits

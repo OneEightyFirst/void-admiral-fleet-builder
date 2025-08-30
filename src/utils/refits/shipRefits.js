@@ -12,21 +12,38 @@ import { applyRefit, canApplyRefit } from './apply.js';
  * @param {string} scope - "capital" or "squadron"
  * @returns {{ ok: boolean, ship?: Object, error?: string }}
  */
-export function applyCanonicalRefitToShip(ship, canonicalRefit, scope) {
+export function applyCanonicalRefitToShip(ship, canonicalRefit, selectedOption = null, shipDefinition = null) {
   try {
+    // Create enhanced ship object that includes ship definition data
+    const enhancedShip = {
+      ...ship,
+      // Copy beginsWith from ship definition if it exists
+      // This is needed for weapon replacement to work on beginsWith weapons
+      ...(shipDefinition && shipDefinition.beginsWith && {
+        beginsWith: [...shipDefinition.beginsWith]
+      })
+    };
+    
+    console.log('🔧 ENHANCED_SHIP: Ship has beginsWith:', !!enhancedShip.beginsWith);
+    if (enhancedShip.beginsWith) {
+      console.log('🔧 ENHANCED_SHIP: beginsWith weapons:', enhancedShip.beginsWith);
+    }
+    
     // Apply canonical refit directly
-    const result = applyRefit(ship, canonicalRefit);
+    const result = applyRefit(enhancedShip, canonicalRefit, selectedOption);
     
     if (result.ok) {
       // Store canonical refit data
       result.ship.appliedCanonicalRefit = canonicalRefit;
-      result.ship[scope === 'capital' ? 'refit' : 'squadronRefit'] = canonicalRefit;
+      result.ship.squadronRefit = canonicalRefit; // Store for squadrons
+      
+      return { success: true, ship: result.ship };
+    } else {
+      return { success: false, error: result.error };
     }
-    
-    return result;
   } catch (error) {
     console.error('Failed to apply refit:', error);
-    return { ok: false, error: error.message };
+    return { success: false, error: error.message };
   }
 }
 

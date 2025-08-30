@@ -177,31 +177,52 @@ const BuildViewCard = ({
         </Grid>
       </Box>
 
-      {/* Refit and Begins With indicator */}
-      {(ship.refit || (shipDef.beginsWith && shipDef.beginsWith.length > 0)) && (
-        <Box sx={{ 
-          backgroundColor: '#2a2a2a', 
-          px: 2, 
-          py: 1, 
-          borderTop: '1px solid #444' 
-        }}>
-          {ship.refit && (
-            <Typography variant="caption" sx={{ fontWeight: 600, color: '#ffc107', display: 'block', mb: shipDef.beginsWith?.length > 0 ? 0.5 : 0 }}>
-              Refit: {ship.refit.selectedOption ? ship.refit.selectedOption.name : ship.refit.name}
-            </Typography>
-          )}
-          {shipDef.beginsWith && shipDef.beginsWith.length > 0 && (
-            <Typography variant="caption" sx={{ fontWeight: 600, color: 'white' }}>
-              Begins with: {shipDef.beginsWith.map(w => w.name).join(', ')}
-            </Typography>
-          )}
-        </Box>
-      )}
-
       {/* Build-specific content (weapon selection, etc.) */}
       <Box sx={{ p: 2 }}>
         {children}
       </Box>
+
+      {/* Refit and Begins With indicator */}
+      {((ship.refit || ship.appliedCanonicalRefit) || (shipDef.beginsWith && shipDef.beginsWith.length > 0)) && (
+        <Box sx={{ 
+          backgroundColor: '#1a1a1a', 
+          px: 2, 
+          py: 1, 
+          borderTop: '1px solid #333' 
+        }}>
+          {(ship.refit || ship.appliedCanonicalRefit) && (
+            <>
+              <Typography variant="caption" sx={{ fontWeight: 600, color: '#d4af37', display: 'block', mb: 0.5 }}>
+                Refit: {ship.appliedCanonicalRefit?.name || (ship.refit?.selectedOption ? ship.refit.selectedOption.name : ship.refit?.name)}
+              </Typography>
+              {ship.appliedCanonicalRefit?.notes && ship.appliedCanonicalRefit.notes.length > 0 && (
+                <Box sx={{ ml: 0 }}>
+                  {ship.appliedCanonicalRefit.notes.map((note, index) => (
+                    <Typography 
+                      key={index} 
+                      variant="caption" 
+                      sx={{ 
+                        display: 'block', 
+                        color: 'rgba(255, 255, 255, 0.6)',
+                        fontSize: '0.75rem',
+                        lineHeight: 1.2,
+                        mb: index < ship.appliedCanonicalRefit.notes.length - 1 ? 0.25 : 0
+                      }}
+                    >
+                      • {note}
+                    </Typography>
+                  ))}
+                </Box>
+              )}
+            </>
+          )}
+          {((ship.beginsWith && ship.beginsWith.length > 0) || (shipDef.beginsWith && shipDef.beginsWith.length > 0)) && (
+            <Typography variant="caption" sx={{ fontWeight: 600, color: 'rgba(255, 255, 255, 0.8)', mt: (ship.refit || ship.appliedCanonicalRefit) ? 0.5 : 0 }}>
+              Begins with: {(ship.beginsWith || shipDef.beginsWith).map(w => w.name || w).join(', ')}
+            </Typography>
+          )}
+        </Box>
+      )}
     </Card>
   );
 };

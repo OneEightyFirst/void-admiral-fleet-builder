@@ -2011,6 +2011,22 @@
               "Rock Hauler"
             ]
           },
+          "weaponChanges": {
+            "unlockOptions": [
+              {
+                "slot": "hull",
+                "options": [
+                  {
+                    "name": "Launch Bays",
+                    "kind": "launch_bays",
+                    "targets": "360",
+                    "attacks": "1d6",
+                    "range": 18
+                  }
+                ]
+              }
+            ]
+          },
           "notes": [
             "Allows Launch Bays as hull weapon option for Diggers and Rock Haulers"
           ]

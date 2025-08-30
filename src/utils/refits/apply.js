@@ -206,6 +206,25 @@ function applyWeaponReplacement(ship, replacement) {
     );
   }
   
+  // Replace in beginsWith array (ship definition level) - this modifies the ship's base weapons
+  if (selector.nameAny && result.beginsWith) {
+    console.log('🔧 WEAPON_REPLACEMENT: Checking beginsWith weapons:', result.beginsWith);
+    result.beginsWith = result.beginsWith.map(weapon => {
+      if (typeof weapon === 'string') {
+        // Simple string weapon name
+        return selector.nameAny.includes(weapon) ? to.name : weapon;
+      } else if (weapon && weapon.name) {
+        // Weapon object with name property
+        if (selector.nameAny.includes(weapon.name)) {
+          console.log('🔧 WEAPON_REPLACEMENT: Replacing beginsWith weapon:', weapon.name, 'with:', to.name);
+          return { ...weapon, ...to };
+        }
+      }
+      return weapon;
+    });
+    console.log('🔧 WEAPON_REPLACEMENT: Updated beginsWith:', result.beginsWith);
+  }
+  
   // Replace in specific slots
   if (slot !== "any") {
     const slotArray = result.loadout?.[slot];

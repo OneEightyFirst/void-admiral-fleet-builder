@@ -415,12 +415,12 @@ const PlayViewCard = ({ ship, faction, shipDef }) => {
       {/* Refit Notes */}
       {ship.appliedCanonicalRefit?.notes && ship.appliedCanonicalRefit.notes.length > 0 && (
         <Box sx={{ 
-          backgroundColor: '#2a2a2a', 
+          backgroundColor: '#1a1a1a', 
           px: 2, 
           py: 1, 
-          borderTop: '1px solid #444' 
+          borderTop: '1px solid #333' 
         }}>
-          <Typography variant="caption" sx={{ fontWeight: 600, color: '#ffc107', display: 'block', mb: 0.5 }}>
+          <Typography variant="caption" sx={{ fontWeight: 600, color: '#d4af37', display: 'block', mb: 0.5 }}>
             Refit: {ship.appliedCanonicalRefit.name}
           </Typography>
           {ship.appliedCanonicalRefit.notes.map((note, index) => (
@@ -429,10 +429,10 @@ const PlayViewCard = ({ ship, faction, shipDef }) => {
               variant="caption"
               sx={{
                 display: 'block',
-                fontStyle: 'italic',
-                color: 'rgba(255, 255, 255, 0.8)',
+                color: 'rgba(255, 255, 255, 0.6)',
                 fontSize: '0.75rem',
-                lineHeight: 1.2
+                lineHeight: 1.2,
+                mb: index < ship.appliedCanonicalRefit.notes.length - 1 ? 0.25 : 0
               }}
             >
               • {note}

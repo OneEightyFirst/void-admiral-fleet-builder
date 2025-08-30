@@ -189,24 +189,43 @@ const BuildViewSquadronCard = ({
         </Grid>
       </Box>
 
-      {/* Squadron Refit indicator */}
-      {firstShip.squadronRefit && (
-        <Box sx={{ 
-          backgroundColor: '#2a2a2a', 
-          px: 2, 
-          py: 1, 
-          borderTop: '1px solid #444' 
-        }}>
-          <Typography variant="caption" sx={{ fontWeight: 600, color: '#ffc107' }}>
-            Squadron Refit: {firstShip.squadronRefit.selectedOption ? firstShip.squadronRefit.selectedOption : firstShip.squadronRefit.name}
-          </Typography>
-        </Box>
-      )}
-
       {/* Build-specific content (weapon selection for each ship) */}
       <Box sx={{ p: 2 }}>
         {children}
       </Box>
+
+      {/* Squadron Refit indicator */}
+      {(firstShip.squadronRefit || firstShip.appliedCanonicalRefit) && (
+        <Box sx={{ 
+          backgroundColor: '#1a1a1a', 
+          px: 2, 
+          py: 1, 
+          borderTop: '1px solid #333' 
+        }}>
+          <Typography variant="caption" sx={{ fontWeight: 600, color: '#d4af37', display: 'block', mb: 0.5 }}>
+            Squadron Refit: {firstShip.appliedCanonicalRefit?.name || (firstShip.squadronRefit?.selectedOption ? firstShip.squadronRefit.selectedOption.name : firstShip.squadronRefit?.name)}
+          </Typography>
+          {(firstShip.appliedCanonicalRefit?.notes || firstShip.squadronRefit?.notes) && (
+            <Box sx={{ ml: 0 }}>
+              {(firstShip.appliedCanonicalRefit?.notes || firstShip.squadronRefit?.notes || []).map((note, index) => (
+                <Typography 
+                  key={index} 
+                  variant="caption" 
+                  sx={{ 
+                    display: 'block', 
+                    color: 'rgba(255, 255, 255, 0.6)',
+                    fontSize: '0.75rem',
+                    lineHeight: 1.2,
+                    mb: index < (firstShip.appliedCanonicalRefit?.notes || firstShip.squadronRefit?.notes || []).length - 1 ? 0.25 : 0
+                  }}
+                >
+                  • {note}
+                </Typography>
+              ))}
+            </Box>
+          )}
+        </Box>
+      )}
     </Card>
   );
 };
