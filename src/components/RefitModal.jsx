@@ -18,6 +18,7 @@ import { Close as CloseIcon } from '@mui/icons-material';
 import WeaponStatsGrid from './shared/WeaponStatsGrid';
 import WeaponOptionsGrid from './shared/WeaponOptionsGrid';
 import { calculateAvailableHullSlots, calculateTotalHullSlots, calculateUsedHullSlots, calculateEffectiveHullSlots } from '../utils/gameUtils';
+import { getAvailableRefits, convertToCanonicalFormat, isRefitEligible } from '../utils/refitLookup';
 
 // RefitCard component for displaying individual refits
 const RefitCard = ({ 
@@ -25,20 +26,38 @@ const RefitCard = ({
   onSelect, 
   onClear,
   isEligible = true, 
-  isFactionRefit = false,
+  isFactionRefit = false, 
   ineligibilityReason = null, 
   shipDef,
   isSelected = false,
   hasOtherSelection = false,
   ship,
-  onSelectRefit
+  squadron,
+  onSelectRefit,
+  onSelectOption,
+  isSquadron = false
 }) => {
   const [selectedOption, setSelectedOption] = useState(null);
   
-  // A refit is clickable if it's eligible and either has no options or only weapon-based options (handled by WeaponOptionsGrid)
-  const hasStatOptions = refit.options && refit.options.some(opt => opt.cost?.statDeltas || opt.gains?.statDeltas) && !refit.options.some(opt => opt.gains?.weapons || opt.weaponChanges?.add);
-  const hasWeaponOptions = refit.options && refit.options.some(opt => opt.gains?.weapons || opt.weaponChanges?.add);
-  const isClickable = isEligible && !hasStatOptions && (!hasOtherSelection || isSelected);
+  // Different logic for squadron vs capital ship refits
+  const getClickabilityLogic = () => {
+    if (isSquadron) {
+      return {
+        isClickable: isEligible && !refit.options && (!hasOtherSelection || isSelected),
+        hasStatOptions: false,
+        hasWeaponOptions: false
+      };
+    } else {
+      // Capital ship logic
+      const hasStatOptions = refit.options && refit.options.some(opt => opt.cost?.statDeltas || opt.gains?.statDeltas) && !refit.options.some(opt => opt.gains?.weapons || opt.weaponChanges?.add);
+      const hasWeaponOptions = refit.options && refit.options.some(opt => opt.gains?.weapons || opt.weaponChanges?.add);
+      const isClickable = isEligible && !hasStatOptions && (!hasOtherSelection || isSelected);
+      
+      return { isClickable, hasStatOptions, hasWeaponOptions };
+    }
+  };
+
+  const { isClickable, hasStatOptions, hasWeaponOptions } = getClickabilityLogic();
   const shouldGrayOut = hasOtherSelection && !isSelected;
 
   return (
@@ -55,15 +74,10 @@ const RefitCard = ({
           boxShadow: 2
         } : {}
       }}
-      onClick={() => {
-        // Only allow card click for refits without weapon options and if no other selection
-        if (isClickable) {
-          onSelect(refit);
-        }
-      }}
+      onClick={isClickable ? () => onSelect(refit) : undefined}
     >
       {/* Clear button for selected refits */}
-      {isSelected && onClear && (
+      {isSelected && (
         <IconButton
           size="small"
           onClick={(e) => {
@@ -74,102 +88,160 @@ const RefitCard = ({
             position: 'absolute',
             top: 8,
             right: 8,
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-            color: '#ffc107',
+            backgroundColor: 'error.main',
+            color: 'white',
             width: 24,
             height: 24,
             '&:hover': {
-              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              backgroundColor: 'error.dark',
             }
           }}
         >
-          <CloseIcon sx={{ fontSize: 16 }} />
+          <CloseIcon fontSize="small" />
         </IconButton>
       )}
       
-      <CardContent>
-        <Typography variant="h6" component="h3" sx={{ fontWeight: 600, mb: 1 }}>
+      <CardContent sx={{ p: 2 }}>
+        {/* Header */}
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+          <Typography variant="h6" sx={{ fontWeight: 700, pr: 1 }}>
           {refit.name}
+          </Typography>
+          <Stack direction="row" spacing={0.5}>
           {isFactionRefit && (
             <Chip 
               label="Faction" 
+                size="small" 
+                color="secondary"
+                sx={{ fontSize: '0.7rem', height: 20 }}
+              />
+            )}
+            {refit.cost && (
+              <Chip 
+                label={`${refit.cost} pts`} 
               size="small" 
               color="primary" 
-              sx={{ ml: 1, fontSize: '0.7rem' }} 
+                sx={{ fontSize: '0.7rem', height: 20 }}
             />
           )}
-        </Typography>
+          </Stack>
+        </Box>
         
+        {/* Description */}
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
           {refit.description}
         </Typography>
 
-        {/* Stat-based options (like Extended Hull) */}
-        {hasStatOptions && (
+        {/* Stat changes */}
+        {refit.cost?.statDeltas && (
           <Box sx={{ mb: 2 }}>
-            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
-              Choose Option:
-            </Typography>
+            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
+              Stat Changes:
+                  </Typography>
             <Stack direction="row" spacing={1} flexWrap="wrap">
-              {refit.options.map((option, index) => {
-                const isOptionSelected = selectedOption === index;
-                const baseCanSelect = isEligible && (!hasOtherSelection || isSelected);
-                
-                // Check if this specific option would violate speed constraints
-                const currentSpeed = ship.statline?.Speed || ship.originalStatline?.Speed || 0;
-                const speedCost = option.cost?.statDeltas?.Speed || 0;
-                const resultingSpeed = currentSpeed + speedCost;
-                const speedMin = refit.constraints?.speedMin || 0;
-                const wouldViolateSpeed = resultingSpeed < speedMin;
-                
-                const canSelectOption = baseCanSelect && !wouldViolateSpeed;
-                
-                return (
-                  <Chip
-                    key={index}
-                    label={option.name}
-                    variant="filled"
-                    color="primary"
-                    clickable={canSelectOption}
-                    disabled={!canSelectOption}
-                    sx={{
-                      cursor: canSelectOption ? 'pointer' : 'default',
-                      opacity: wouldViolateSpeed ? 0.4 : 1,
-                      border: isOptionSelected ? 2 : 0,
-                      borderColor: isOptionSelected ? 'primary.dark' : 'transparent',
-                      '&.Mui-disabled': {
-                        opacity: 0.4,
-                        color: 'text.disabled',
-                        borderColor: 'action.disabled'
-                      }
-                    }}
-                    onClick={() => {
-                      if (canSelectOption) {
-                        setSelectedOption(index);
-                        onSelect(refit, option);
-                      }
-                    }}
-                  />
-                );
-              })}
+              {Object.entries(refit.cost.statDeltas).map(([stat, delta]) => (
+                <Chip
+                  key={stat}
+                  label={`${stat}: ${delta > 0 ? '+' : ''}${delta}`}
+                  size="small"
+                  color={delta > 0 ? 'success' : 'error'}
+                  variant="outlined"
+                />
+              ))}
+            </Stack>
+                  </Box>
+        )}
+
+        {/* Gains */}
+        {refit.gains?.statDeltas && (
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
+              Gains:
+                    </Typography>
+            <Stack direction="row" spacing={1} flexWrap="wrap">
+              {Object.entries(refit.gains.statDeltas).map(([stat, delta]) => (
+                <Chip
+                  key={stat}
+                  label={`${stat}: ${delta > 0 ? '+' : ''}${delta}`}
+                  size="small"
+                  color="success"
+                  variant="outlined"
+                />
+              ))}
+            </Stack>
+                  </Box>
+        )}
+
+        {/* Weapon gains - use shared WeaponStatsGrid component */}
+        <WeaponStatsGrid weapons={refit.gains?.weapons} />
+
+        {/* Options handling */}
+        {!isSquadron && hasStatOptions && refit.options && (
+          <Box sx={{ mt: 2 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
+              Choose Option:
+                        </Typography>
+            <Stack spacing={1}>
+              {refit.options.map((option, index) => (
+                        <Button
+                  key={index}
+                  variant={selectedOption === index ? 'contained' : 'outlined'}
+                          size="small"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedOption(index);
+                    onSelectRefit(refit, option);
+                  }}
+                  disabled={!isEligible || hasOtherSelection}
+                >
+                  {option.name}
+                        </Button>
+              ))}
             </Stack>
           </Box>
         )}
 
-        {/* Weapon options for turret refits - use shared WeaponOptionsGrid component */}
-        <WeaponOptionsGrid 
-          refit={refit}
-          ship={ship}
-          shipDef={shipDef}
-          isEligible={isEligible}
-          isSelected={isSelected}
-          hasOtherSelection={hasOtherSelection}
-          onSelect={onSelect}
-          onSelectRefit={onSelectRefit}
-        />
+        {!isSquadron && hasWeaponOptions && refit.options && (
+          <WeaponOptionsGrid 
+            options={refit.options}
+            ship={ship}
+            shipDef={shipDef}
+            onSelectOption={(option) => onSelectRefit(refit, option)}
+            disabled={!isEligible || hasOtherSelection}
+          />
+        )}
 
-        {/* Weapon gains - use shared WeaponStatsGrid component */}
-        <WeaponStatsGrid weapons={refit.gains?.weapons} />
+        {/* Squadron-specific options handling */}
+        {isSquadron && refit.options && (
+          <Box sx={{ mt: 2 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
+              Choose Option:
+            </Typography>
+            <Grid container spacing={1}>
+              {refit.options.map((option, index) => (
+                <Grid item xs={12} sm={6} key={index}>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    fullWidth
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelectOption(refit, option);
+                    }}
+                    disabled={!isEligible || hasOtherSelection}
+                    sx={{ 
+                      textAlign: 'left',
+                      justifyContent: 'flex-start',
+                      textTransform: 'none'
+                    }}
+                  >
+                    {option.name}
+                  </Button>
+                </Grid>
+              ))}
+                </Grid>
+          </Box>
+        )}
 
         {/* Ineligibility reason */}
         {!isEligible && ineligibilityReason && !isSelected && (
@@ -186,445 +258,250 @@ const RefitModal = ({
   open, 
   onClose, 
   ship, 
+  squadron,
   shipDef, 
   faction, 
   factions, 
+  refits,
   onSelectRefit,
+  onApplyRefit,
+  onClearRefit,
   usedRefits,
   maxRefits 
 }) => {
-  if (!open || !ship || !factions) {
+  // Determine if this is a squadron modal based on shipDef.squadron
+  const isSquadron = shipDef?.squadron === true;
+  const currentShip = isSquadron ? (squadron ? squadron[0] : ship) : ship;
+  
+  if (!open || !currentShip || !refits) {
     return null;
   }
 
-  const universalRefits = factions?.Universal?.factionRefits?.capitalShipRefits || [];
-  const factionRefits = factions?.[faction]?.factionRefits?.capitalShipRefits || [];
+  // Get available refits using new system
+  const targetType = isSquadron ? 'squadron' : 'capital';
+  const availableRefits = getAvailableRefits(refits, faction, targetType);
   
+  // Debug logging
+  console.log(`🔧 ${isSquadron ? 'Squadron' : 'Capital'}RefitModal Debug:`, {
+    refitsCount: refits?.length || 0,
+    faction,
+    availableRefitsCount: availableRefits.length,
+    ship: currentShip?.className
+  });
 
+  // Separate global and faction refits
+  const globalRefits = availableRefits.filter(refit => refit.scope === 'global');
+  const factionRefits = availableRefits.filter(refit => refit.scope === faction);
 
+  // Sort refits by name
+  const sortedGlobalRefits = globalRefits.sort((a, b) => a.name.localeCompare(b.name));
+  const sortedFactionRefits = factionRefits.sort((a, b) => a.name.localeCompare(b.name));
+
+  // Get selected refit info
+  const getSelectedRefitInfo = () => {
+    if (isSquadron) {
+      const selectedRefitName = squadron?.squadronRefit?.name || squadron?.[0]?.squadronRefit?.name;
+      return {
+        selectedRefitName,
+        hasSelectedRefit: Boolean(selectedRefitName)
+      };
+    } else {
+      const selectedRefitName = ship?.appliedCanonicalRefit?.name;
   const canAddMoreRefits = usedRefits < maxRefits;
-
-  const handleRefitSelect = (refit, option = null) => {
-    console.log('MODAL: Selected refit', refit.name);
-    
-    // For refits with options, we need an option to be selected
-    if (refit.options && !option) {
-      // Don't proceed without a selected option
-      return;
+      return {
+        selectedRefitName,
+        hasSelectedRefit: Boolean(selectedRefitName),
+        canAddMoreRefits
+      };
     }
+  };
+
+  const { selectedRefitName, hasSelectedRefit, canAddMoreRefits } = getSelectedRefitInfo();
+
+  // Handle refit selection
+  const handleRefitSelect = (refit, option = null) => {
+    console.log(`MODAL: Selected ${isSquadron ? 'squadron ' : ''}refit`, refit.name);
     
-    // Apply the refit with the selected option
-    onSelectRefit(ship.id, { ...refit, selectedOption: option });
+    // Convert to canonical format
+    const canonicalRefit = convertToCanonicalFormat(refit);
+    console.log('MODAL: Converted to canonical format:', canonicalRefit);
+    
+    if (isSquadron) {
+      if (onApplyRefit) {
+        onApplyRefit(squadron, canonicalRefit, option);
+      }
+    } else {
+      if (onSelectRefit) {
+        onSelectRefit(canonicalRefit);
+      }
+    }
     onClose();
   };
 
-  const handleRefitClear = () => {
-    onSelectRefit(null);
-    // Don't close modal to allow selecting a different refit
+  // Handle option selection (squadron-specific)
+  const handleOptionSelect = (refit, option) => {
+    console.log('MODAL: Selected option', option.name, 'for refit', refit.name);
+    
+    // Convert to canonical format
+    const canonicalRefit = convertToCanonicalFormat(refit);
+    console.log('MODAL: Converted to canonical format:', canonicalRefit);
+    
+    if (onApplyRefit) {
+      onApplyRefit(squadron, canonicalRefit, option);
+    }
+    onClose();
   };
 
-  // Check if ship has any refit selected (canonical or legacy)
-  const hasSelectedRefit = (ship.refit !== null && ship.refit !== undefined) || 
-                          (ship.appliedCanonicalRefit !== null && ship.appliedCanonicalRefit !== undefined);
-  const selectedRefitName = ship.appliedCanonicalRefit?.name || ship.refit?.name;
-
-  const isRefitEligible = (refit) => {
-    console.log('🔍 CHECKING ELIGIBILITY for:', refit.name, 'constraints:', refit.constraints);
-    
-    // Early exit debug
-    if (refit.name === 'Heavy Armour') {
-      const currentArmour = ship.statline?.Armour || shipDef.statline?.Armour || 0;
-      const armourGain = refit.gains?.statDeltas?.Armour || 0;
-      console.log('🚨 HEAVY ARMOUR EARLY DEBUG:', {
-        currentArmour,
-        armourGain,
-        resultingArmour: currentArmour + armourGain,
-        maxAllowed: 3,
-        shipStatline: ship.statline,
-        shipDefStatline: shipDef.statline,
-        constraints: refit.constraints
-      });
-    }
-    
-    // Check hull slot costs (for canonical refit format)
-    if (refit.cost?.loseSlots) {
-      for (const lostSlot of refit.cost.loseSlots) {
-        if (lostSlot.slot === 'hull') {
-          const currentUsed = calculateUsedHullSlots(ship, shipDef);
-          const currentAvailable = calculateEffectiveHullSlots(ship, shipDef);
-          const availableSlots = currentAvailable - currentUsed;
-          
-          if (availableSlots < lostSlot.count) {
-            return false;
-          }
-        }
+  // Handle clearing selected refit
+  const handleClearRefit = () => {
+    if (isSquadron) {
+      if (onClearRefit) {
+        onClearRefit(squadron);
+      }
+    } else {
+      if (onSelectRefit) {
+        onSelectRefit(null);
       }
     }
-    
-    // Get ship stats for both requirements and constraints checking
-    const stats = shipDef.statline;
-    
-    // Check requirements if they exist
-    if (refit.requirements) {
-      for (const [stat, requirement] of Object.entries(refit.requirements)) {
-      // Special handling for hull_weapons requirement
-      if (stat === 'hull_weapons') {
-        const totalHullSlots = calculateTotalHullSlots(shipDef);
-        if (totalHullSlots === 0) return false;
-        
-        if (requirement.includes('+')) {
-          const requiredSlots = parseInt(requirement);
-          const availableSlots = calculateAvailableHullSlots(ship, shipDef);
-          if (availableSlots < requiredSlots) return false;
-        }
-        continue;
-      }
-      
-      // Special handling for prow_weapons requirement
-      if (stat === 'prow_weapons') {
-        const prowOptions = shipDef.prow?.options || [];
-        if (prowOptions.length === 0) return false;
-        
-        // Check if any prow weapon matches the requirement (e.g., "missile|laser")
-        const requiredTypes = requirement.split('|');
-        const hasRequiredWeapon = prowOptions.some(weapon => 
-          requiredTypes.some(type => 
-            weapon.name.toLowerCase().includes(type.toLowerCase())
-          )
-        );
-        if (!hasRequiredWeapon) return false;
-        continue;
-      }
-      
-      // Special handling for className requirement
-      if (stat === 'className') {
-        if (ship.className !== requirement) return false;
-        continue;
-      }
-      
-      // Special handling for shipClasses requirement (array of allowed classes)
-      if (stat === 'shipClasses') {
-        if (!requirement.includes(ship.className)) return false;
-        continue;
-      }
-      
-      // Special handling for shipClassesAny requirement (array of allowed classes)
-      if (stat === 'shipClassesAny') {
-        if (!requirement.includes(ship.className)) return false;
-        continue;
-      }
-      
-      const statValue = stats[stat];
-      if (!statValue) return false;
-      
-      // Parse requirement (e.g., "1+", "max_2", "6+")
-      if (requirement.includes('+')) {
-        const minValue = parseInt(requirement);
-        if (typeof statValue === 'string') {
-          const numValue = parseInt(statValue);
-          if (numValue < minValue) return false;
-        } else if (statValue < minValue) {
-          return false;
-        }
-      } else if (requirement.startsWith('max_')) {
-        const maxValue = parseInt(requirement.split('_')[1]);
-        if (typeof statValue === 'string') {
-          const numValue = parseInt(statValue);
-          if (numValue > maxValue) return false;
-        } else if (statValue > maxValue) {
-          return false;
-        }
-      }
-    }
-    }
-    
-    // Check constraints (different from requirements)
-    if (refit.constraints) {
-      for (const [constraint, value] of Object.entries(refit.constraints)) {
-        if (constraint === 'speedMin') {
-          const currentSpeed = ship.statline?.Speed || stats.Speed || 0;
-          const minSpeed = parseInt(value);
-          
-          // For refits with options, check if ALL options would violate the constraint
-          if (refit.options) {
-            const allOptionsViolateConstraint = refit.options.every(option => {
-              const speedCost = option.cost?.statDeltas?.Speed || 0;
-              return (currentSpeed + speedCost) < minSpeed;
-            });
-            if (allOptionsViolateConstraint) return false;
-          } else if (currentSpeed < minSpeed) {
-            return false;
-          }
-        } else if (constraint === 'armourMax') {
-          const currentArmour = ship.statline?.Armour || stats.Armour || 0;
-          const maxArmour = parseInt(value);
-          
-          // Check if applying this refit would exceed max armour
-          const armourGain = refit.gains?.statDeltas?.Armour || 0;
-          const resultingArmour = currentArmour + armourGain;
-          
-          console.log('🔍 ARMOUR DEBUG:', {
-            refitName: refit.name,
-            currentArmour,
-            armourGain,
-            resultingArmour,
-            maxArmour,
-            shipStatline: ship.statline,
-            stats
-          });
-          
-          if (resultingArmour > maxArmour) {
-            return false;
-          }
-        }
-      }
-    }
-    
-    return true;
+    onClose();
   };
 
-  const getIneligibilityReason = (refit) => {
-    // Check hull slot costs (for canonical refit format)
-    if (refit.cost?.loseSlots) {
-      for (const lostSlot of refit.cost.loseSlots) {
-        if (lostSlot.slot === 'hull') {
-          const currentUsed = calculateUsedHullSlots(ship, shipDef);
-          const currentAvailable = calculateEffectiveHullSlots(ship, shipDef);
-          const availableSlots = currentAvailable - currentUsed;
-          
-          if (availableSlots < lostSlot.count) {
-            return `All hull slots used`;
-          }
-        }
-      }
+  // Check if refit is eligible
+  const isRefitEligibleLocal = (refit) => {
+    if (isSquadron) {
+      return isRefitEligible(refit, squadron?.[0], shipDef);
+    } else {
+      return isRefitEligible(refit, ship, shipDef);
     }
-    
-    if (!refit.requirements) return null;
-    
-    const stats = shipDef.statline;
-    for (const [stat, requirement] of Object.entries(refit.requirements)) {
-      // Special handling for hull_weapons requirement
-      if (stat === 'hull_weapons') {
-        const totalHullSlots = calculateTotalHullSlots(shipDef);
-        
-        if (totalHullSlots === 0) {
-          return `No hull weapon slots available`;
-        }
-        
-        if (requirement.includes('+')) {
-          const requiredSlots = parseInt(requirement);
-          const availableSlots = calculateAvailableHullSlots(ship, shipDef);
-          if (availableSlots < requiredSlots) {
-            return `Not available: No empty hull slots`;
-          }
-        }
-        continue;
-      }
-      
-      // Special handling for prow_weapons requirement
-      if (stat === 'prow_weapons') {
-        const prowOptions = shipDef.prow?.options || [];
-        if (prowOptions.length === 0) {
-          return `Ship has no prow weapons`;
-        }
-        
-        // Check if any prow weapon matches the requirement (e.g., "missile|laser")
-        const requiredTypes = requirement.split('|');
-        const hasRequiredWeapon = prowOptions.some(weapon => 
-          requiredTypes.some(type => 
-            weapon.name.toLowerCase().includes(type.toLowerCase())
-          )
-        );
-        if (!hasRequiredWeapon) {
-          return `Requires prow-mounted ${requiredTypes.join(' or ')} weapons`;
-        }
-        continue;
-      }
-      
-      // Special handling for className requirement
-      if (stat === 'className') {
-        if (ship.className !== requirement) {
-          return `Ship is not ${requirement}`;
-        }
-        continue;
-      }
-      
-      // Special handling for shipClasses requirement (array of allowed classes)
-      if (stat === 'shipClasses') {
-        if (!requirement.includes(ship.className)) {
-          return `Only available for ${requirement.join(', ')} ships`;
-        }
-        continue;
-      }
-      
-      const statValue = stats[stat];
-      
-      if (!statValue) {
-        return `Ship has no ${stat}`;
-      }
-      
-      if (requirement.includes('+')) {
-        const minValue = parseInt(requirement);
-        const currentValue = typeof statValue === 'string' ? parseInt(statValue) : statValue;
-        if (currentValue < minValue) {
-          return `Requires ${stat} ${minValue}+ (ship has ${currentValue})`;
-        }
-      } else if (requirement.startsWith('max_')) {
-        const maxValue = parseInt(requirement.split('_')[1]);
-        const currentValue = typeof statValue === 'string' ? parseInt(statValue) : statValue;
-        if (currentValue > maxValue) {
-          return `${stat} already at maximum (${currentValue})`;
-        }
-      }
-    }
-    
-    // Check constraints (different from requirements)
-    if (refit.constraints) {
-      for (const [constraint, value] of Object.entries(refit.constraints)) {
-        if (constraint === 'speedMin') {
-          const currentSpeed = ship.statline?.Speed || stats.Speed || 0;
-          const minSpeed = parseInt(value);
-          
-          // For refits with options, check if any option would violate the constraint
-          if (refit.options) {
-            const wouldViolateConstraint = refit.options.some(option => {
-              const speedCost = option.cost?.statDeltas?.Speed || 0;
-              return (currentSpeed + speedCost) < minSpeed;
-            });
-            if (wouldViolateConstraint) {
-              return `Would reduce speed below minimum ${minSpeed}" (ship has ${currentSpeed}")`;
-            }
-          } else if (currentSpeed < minSpeed) {
-            return `Requires minimum Speed ${minSpeed}" (ship has ${currentSpeed}")`;
-          }
-        } else if (constraint === 'armourMax') {
-          const currentArmour = ship.statline?.Armour || stats.Armour || 0;
-          const maxArmour = parseInt(value);
-          
-          // Check if applying this refit would exceed max armour
-          const armourGain = refit.gains?.statDeltas?.Armour || 0;
-          const resultingArmour = currentArmour + armourGain;
-          
-          if (resultingArmour > maxArmour) {
-            return `Armour already at maximum ${maxArmour} (ship has ${currentArmour})`;
-          }
-        }
-      }
-    }
-    
-    return null;
   };
-
-  // Sort refits: eligible first, then ineligible
-  const sortedUniversalRefits = [...universalRefits].sort((a, b) => {
-    const aEligible = isRefitEligible(a);
-    const bEligible = isRefitEligible(b);
-    if (aEligible && !bEligible) return -1;
-    if (!aEligible && bEligible) return 1;
-    return 0;
-  });
-
-  const sortedFactionRefits = [...factionRefits].sort((a, b) => {
-    const aEligible = isRefitEligible(a);
-    const bEligible = isRefitEligible(b);
-    if (aEligible && !bEligible) return -1;
-    if (!aEligible && bEligible) return 1;
-    return 0;
-  });
-
-
 
   return (
     <Dialog 
       open={open} 
       onClose={onClose} 
-      maxWidth="md" 
+      maxWidth="lg" 
       fullWidth
       PaperProps={{
-        sx: { minHeight: '60vh' }
+        sx: {
+          backgroundColor: '#1a1a1a',
+          color: 'white'
+        }
       }}
     >
-      <DialogTitle sx={{ position: 'relative', pb: 1 }}>
-        <Typography variant="h5" component="div">
-          Select Refit for {ship.className}
+      <DialogTitle sx={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        backgroundColor: '#2a2a2a',
+        color: 'white'
+      }}>
+        <Typography variant="h5" sx={{ fontWeight: 700 }}>
+          {isSquadron ? 'Squadron Refits' : 'Capital Ship Refits'} - {currentShip.className}
         </Typography>
-        <Typography variant="caption" color="text.secondary">
-          Refits used: {usedRefits}/{maxRefits} | 1 refit per 15 points | 1 refit per ship
-        </Typography>
-        <IconButton 
-          onClick={onClose} 
-          size="small"
-          sx={{
-            position: 'absolute',
-            top: 8,
-            right: 8,
-            color: 'text.secondary'
-          }}
-        >
+        <IconButton onClick={onClose} sx={{ color: 'white' }}>
           <CloseIcon />
         </IconButton>
       </DialogTitle>
       
-      <DialogContent>
+      <DialogContent sx={{ p: 3, backgroundColor: '#1a1a1a' }}>
+        {/* Current refit status */}
+        {hasSelectedRefit && (
+          <Box sx={{ mb: 3, p: 2, backgroundColor: 'rgba(255, 193, 7, 0.1)', borderRadius: 1 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#ffc107' }}>
+              Current {isSquadron ? 'Squadron ' : ''}Refit: {selectedRefitName}
+            </Typography>
+            <Button
+              variant="outlined"
+              color="error"
+              size="small"
+              onClick={handleClearRefit}
+              sx={{ mt: 1 }}
+            >
+              Clear {isSquadron ? 'Squadron ' : ''}Refit
+            </Button>
+          </Box>
+        )}
+
+        {/* Refit limit info for capital ships */}
+        {!isSquadron && (
+          <Box sx={{ mb: 3, p: 2, backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: 1 }}>
+            <Typography variant="body2" color="text.secondary">
+              Refits Used: {usedRefits} / {maxRefits}
         {!canAddMoreRefits && (
-          <Box sx={{ mb: 3, p: 2, backgroundColor: 'warning.light', borderRadius: 1 }}>
-            <Typography variant="body2" color="warning.contrastText">
-              Maximum refits reached for this fleet size. Remove an existing refit to add a new one.
+                <Typography component="span" color="warning.main" sx={{ ml: 1 }}>
+                  (Maximum reached)
+                </Typography>
+              )}
             </Typography>
           </Box>
         )}
 
-        {/* Universal Refits */}
-        {sortedUniversalRefits.length > 0 ? (
+        {/* Global refits */}
+        {sortedGlobalRefits.length > 0 && (
+          <>
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, color: 'primary.main' }}>
+              Global {isSquadron ? 'Squadron ' : 'Capital Ship '}Refits
+            </Typography>
           <Grid container spacing={2} sx={{ mb: 3 }}>
-            {sortedUniversalRefits.map((refit, idx) => {
-              const eligible = isRefitEligible(refit);
-              const canUse = canAddMoreRefits && eligible;
+              {sortedGlobalRefits.map((refit) => {
+                const eligible = isRefitEligibleLocal(refit);
+                const isSelected = refit.name === selectedRefitName;
+                const hasOtherSelection = hasSelectedRefit && !isSelected;
+                
               return (
-                <Grid key={idx} item xs={12} sm={6} md={6}>
+                  <Grid item xs={12} md={6} key={refit.id}>
                   <RefitCard 
                     refit={refit} 
                     onSelect={handleRefitSelect}
-                    onClear={handleRefitClear}
-                    isEligible={canUse}
-                    ineligibilityReason={!eligible ? getIneligibilityReason(refit) : (!canAddMoreRefits ? "Maximum refits reached" : null)}
+                      onClear={handleClearRefit}
+                      isEligible={eligible}
+                    isFactionRefit={false}
+                      ineligibilityReason={eligible ? null : "Not eligible for this ship"}
                     shipDef={shipDef}
-                    isSelected={selectedRefitName === refit.name}
-                    hasOtherSelection={hasSelectedRefit && selectedRefitName !== refit.name}
+                      isSelected={isSelected}
+                      hasOtherSelection={hasOtherSelection}
                     ship={ship}
-                    onSelectRefit={onSelectRefit}
+                      squadron={squadron}
+                      onSelectRefit={handleRefitSelect}
+                      onSelectOption={handleOptionSelect}
+                      isSquadron={isSquadron}
                   />
                 </Grid>
               );
             })}
           </Grid>
-        ) : (
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            No universal refits available. Check factions.json data structure.
-          </Typography>
+          </>
         )}
 
-        {/* Faction Refits */}
-        {factionRefits.length > 0 && (
+        {/* Faction refits */}
+        {sortedFactionRefits.length > 0 && (
           <>
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, color: 'secondary.main' }}>
+              {faction} {isSquadron ? 'Squadron ' : 'Capital Ship '}Refits
+            </Typography>
             <Grid container spacing={2}>
-              {sortedFactionRefits.map((refit, idx) => {
-                const eligible = isRefitEligible(refit);
-                const canUse = canAddMoreRefits && eligible;
+              {sortedFactionRefits.map((refit) => {
+                const eligible = isRefitEligibleLocal(refit);
+                const isSelected = refit.name === selectedRefitName;
+                const hasOtherSelection = hasSelectedRefit && !isSelected;
+                
                 return (
-                  <Grid key={idx} item xs={12} sm={6} md={6}>
+                  <Grid item xs={12} md={6} key={refit.id}>
                     <RefitCard 
                       refit={refit} 
                       onSelect={handleRefitSelect}
-                      onClear={handleRefitClear}
-                      isEligible={canUse}
+                      onClear={handleClearRefit}
+                      isEligible={eligible}
                       isFactionRefit={true}
-                      ineligibilityReason={!eligible ? getIneligibilityReason(refit) : (!canAddMoreRefits ? "Maximum refits reached" : null)}
+                      ineligibilityReason={eligible ? null : "Not eligible for this squadron"}
                       shipDef={shipDef}
-                      isSelected={selectedRefitName === refit.name}
-                      hasOtherSelection={hasSelectedRefit && selectedRefitName !== refit.name}
+                      isSelected={isSelected}
+                      hasOtherSelection={hasOtherSelection}
                       ship={ship}
-                      onSelectRefit={onSelectRefit}
+                      squadron={squadron}
+                      onSelectRefit={handleRefitSelect}
+                      onSelectOption={handleOptionSelect}
+                      isSquadron={isSquadron}
                     />
                   </Grid>
                 );
@@ -633,13 +510,11 @@ const RefitModal = ({
           </>
         )}
 
-        {/* Debug info if no refits */}
-        {universalRefits.length === 0 && factionRefits.length === 0 && (
-          <Box sx={{ mt: 2, p: 2, backgroundColor: 'background.paper', borderRadius: 1 }}>
-            <Typography variant="body2" color="text.secondary">
-              Debug: No refits found. 
-              Universal: {universalRefits.length}, 
-              Faction: {factionRefits.length}
+        {/* No refits available message */}
+        {sortedGlobalRefits.length === 0 && sortedFactionRefits.length === 0 && (
+          <Box sx={{ textAlign: 'center', py: 4 }}>
+            <Typography variant="h6" color="text.secondary">
+              No {isSquadron ? 'squadron ' : 'capital ship '}refits available
             </Typography>
           </Box>
         )}

@@ -33,15 +33,15 @@
 
 // Common card styling
 @mixin card-base {
-  background-color: $color-bg-secondary;
-  border: 1px solid $color-border;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   border-radius: $border-radius-lg;
   padding: $spacing-lg;
 }
 
 @mixin card-dark {
   @include card-base;
-  background-color: $color-bg-paper;
+  background-color: var(--bg-paper);
 }
 
 // Button mixins

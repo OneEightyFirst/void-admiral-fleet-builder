@@ -179,26 +179,7 @@ export function getFighterBayStats(weaponName) {
   return null;
 }
 
-// Legacy function - replaced by canonical system
-// This is kept only for compatibility until all references are updated
-export function getWeaponData(weapon, allWeapons = [], ship = null) {
-  console.warn('⚠️ Legacy getWeaponData called - should use canonical system');
-  
-  // Basic fallback for any remaining legacy calls
-  const weaponName = typeof weapon === 'string' ? weapon : weapon?.name;
-  const fighterBayStats = getFighterBayStats(weaponName);
-  if (fighterBayStats) {
-    return { name: weaponName, ...fighterBayStats };
-  }
-  
-  const foundWeapon = allWeapons.find(w => w.name === weaponName);
-  return foundWeapon || { 
-    name: weaponName || "Unknown", 
-    targets: "Any", 
-    attacks: 1, 
-    range: 12 
-  };
-}
+// Legacy getWeaponData function removed - replaced by index-based system in weaponData.js
 
 // Legacy weapon refit effects function - REMOVED
 // This has been replaced by the canonical refit system in src/utils/refits/weaponData.js

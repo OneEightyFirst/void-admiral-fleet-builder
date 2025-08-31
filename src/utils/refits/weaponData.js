@@ -22,54 +22,98 @@ export function getFighterBayStats(weaponName) {
 }
 
 /**
- * Get canonical weapon data with proper structure
- * @param {*} weapon - Weapon identifier or object
- * @param {Array} allWeapons - Available weapons (legacy compatibility) 
+ * Get weapon data by index from ship definition
+ * @param {number|Object} weaponRef - Weapon index or weapon object with optionIndex
+ * @param {Object} shipDef - Ship definition with weapon options
+ * @param {string} location - Weapon location ('prow', 'hull', 'turret')
  * @param {Object} ship - Ship object with potential refit data
  * @returns {Object} Complete weapon data
  */
-export function getCanonicalWeaponData(weapon, allWeapons = [], ship = null) {
-  console.log('🎯 getCanonicalWeaponData: Input weapon:', weapon, 'ship:', ship?.id);
-  
-  // Handle complete weapon objects
-  if (weapon && typeof weapon === 'object' && weapon.targets) {
-    console.log('🎯 getCanonicalWeaponData: Processing weapon object');
-    const cleaned = cleanWeaponSpec(weapon);
-    console.log('🎯 getCanonicalWeaponData: Cleaned weapon spec:', cleaned);
+export function getWeaponDataByIndex(weaponRef, shipDef, location, ship = null) {
+  // Handle direct weapon objects (already complete)
+  if (weaponRef && typeof weaponRef === 'object' && weaponRef.targets) {
+    const cleaned = cleanWeaponSpec(weaponRef);
     return applyCanonicalRefitEffects(cleaned, ship);
   }
   
-  // Handle weapon names
-  const weaponName = typeof weapon === 'string' ? weapon : weapon?.name;
-  console.log('🎯 getCanonicalWeaponData: Weapon name:', weaponName);
-  
-  if (!weaponName) {
-    return { name: "Unknown", kind: "other", targets: "Any", attacks: 1, range: 12 };
+  // Handle index references
+  let optionIndex;
+  if (typeof weaponRef === 'number') {
+    optionIndex = weaponRef;
+  } else if (weaponRef && typeof weaponRef === 'object' && weaponRef.optionIndex !== undefined) {
+    optionIndex = weaponRef.optionIndex;
+  } else {
+    console.error('Invalid weapon reference:', weaponRef);
+    return { name: "Unknown", kind: "other", targets: "Front", attacks: 1, range: 12 };
   }
   
-  // Check for Fighter Bay first
-  const fighterBayStats = getFighterBayStats(weaponName);
-  if (fighterBayStats) {
-    console.log('🎯 getCanonicalWeaponData: Found fighter bay stats');
-    const weaponData = cleanWeaponSpec({ name: weaponName, ...fighterBayStats });
-    return applyCanonicalRefitEffects(weaponData, ship);
+  // Get weapon from ship definition
+  const options = shipDef?.[location]?.options;
+  if (!options || optionIndex < 0 || optionIndex >= options.length) {
+    console.error(`Invalid weapon index ${optionIndex} for ${location} in ship ${shipDef?.className}`);
+    return { name: "Unknown", kind: "other", targets: "Front", attacks: 1, range: 12 };
   }
   
-  // Look up in weapons list (legacy support)
-  const foundWeapon = allWeapons.find(w => w.name === weaponName);
-  if (foundWeapon) {
-    console.log('🎯 getCanonicalWeaponData: Found weapon in list:', foundWeapon);
-    const weaponData = cleanWeaponSpec(foundWeapon);
-    console.log('🎯 getCanonicalWeaponData: Cleaned found weapon:', weaponData);
-    return applyCanonicalRefitEffects(weaponData, ship);
+  const weaponDef = options[optionIndex];
+  
+  // Handle Fighter Bays (special case)
+  if (weaponDef.name === "Fighter Bays") {
+    const fighterBayStats = getFighterBayStats(weaponDef.name);
+    if (fighterBayStats) {
+      const weaponData = cleanWeaponSpec({ name: weaponDef.name, ...fighterBayStats });
+      return applyCanonicalRefitEffects(weaponData, ship);
+    }
   }
   
-  // Create default weapon data
-  console.log('🎯 getCanonicalWeaponData: Creating default weapon for:', weaponName);
-  const defaultWeapon = cleanWeaponSpec({ name: weaponName });
-  console.log('🎯 getCanonicalWeaponData: Default weapon spec:', defaultWeapon);
-  return applyCanonicalRefitEffects(defaultWeapon, ship);
+  // Return cleaned weapon data
+  const weaponData = cleanWeaponSpec(weaponDef);
+  return applyCanonicalRefitEffects(weaponData, ship);
 }
+
+/**
+ * Convert name-based weapon loadout to index-based loadout
+ * @param {Object} ship - Ship with name-based loadout
+ * @param {Object} shipDef - Ship definition
+ * @returns {Object} Ship with index-based loadout
+ */
+export function convertLoadoutToIndices(ship, shipDef) {
+  if (!ship.loadout || !shipDef) return ship;
+  
+  const newLoadout = { ...ship.loadout };
+  
+  // Convert prow weapon
+  if (newLoadout.prow && typeof newLoadout.prow === 'object' && newLoadout.prow.name) {
+    const prowIndex = shipDef.prow?.options?.findIndex(w => w.name === newLoadout.prow.name);
+    if (prowIndex !== -1) {
+      newLoadout.prow = { optionIndex: prowIndex };
+    }
+  }
+  
+  // Convert hull weapons
+  if (Array.isArray(newLoadout.hull)) {
+    newLoadout.hull = newLoadout.hull.map(weaponName => {
+      if (typeof weaponName === 'string') {
+        const hullIndex = shipDef.hull?.options?.findIndex(w => w.name === weaponName);
+        return hullIndex !== -1 ? { optionIndex: hullIndex } : weaponName;
+      }
+      return weaponName; // Already converted or invalid
+    });
+  }
+  
+  // Convert turret weapons (if any)
+  if (Array.isArray(newLoadout.turret)) {
+    newLoadout.turret = newLoadout.turret.map(weaponName => {
+      if (typeof weaponName === 'string') {
+        const turretIndex = shipDef.turret?.options?.findIndex(w => w.name === weaponName);
+        return turretIndex !== -1 ? { optionIndex: turretIndex } : weaponName;
+      }
+      return weaponName;
+    });
+  }
+  
+  return { ...ship, loadout: newLoadout };
+}
+
 
 /**
  * Apply canonical refit effects to weapon data

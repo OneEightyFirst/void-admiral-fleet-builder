@@ -6,8 +6,8 @@
 body {
   margin: 0;
   padding: 0;
-  background-color: $color-bg-primary;
-  color: $color-text-primary;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
@@ -75,7 +75,7 @@ body {
       transition: color $transition-fast;
       
       &:hover {
-        color: $color-primary;
+        color: var(--primary-color);
       }
     }
     
@@ -95,7 +95,7 @@ body {
   }
   
   &:hover {
-    color: $color-primary;
+    color: var(--primary-color);
     transition: color $transition-fast;
   }
 }
@@ -157,7 +157,7 @@ body {
     transition: color $transition-fast;
     
     &:hover {
-      color: $color-primary;
+      color: var(--primary-color);
     }
     
     &--editing {
@@ -177,8 +177,8 @@ body {
     border-color: rgba(255, 255, 255, 0.3);
     
     &:hover {
-      border-color: $color-primary;
-      background-color: rgba(25, 118, 210, 0.08);
+      border-color: var(--primary-color);
+      background-color: rgba(var(--primary-color-rgb), 0.08);
     }
   }
 }
@@ -307,7 +307,7 @@ body {
 // Command abilities
 .command-ability {
   @include card-base;
-  background-color: $color-bg-paper;
+  background-color: var(--bg-paper);
   display: flex;
   align-items: stretch;
   gap: $spacing-lg;
@@ -355,3 +355,804 @@ body {
     display: none !important;
   }
 }
+
+// Page title styles
+.page-title {
+  font-weight: 900;
+  color: var(--text-primary);
+  margin-bottom: $spacing-lg;
+}
+
+.page-subtitle {
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: $spacing-sm;
+}
+
+// Common utility classes
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+}
+
+.flex-gap-1 {
+  gap: $spacing-sm;
+}
+
+.flex-gap-2 {
+  gap: $spacing-md;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.font-weight-700 {
+  font-weight: 700;
+}
+
+.font-weight-800 {
+  font-weight: 800;
+}
+
+.margin-bottom-1 {
+  margin-bottom: $spacing-sm;
+}
+
+.margin-bottom-2 {
+  margin-bottom: $spacing-md;
+}
+
+.margin-bottom-3 {
+  margin-bottom: $spacing-lg;
+}
+
+.margin-top-1 {
+  margin-top: $spacing-sm;
+}
+
+.padding-1 {
+  padding: $spacing-sm;
+}
+
+.padding-2 {
+  padding: $spacing-md;
+}
+
+// BuildView specific classes
+.build-view {
+  &__header {
+    margin-bottom: $spacing-lg;
+    
+    &-content {
+      display: flex;
+      align-items: center;
+      gap: $spacing-md;
+    }
+    
+    &-fleet-name {
+      & .MuiInputBase-root {
+        font-size: 1.5rem;
+        font-weight: 700;
+      }
+    }
+    
+    &-actions {
+      margin-left: auto;
+    }
+  }
+  
+  &__fleet-name-display {
+    font-weight: 700;
+    color: var(--text-primary);
+    cursor: pointer;
+    
+    &:hover {
+      color: var(--primary-color);
+    }
+  }
+  
+  &__main-content {
+    margin-bottom: $spacing-lg;
+    text-align: center;
+  }
+  
+  &__section-title {
+    font-weight: 800;
+    margin-bottom: $spacing-sm;
+  }
+  
+  &__class-paper {
+    padding: $spacing-sm;
+  }
+  
+  &__divider {
+    margin: $spacing-md 0;
+  }
+  
+  &__alert {
+    margin-top: $spacing-sm;
+  }
+}
+
+// Build View Card styles (theme-independent structure only)
+.build-view-card {
+  border: none;
+  border-radius: 8px;
+  overflow: hidden;
+  
+  &__header {
+    padding: $spacing-md;
+    
+    &-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    
+    &-right {
+      display: flex;
+      align-items: flex-start;
+      gap: $spacing-sm;
+    }
+    
+    &-delete-button {
+      // Delete button styling handled by themes
+    }
+    
+    &-info {
+      // Container for faction, ship name, size
+    }
+    
+    &-faction {
+      font-size: 0.75rem !important;
+      font-weight: 600 !important;
+      letter-spacing: 0.1em !important;
+      line-height: 1 !important;
+    }
+    
+    &-name {
+      font-weight: 800 !important;
+      line-height: 1 !important;
+      margin: 0 !important;
+    }
+    
+    &-size {
+      line-height: 1 !important;
+    }
+    
+    &-actions {
+      // Stack container for action buttons
+    }
+  }
+  
+  &__stats {
+    &-labels {
+      padding: $spacing-sm $spacing-md;
+    }
+    
+    &-values {
+      padding: 0 $spacing-md;
+    }
+    
+    &-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0;
+    }
+    
+    &-item {
+      text-align: center;
+    }
+    
+    &-label {
+      font-weight: 600;
+      font-size: 0.875rem;
+      line-height: 1;
+    }
+    
+    &-value {
+      font-weight: 700;
+      font-size: 1.25rem;
+      line-height: 2;
+    }
+    
+    &-original {
+      margin-left: 0.5rem;
+      font-size: 0.7rem;
+      opacity: 0.7;
+      text-decoration: line-through;
+    }
+  }
+  
+  &__stats-section {
+    // Container for always-visible stats
+  }
+
+  &__weapons {
+    // Container for weapon selection sections (legacy)
+  }
+
+  &__weapons-mobile {
+    // Container for mobile-first weapon selection
+  }
+
+  &__weapon-section {
+    &:not(:last-child) {
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    &-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: $spacing-sm $spacing-md;
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+
+    &-title {
+      // Styling handled by parent
+    }
+  }
+
+  &__weapons-header {
+    &-grid {
+      display: grid;
+      grid-template-columns: 3fr 1fr 1fr 1fr 0.5fr;
+      gap: 0;
+      padding: 0.5rem $spacing-md;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    &-label {
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+  }
+
+  &__weapons-row {
+    &-grid {
+      display: grid;
+      grid-template-columns: 3fr 1fr 1fr 1fr 0.5fr;
+      gap: 0;
+      padding: 0.75rem $spacing-md;
+      border-bottom: 1px solid var(--border-color);
+
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+
+    &-name {
+      font-weight: 500;
+      align-self: center;
+    }
+
+    &-target,
+    &-attacks,
+    &-range {
+      text-align: center;
+      align-self: center;
+      font-size: 0.875rem;
+    }
+
+    &-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.125rem;
+    }
+  }
+
+  &__weapon-select-button {
+    padding: 0.125rem 0.25rem;
+    font-weight: 700;
+    min-width: 28px;
+    height: 28px;
+    font-size: 0.875rem;
+    border: none;
+    cursor: pointer;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    &.selected {
+      // Styling handled by themes
+    }
+  }
+
+  &__weapon-control-button {
+    padding: 0.125rem;
+    min-width: 20px;
+    min-height: 20px;
+    width: 20px;
+    height: 20px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 700;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__weapon-count {
+    font-weight: 600;
+    min-width: 20px;
+    text-align: center;
+    font-size: 0.75rem;
+    line-height: 1;
+    padding: 0 0.125rem;
+  }
+  
+  &__content {
+    padding: $spacing-md;
+  }
+}
+
+// Mobile-First Weapon Selection Components
+.weapon-section {
+  &__header {
+    padding: $spacing-sm $spacing-md;
+    border-bottom: 1px solid var(--border-color);
+    
+    &--sticky {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+  }
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+  }
+
+  &__status {
+    font-size: 0.75rem;
+    opacity: 0.8;
+    margin-bottom: 0.25rem;
+  }
+
+  &__helper {
+    font-size: 0.625rem;
+    opacity: 0.6;
+    font-style: italic;
+  }
+
+  &__table-header {
+    display: grid;
+    grid-template-columns: 3fr 1fr 1fr 1fr;
+    align-items: center;
+    gap: 0.5rem;
+    padding-top: 0.5rem;
+  }
+
+  &__column-label {
+    font-size: 0.625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-align: center;
+    opacity: 0.8;
+  }
+
+  &__rows {
+    // Container for weapon rows
+  }
+}
+
+.weapon-row {
+  position: relative;
+  min-height: 64px;
+  cursor: grab;
+  user-select: none;
+  touch-action: pan-x;
+  border-bottom: 1px solid var(--border-color);
+  overflow: hidden;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &--dragging {
+    z-index: 5;
+    user-select: none;
+    cursor: grabbing;
+  }
+
+  &--selected {
+    border-left: 5px solid var(--primary-color);
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  &__content {
+    position: relative;
+    display: grid;
+    grid-template-columns: 3fr 1fr 1fr 1fr;
+    align-items: center;
+    gap: 0.5rem;
+    padding: $spacing-sm $spacing-md;
+    height: 64px;
+    background-color: var(--bg-paper);
+    z-index: 2;
+    min-height: 64px;
+  }
+
+  &__name {
+    font-weight: 600;
+    font-size: 0.875rem;
+    line-height: 1.2;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &__count {
+    font-size: 0.75rem;
+    font-weight: 500;
+    opacity: 0.8;
+    background: rgba(var(--primary-color-rgb, 25, 118, 210), 0.2);
+    color: var(--primary-color);
+    padding: 0.125rem 0.375rem;
+    border-radius: 8px;
+    border: 1px solid var(--primary-color);
+  }
+
+  &__target,
+  &__attacks,
+  &__range {
+    text-align: center;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+}
+
+.swipe-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 64px;
+  z-index: 1;
+  display: flex;
+  pointer-events: none;
+
+  &__left {
+    flex: 1;
+    background: #f44336;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding-left: $spacing-md;
+  }
+
+  &__right {
+    flex: 1;
+    background: #4caf50;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: $spacing-md;
+  }
+
+  &__text {
+    font-weight: 700;
+    color: white;
+    font-size: 1rem;
+  }
+}
+
+// Continue with build-view-card styles...
+.build-view-card {
+  
+  &__content {
+    padding: $spacing-md;
+  }
+  
+  &__footer {
+    padding: $spacing-sm $spacing-md;
+    border-top: 1px solid;
+    
+    &-refit-title {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+    
+    &-notes {
+      margin-left: 0;
+    }
+    
+    &-note {
+      display: block;
+      font-size: 0.75rem;
+      line-height: 1.2;
+      margin-bottom: 0.25rem;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+    
+    &-begins-with {
+      font-weight: 600;
+      margin-top: 0.5rem;
+      
+      &--no-refit {
+        margin-top: 0;
+      }
+    }
+  }
+}
+
+// Play View Card styles (theme-independent structure only)
+.play-view-card {
+  // Only structural styles that don't change with themes
+  border: none;
+  border-radius: $border-radius-md;
+  overflow: hidden;
+
+  &__header {
+    padding: $spacing-md;
+    
+    &-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    &-left {
+      // Left side content
+    }
+    
+    &-faction {
+      font-size: 0.75rem;
+      font-weight: $font-weight-semibold;
+      letter-spacing: 0.1em;
+      line-height: 1;
+    }
+    
+    &-name {
+      font-weight: $font-weight-black;
+      line-height: 1;
+      margin: 0;
+    }
+    
+    &-right {
+      text-align: right;
+    }
+    
+    &-faction {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    
+    &-name {
+      font-size: 1.5rem;
+      font-weight: 700;
+      line-height: 1.2;
+      margin: 0.25rem 0;
+    }
+    
+    &-size {
+      font-size: 0.875rem;
+      line-height: 1;
+      opacity: 0.8;
+    }
+    
+    &-cost {
+      font-size: 1.25rem;
+      font-weight: 600;
+      line-height: 1;
+    }
+    
+    &-count {
+      font-size: 0.75rem;
+      line-height: 1;
+      opacity: 0.8;
+    }
+  }
+
+  &__stats {
+    padding: 0;
+    
+    &-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0;
+    }
+    
+    &-labels {
+      // Labels row styling will be handled by themes
+    }
+    
+    &-values {
+      // Values row styling will be handled by themes
+    }
+    
+    &-label-item,
+    &-value-item {
+      text-align: center;
+      padding: 0 0.5rem;
+    }
+    
+    &-label {
+      line-height: 1;
+    }
+    
+    &-value {
+      line-height: 1;
+    }
+  }
+
+  &__weapons {
+    padding: 0;
+    border-top: 1px solid var(--primary-color);
+    
+    &-header {
+      padding: $spacing-sm $spacing-md;
+      
+      &-grid {
+        display: grid;
+        grid-template-columns: 6fr 2fr 2fr 2fr;
+        gap: 0;
+      }
+      
+      &-label {
+        font-weight: $font-weight-semibold;
+        text-align: center;
+        font-size: 0.875rem;
+        line-height: 1.5;
+      }
+    }
+    
+    &-row {
+      padding: 0.5rem 1rem;
+      
+      &-grid {
+        display: grid;
+        grid-template-columns: 6fr 2fr 2fr 2fr;
+        gap: 0;
+        align-items: center;
+      }
+      
+      &-name {
+        display: flex;
+        align-items: center;
+        gap: $spacing-md;
+      }
+      
+      &-number {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.875rem;
+        font-weight: $font-weight-semibold;
+      }
+      
+      &-title {
+        font-weight: $font-weight-semibold;
+      }
+      
+      &-stat {
+        text-align: center;
+        font-weight: $font-weight-semibold;
+      }
+    }
+  }
+
+  &__refit {
+    padding: $spacing-sm $spacing-md;
+    
+    &-title {
+      font-weight: $font-weight-semibold;
+      margin-bottom: $spacing-md;
+    }
+    
+    &-effect {
+      font-size: 0.875rem;
+      line-height: 1.4;
+      margin-bottom: 0.5rem;
+    }
+  }
+
+  &__footnote {
+    border-top: 1px solid var(--primary-color);
+    padding: 1rem;
+    
+    &-text {
+      font-style: italic;
+      font-weight: 600;
+    }
+  }
+}
+
+// Weapon section styles
+.weapon-section {
+  margin-bottom: $spacing-md;
+
+  &__header {
+    // margin-bottom removed for tighter spacing
+  }
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+
+  &__status {
+    font-size: 0.875rem;
+    opacity: 0.8;
+    margin-bottom: 0.5rem;
+  }
+
+  &__table-header {
+    display: grid;
+    grid-template-columns: 3fr 1fr 1fr 1fr;
+    align-items: center;
+    gap: 0.5rem;
+    padding-top: 0.5rem;
+  }
+
+  &__helper {
+    font-size: 0.75rem;
+    opacity: 0.7;
+    font-weight: 500;
+  }
+
+  &__column-label {
+    font-size: 0.625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-align: center;
+    opacity: 0.8;
+  }
+
+  &__alert {
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  &__rows {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+}
+
+

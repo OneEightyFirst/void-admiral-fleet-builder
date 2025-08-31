@@ -7,9 +7,8 @@ import {
   Grid
 } from '@mui/material';
 
-import DiceFace from './DiceFace';
+import { DiceFace } from './SVGComponents';
 import PlayViewCard from './PlayViewCard';
-import PlayViewSquadronCard from './PlayViewSquadronCard';
 import { getSpecialRules, getCommandAbilities } from '../utils/gameUtils';
 
 const PlayView = ({
@@ -21,7 +20,7 @@ const PlayView = ({
   return (
     <Box>
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb:3 }}>
-        <Typography variant="h4" sx={{ fontWeight:900, color: 'white' }}>{faction}</Typography>
+        <Typography variant="h4" className="page-title">{faction}</Typography>
       </Stack>
       
       {(getSpecialRules(faction, factions).length>0 || getCommandAbilities(faction, factions).length>0) && (
@@ -104,10 +103,10 @@ const PlayView = ({
             const def = ships[firstShip.className];
             
             if (isSquadron) {
-              // Squadron card - use PlayViewSquadronCard component
+              // Squadron card - use PlayViewCard component with squadron prop
               return (
                 <Grid key={`squadron-${firstShip.groupId}`} item xs={12} md={6} lg={4}>
-                  <PlayViewSquadronCard
+                  <PlayViewCard
                     squadron={group}
                     faction={faction}
                     shipDef={def}

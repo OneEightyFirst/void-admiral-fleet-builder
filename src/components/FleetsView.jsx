@@ -29,7 +29,7 @@ const FleetsView = ({
   return (
     <Box>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
-        <Typography variant="h4" sx={{ fontWeight:900, color: 'white' }}>Fleets</Typography>
+        <Typography variant="h4" className="page-title">Fleets</Typography>
         <IconButton 
           color="primary" 
           onClick={() => {

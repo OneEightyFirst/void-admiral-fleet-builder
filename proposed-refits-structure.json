@@ -1,0 +1,74 @@
+{
+  "version": "1.0",
+  "refits": [
+    {
+      "id": "heavy-armour",
+      "name": "Heavy Armour",
+      "description": "Reinforce the ship's hull with additional armour plating.",
+      "factions": ["*"],
+      "scope": "capital",
+      "cost": {
+        "statDeltas": {
+          "Speed": -2
+        }
+      },
+      "gains": {
+        "statDeltas": {
+          "Armour": 1
+        }
+      },
+      "constraints": {
+        "armourMax": 3
+      },
+      "notes": [
+        "Speed reduced by 2\"",
+        "Armour increased by 1"
+      ]
+    },
+    {
+      "id": "prow-launch-bays",
+      "name": "Prow Launch Bays", 
+      "description": "Replace prow weapons with launch bays.",
+      "factions": ["Renegades"],
+      "scope": "capital",
+      "weaponChanges": {
+        "replace": [
+          {
+            "slot": "prow",
+            "selector": {
+              "slot": "prow"
+            },
+            "to": {
+              "name": "Launch Bays",
+              "kind": "bays",
+              "targets": "360",
+              "attacks": "1d6",
+              "range": "18\""
+            }
+          }
+        ]
+      },
+      "notes": [
+        "Replaces all prow weapons with Launch Bays"
+      ]
+    },
+    {
+      "id": "missile-systems",
+      "name": "Missile Systems",
+      "description": "Unlock missile turret options for hull weapons.",
+      "factions": ["Merchants"],
+      "scope": "capital",
+      "weaponChanges": {
+        "unlockOptions": [
+          {
+            "slot": "hull",
+            "allowNamesAny": ["Missile Turrets"]
+          }
+        ]
+      },
+      "notes": [
+        "Unlocks Missile Turrets as hull weapon option"
+      ]
+    }
+  ]
+}

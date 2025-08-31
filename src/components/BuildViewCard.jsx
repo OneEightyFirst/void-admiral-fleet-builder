@@ -1,227 +1,577 @@
 import React from 'react';
 import {
-  Card, CardContent, Typography, Box, Grid, IconButton, Button, Stack,
-  Paper, Chip, Divider, Tooltip as MuiTooltip
+  Card, Typography, Box, Grid, IconButton, Button, Stack, Chip, Tooltip as MuiTooltip, Alert
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { ProwIcon, HullIcon } from './WeaponIcons';
-import { getStatDisplayName, formatStatValue } from '../utils/gameUtils';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+
+import { getStatDisplayName, formatStatValue, calculateEffectiveHullSlots } from '../utils/gameUtils';
+import { hasRefit, getRefitName, getRefitNotes } from '../utils/refitDisplayUtils';
+import { getWeaponDataByIndex } from '../utils/refits/weaponData';
+import { ProwIcon, HullIcon } from './SVGComponents';
+
+// Helper functions for weapon display
+const formatAttacks = (attacksObj) => {
+  if (!attacksObj) return '';
+  if (typeof attacksObj === 'string') return attacksObj;
+  if (typeof attacksObj === 'object' && attacksObj.dice) {
+    return attacksObj.star ? `${attacksObj.dice}*` : attacksObj.dice;
+  }
+  return attacksObj.toString();
+};
+
+const formatRange = (range) => {
+  if (!range) return '';
+  return `${range}"`;
+};
+
+// Format condensed weapon stats for mobile display
+const formatCondensedStats = (weaponData) => {
+  const arc = weaponData?.arc;
+  const attacks = formatAttacks(weaponData?.attacks);
+  const range = formatRange(weaponData?.range);
+  
+  const parts = [];
+  if (arc && arc !== 'undefined') parts.push(arc);
+  if (attacks) parts.push(`Att ${attacks}`);
+  if (range) parts.push(range);
+  
+  return parts.join(' · ');
+};
+
+// Swipeable Weapon Row Component
+const SwipeableWeaponRow = ({ 
+  weaponName, 
+  weaponData, 
+  currentCount, 
+  maxCount,
+  isMaxed,
+  onCountChange,
+  onTap,
+  onPreciseEdit,
+  sectionType
+}) => {
+  const [startX, setStartX] = React.useState(0);
+  const [isDragging, setIsDragging] = React.useState(false);
+  const [dragX, setDragX] = React.useState(0);
+  
+  // Detect if we have touch support
+  React.useEffect(() => {
+    const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    console.log('🔥 DEVICE INFO:', { hasTouch, maxTouchPoints: navigator.maxTouchPoints, userAgent: navigator.userAgent.substring(0, 50) });
+  }, []);
+
+  const handleTouchStart = (e) => {
+    console.log('🔥 TOUCH START:', weaponName, sectionType);
+    e.preventDefault(); // Prevent default touch behavior
+    
+    if (sectionType === 'single') {
+      // Prow weapons - just call onTap
+      onTap && onTap();
+      return;
+    }
+    
+    // Hull weapons - prepare for swipe
+    const touch = e.touches[0];
+    setStartX(touch.clientX);
+    setIsDragging(true);
+  };
+
+  const handleTouchEnd = (e) => {
+    console.log('🔥 TOUCH END:', weaponName, sectionType, 'isDragging:', isDragging);
+    e.preventDefault(); // Prevent default touch behavior
+    
+    if (sectionType === 'single' || !isDragging) {
+      setIsDragging(false);
+      return;
+    }
+
+    const touch = e.changedTouches[0];
+    const deltaX = touch.clientX - startX;
+    const threshold = 50;
+
+    console.log('🔥 SWIPE CALCULATION:', { deltaX, threshold, startX, endX: touch.clientX });
+
+    if (Math.abs(deltaX) > threshold) {
+      const direction = deltaX < 0 ? 'add' : 'remove';
+      const newCount = direction === 'add' ? currentCount + 1 : Math.max(0, currentCount - 1);
+      
+      console.log('🔥 SWIPE DETECTED:', direction, 'newCount:', newCount);
+      onCountChange && onCountChange(newCount);
+    } else {
+      console.log('🔥 SWIPE TOO SHORT:', Math.abs(deltaX), 'needed:', threshold);
+    }
+
+    setIsDragging(false);
+  };
+
+  const handleMouseDown = (e) => {
+    console.log('🔥 MOUSE DOWN:', weaponName, sectionType);
+    if (sectionType === 'single') {
+      onTap && onTap();
+      return;
+    }
+    
+    // For hull weapons, start mouse drag
+    e.preventDefault();
+    setStartX(e.clientX);
+    setIsDragging(true);
+    console.log('🔥 MOUSE DRAG START:', e.clientX);
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDragging) return;
+    
+    // Update visual drag position
+    const deltaX = e.clientX - startX;
+    const maxDrag = 100; // Limit how far it can slide
+    const clampedDeltaX = Math.max(-maxDrag, Math.min(maxDrag, deltaX));
+    setDragX(clampedDeltaX);
+  };
+
+  const handleMouseUp = (e) => {
+    if (!isDragging) return;
+    
+    console.log('🔥 MOUSE UP:', weaponName, 'isDragging:', isDragging);
+    
+    const deltaX = e.clientX - startX;
+    const threshold = 50;
+    
+    console.log('🔥 MOUSE SWIPE CALCULATION:', { deltaX, threshold, startX, endX: e.clientX });
+    
+    if (Math.abs(deltaX) > threshold) {
+      const direction = deltaX < 0 ? 'add' : 'remove';
+      const newCount = direction === 'add' ? currentCount + 1 : Math.max(0, currentCount - 1);
+      
+      console.log('🔥 MOUSE SWIPE DETECTED:', direction, 'newCount:', newCount);
+      onCountChange && onCountChange(newCount);
+    } else {
+      console.log('🔥 MOUSE SWIPE TOO SHORT:', Math.abs(deltaX), 'needed:', threshold);
+    }
+    
+    setIsDragging(false);
+    setDragX(0); // Reset visual position
+  };
+
+  return (
+    <div 
+      className={`weapon-row ${currentCount > 0 ? 'weapon-row--selected' : ''}`}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      style={{ touchAction: 'pan-x' }}
+    >
+      {/* Swipe Background for Hull Weapons */}
+      {sectionType === 'multi' && (
+        <div className="swipe-background">
+          <div className="swipe-background__left">
+            <span className="swipe-background__text">−1</span>
+          </div>
+          <div className="swipe-background__right">
+            <span className="swipe-background__text">+1</span>
+          </div>
+        </div>
+      )}
+      
+      <div 
+        className="weapon-row__content"
+        style={{
+          transform: `translateX(${dragX}px)`,
+          transition: isDragging ? 'none' : 'transform 200ms ease-out'
+        }}
+      >
+        <div className="weapon-row__name">
+          {weaponName}
+          {currentCount > 1 && (
+            <span className="weapon-row__count">x{currentCount}</span>
+          )}
+        </div>
+        <div className="weapon-row__target">
+          {weaponData?.arc || 'Fr/Sd'}
+        </div>
+        <div className="weapon-row__attacks">
+          {formatAttacks(weaponData?.attacks)}
+        </div>
+        <div className="weapon-row__range">
+          {formatRange(weaponData?.range)}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 // Legacy calculateModifiedStats removed - using canonical refit system
 
 const BuildViewCard = ({ 
+  // Single ship props
   ship, 
+  // Squadron props
+  squadron,
+  // Common props
   shipDef, 
   faction,
   onRemoveShip, 
   onRemoveGroup, 
+  onDuplicateGroup,
   onPickProw,
   onPickHull,
   onAddHull,
   onRemoveHull,
-  children // For weapon selection UI that comes from the parent
+  // Weapon selection handlers (for new table-based layout)
+  onSelectWeapon,
+  onAddWeapon,
+  onRemoveWeapon,
+  children // For weapon selection UI that comes from the parent (legacy support)
 }) => {
-  if (!ship || !shipDef) return null;
+  // Determine if this is a squadron or single ship based on shipDef.squadron
+  const isSquadron = shipDef?.squadron === true;
+  const currentShip = isSquadron ? (squadron ? squadron[0] : ship) : ship;
+  const currentShipDef = shipDef;
+
+  if (!currentShip || !currentShipDef) return null;
+  if (isSquadron && squadron && squadron.length === 0) return null;
 
   // Use canonical refit system - ship.statline should already contain modified stats
-  const modifiedStats = ship.statline || shipDef.statline || {};
-  const baseStats = shipDef.statline || {};
+  const modifiedStats = currentShip.statline || currentShipDef.statline || {};
+  const baseStats = currentShipDef.statline || {};
   
   // Function to check if a stat has been modified (comparing against base ship definition)
   const isStatModified = (statName) => {
-    return ship.appliedCanonicalRefit && baseStats[statName] !== modifiedStats[statName];
+    return currentShip.appliedCanonicalRefit && baseStats[statName] !== modifiedStats[statName];
   };
 
+  // Filter stats based on ship type and return in correct order
+  const getFilteredStats = () => {
+    const statOrder = ['Hull', 'Speed', 'Armour', 'Shields', 'Flak'];
+    return statOrder
+      .filter(statName => {
+        if (modifiedStats[statName] === undefined) return false;
+        if (isSquadron) {
+          return !['ArmouredProws', 'hull_weapons'].includes(statName);
+        } else {
+          return statName !== 'hull_weapons';
+        }
+      })
+      .map(statName => [statName, modifiedStats[statName]]);
+  };
+
+  // Get refit information
+  const getRefitInfo = () => {
+    if (isSquadron) {
+      const squadronRefit = currentShip.squadronRefit || currentShip.appliedCanonicalRefit;
+      if (squadronRefit) {
+        return {
+          hasRefit: true,
+          name: squadronRefit.name || (squadronRefit.selectedOption ? squadronRefit.selectedOption.name : squadronRefit.name),
+          notes: squadronRefit.notes || []
+        };
+      }
+      return { hasRefit: false };
+    } else {
+      return {
+        hasRefit: hasRefit(currentShip),
+        name: getRefitName(currentShip),
+        notes: getRefitNotes(currentShip) || []
+      };
+    }
+  };
+
+  const refitInfo = getRefitInfo();
+
   return (
-    <Card
-      sx={{
-        backgroundColor: '#181818',
-        color: 'white',
-        border: 'none',
-        borderRadius: 2,
-        overflow: 'hidden'
-      }}
-    >
+    <Card className="build-view-card">
       {/* Header Section */}
-      <Box sx={{
-        backgroundColor: 'primary.main',
-        px: 2,
-        py: 1.5
-      }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Box>
+      <div className="build-view-card__header">
+        <div className="build-view-card__header-content">
+          <div className="build-view-card__header-info">
             <Typography
               variant="overline"
-              sx={{
-                fontSize: '0.75rem',
-                fontWeight: 600,
-                color: '#1f1f1f',
-                letterSpacing: '0.1em',
-                lineHeight: 1
-              }}
+              className="build-view-card__header-faction"
             >
               {faction.toUpperCase()}
             </Typography>
             <Typography
               variant="h5"
-              sx={{
-                fontWeight: 800,
-                lineHeight: 1,
-                my: 0,
-                color: '#1f1f1f'
-              }}
+              className="build-view-card__header-name"
             >
-              {ship.className}
+              {currentShip.className}
             </Typography>
             <Typography
               variant="body2"
-              sx={{
-                color: '#1f1f1f',
-                lineHeight: 1
-              }}
+              className="build-view-card__header-size"
             >
-              {shipDef.size}
+              {currentShipDef.size}
             </Typography>
-          </Box>
-          <Stack direction="row" spacing={1} alignItems="center">
-            {ship.isFree && (
+          </div>
+          
+          <div className="build-view-card__header-right">
+            <Stack direction="row" spacing={1} alignItems="center" className="build-view-card__header-actions">
+              {currentShip.isFree && (
               <Chip size="small" label="Free" color="success" />
             )}
-            {ship.groupId && (
+              {isSquadron ? (
+                // Squadron actions (duplicate only)
+                <>
+                  {!currentShip.isFree && (
+                    <MuiTooltip title="Duplicate Squadron" arrow>
+                      <IconButton 
+                        color="primary" 
+                        onClick={() => onDuplicateGroup(currentShip.groupId)}
+                      >
+                        <ContentCopyIcon />
+                      </IconButton>
+                    </MuiTooltip>
+                  )}
+                </>
+              ) : (
+                // Single ship actions (remove group only, delete moved to header corner)
+                <>
+                  {currentShip.groupId && (
               <Button 
                 size="small" 
                 variant="outlined"
-                onClick={() => onRemoveGroup(ship.groupId)}
-                sx={{ color: 'white', borderColor: 'white' }}
+                      onClick={() => onRemoveGroup(currentShip.groupId)}
               >
                 Remove Group
               </Button>
             )}
+                </>
+              )}
+            </Stack>
+            
+            {/* Delete Button - positioned in upper right corner of header */}
+            <MuiTooltip title={isSquadron ? "Remove Squadron" : "Remove Ship"} arrow>
             <IconButton 
-              color="error" 
-              onClick={() => onRemoveShip(ship.id)}
-              sx={{ color: 'white' }}
+                className="build-view-card__header-delete-button"
+                onClick={isSquadron ? () => onRemoveGroup(currentShip.groupId) : () => onRemoveShip(currentShip.id)}
             >
               <DeleteIcon />
             </IconButton>
-          </Stack>
-        </Box>
-      </Box>
+            </MuiTooltip>
+          </div>
+        </div>
+      </div>
 
-      {/* Stats Section */}
-      {/* Stat Labels Bar */}
-      <Box sx={{
-        backgroundColor: '#1f1f1f',
-        px: 2,
-        py: 1
-      }}>
-        <Grid container spacing={0}>
-          {Object.entries(modifiedStats).filter(([statName]) => statName !== 'hull_weapons').map(([statName, value]) => (
-            <Grid key={statName} item xs={2.4}>
-              <Box sx={{ textAlign: 'center' }}>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    fontWeight: 600,
-                    fontSize: '0.875rem',
-                    color: isStatModified(statName) ? '#ffc107' : 'rgba(255, 255, 255, 0.9)',
-                    lineHeight: 1
-                  }}
+      {/* Stats Section - Always Visible */}
+      <div className="build-view-card__stats-section">
+        <div className="build-view-card__stats-labels">
+          <div className="build-view-card__stats-grid">
+            {getFilteredStats().map(([statName, value]) => (
+              <div key={statName} className="build-view-card__stats-item">
+                <div
+                  className={`build-view-card__stats-label ${isStatModified(statName) ? 'build-view-card__stats-label--modified' : ''}`}
                 >
                   {getStatDisplayName(statName)}
-                </Typography>
-              </Box>
-            </Grid>
-          ))}
-        </Grid>
-      </Box>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
 
-      {/* Stat Values */}
-      <Box sx={{
-        backgroundColor: '#181818',
-        px: 2,
-        py: 1
-      }}>
-        <Grid container spacing={0}>
-          {Object.entries(modifiedStats).filter(([statName]) => statName !== 'hull_weapons').map(([statName, value]) => (
-            <Grid key={`${statName}-value`} item xs={2.4}>
-              <Box sx={{ textAlign: 'center' }}>
-                <Typography
-                  variant="h6"
-                  sx={{
-                    fontWeight: 700,
-                    fontSize: '1.25rem',
-                    lineHeight: 1,
-                    color: isStatModified(statName) ? '#ffc107' : 'inherit'
-                  }}
+        <div className="build-view-card__stats-values">
+          <div className="build-view-card__stats-grid">
+            {getFilteredStats().map(([statName, value]) => (
+              <div key={`${statName}-value`} className="build-view-card__stats-item">
+                <div
+                  className={`build-view-card__stats-value ${isStatModified(statName) ? 'build-view-card__stats-value--modified' : ''}`}
                 >
                   {formatStatValue(statName, value)}
                   {isStatModified(statName) && (
-                    <Typography
-                      component="span"
-                      variant="caption"
-                      sx={{
-                        ml: 0.5,
-                        fontSize: '0.7rem',
-                        opacity: 0.7,
-                        textDecoration: 'line-through'
-                      }}
+                    <span
+                      className="build-view-card__stats-original"
                     >
                       ({formatStatValue(statName, baseStats[statName])})
-                    </Typography>
+                    </span>
                   )}
-                </Typography>
-              </Box>
-            </Grid>
-          ))}
-        </Grid>
-      </Box>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
 
-      {/* Build-specific content (weapon selection, etc.) */}
-      <Box sx={{ p: 2 }}>
-        {children}
-      </Box>
+      {/* Mobile-First Weapon Selection Section */}
+      {!isSquadron && (
+        <div className="build-view-card__weapons-mobile">
+          {/* Prow Section */}
+          {currentShipDef.prow && currentShipDef.prow.select > 0 && (
+            <div className="weapon-section">
+              <div className="weapon-section__header weapon-section__header--sticky">
+                <div className="weapon-section__title">
+                  <ProwIcon size={16} />
+                  <span>Prow Weapons — Select 1</span>
+                </div>
+                <div className="weapon-section__table-header">
+                  <div className="weapon-section__helper">Tap a row to select.</div>
+                  <div className="weapon-section__column-label">Target</div>
+                  <div className="weapon-section__column-label">Attacks</div>
+                  <div className="weapon-section__column-label">Range</div>
+                </div>
+              </div>
+
+              <div className="weapon-section__rows">
+                {currentShipDef.prow.options.map((option, optionIndex) => {
+                  const isSelected = currentShip.loadout?.prow?.optionIndex === optionIndex;
+                  const weaponData = getWeaponDataByIndex({ optionIndex }, currentShipDef, 'prow', currentShip);
+                  
+                  return (
+                    <SwipeableWeaponRow
+                      key={optionIndex}
+                      weaponName={option.name}
+                      weaponData={weaponData}
+                      currentCount={isSelected ? 1 : 0}
+                      maxCount={1}
+                      isMaxed={isSelected}
+                      sectionType="single"
+                      onCountChange={(newCount) => {
+                        // Single-select doesn't use swipe, only tap
+                      }}
+                      onTap={() => {
+                        // Tap to select for single-select weapons
+                        if (isSelected) {
+                          // If already selected, clear selection
+                          onSelectWeapon && onSelectWeapon('prow', null);
+                        } else {
+                          // Select this weapon with optionIndex format
+                          onSelectWeapon && onSelectWeapon('prow', { optionIndex, name: option.name });
+                        }
+                      }}
+                      onPreciseEdit={() => {
+                        // For single-select, precise edit just toggles selection
+                        if (isSelected) {
+                          // Clear selection logic would go here
+                        } else {
+                          onSelectWeapon && onSelectWeapon('prow', optionIndex);
+                        }
+                      }}
+                    />
+                  );
+                })}
+              </div>
+
+              {/* Info Alert for Prow - moved below weapon rows */}
+              {!currentShip.loadout?.prow && (
+                <div className="weapon-section__alert">
+                  <Alert severity="info">Pick {currentShipDef.prow.select} prow option.</Alert>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Hull Section */}
+          {currentShipDef.hull && currentShipDef.hull.select > 0 && (() => {
+            // Calculate total including beginsWith weapons
+            const totalSelected = (currentShip.loadout?.hull || []).length;
+            const effectiveSlots = calculateEffectiveHullSlots(currentShip, currentShipDef);
+            const remaining = effectiveSlots - totalSelected;
+            
+            return (
+              <div className="weapon-section">
+                <div className="weapon-section__header weapon-section__header--sticky">
+                  <div className="weapon-section__title">
+                    <HullIcon size={16} />
+                    <span>Hull Weapons — Select {effectiveSlots} ({totalSelected}/{effectiveSlots})</span>
+                  </div>
+                  <div className="weapon-section__table-header">
+                    <div className="weapon-section__helper">Swipe a row to add/remove.</div>
+                    <div className="weapon-section__column-label">Target</div>
+                    <div className="weapon-section__column-label">Attacks</div>
+                    <div className="weapon-section__column-label">Range</div>
+                  </div>
+                </div>
+
+                <div className="weapon-section__rows">
+                  {currentShipDef.hull.options.map((option, optionIndex) => {
+                    // Handle both string and object formats for hull weapons
+                    const selectedCount = (currentShip.loadout?.hull || []).filter(h => {
+                      if (typeof h === 'string') {
+                        return h === option.name;
+                      }
+                      return h.optionIndex === optionIndex;
+                    }).length;
+                    const weaponData = getWeaponDataByIndex({ optionIndex }, currentShipDef, 'hull', currentShip);
+                    
+                    return (
+                      <SwipeableWeaponRow
+                        key={optionIndex}
+                        weaponName={option.name}
+                        weaponData={weaponData}
+                        currentCount={selectedCount}
+                        maxCount={currentShipDef.hull.select}
+                        isMaxed={remaining === 0 && selectedCount > 0}
+                        sectionType="multi"
+                        onCountChange={(newCount) => {
+                          const delta = newCount - selectedCount;
+                          if (delta > 0) {
+                            // Add weapons - pass weapon name, not index
+                            for (let i = 0; i < delta; i++) {
+                              onAddWeapon && onAddWeapon('hull', option.name);
+                            }
+                          } else if (delta < 0) {
+                            // Remove weapons - pass weapon name, not index
+                            for (let i = 0; i < Math.abs(delta); i++) {
+                              onRemoveWeapon && onRemoveWeapon('hull', option.name);
+                            }
+                          }
+                        }}
+                        onPreciseEdit={() => {
+                          // Open precise edit modal/sheet
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+
+                {/* Info Alert for Hull - moved below weapon rows */}
+                {remaining > 0 && (
+                  <div className="weapon-section__alert">
+                    <Alert severity="info">Choose {remaining} more hull weapon(s).</Alert>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+        </div>
+      )}
+
+      {/* Legacy weapon selection content for squadrons and info alerts */}
+      {(isSquadron || children) && (
+        <div className="build-view-card__content">
+          {children}
+        </div>
+      )}
 
       {/* Refit and Begins With indicator */}
-      {((ship.refit || ship.appliedCanonicalRefit) || (shipDef.beginsWith && shipDef.beginsWith.length > 0)) && (
-        <Box sx={{ 
-          backgroundColor: '#1a1a1a', 
-          px: 2, 
-          py: 1, 
-          borderTop: '1px solid #333' 
-        }}>
-          {(ship.refit || ship.appliedCanonicalRefit) && (
+      {(refitInfo.hasRefit || (currentShipDef.beginsWith && currentShipDef.beginsWith.length > 0)) && (
+        <div className="build-view-card__footer">
+          {refitInfo.hasRefit && (
             <>
-              <Typography variant="caption" sx={{ fontWeight: 600, color: '#d4af37', display: 'block', mb: 0.5 }}>
-                Refit: {ship.appliedCanonicalRefit?.name || (ship.refit?.selectedOption ? ship.refit.selectedOption.name : ship.refit?.name)}
+              <Typography variant="caption" className="build-view-card__footer-refit-title">
+                {isSquadron ? 'Squadron Refit' : 'Refit'}: {refitInfo.name}
               </Typography>
-              {ship.appliedCanonicalRefit?.notes && ship.appliedCanonicalRefit.notes.length > 0 && (
-                <Box sx={{ ml: 0 }}>
-                  {ship.appliedCanonicalRefit.notes.map((note, index) => (
+              {refitInfo.notes && refitInfo.notes.length > 0 && (
+                <div className="build-view-card__footer-notes">
+                  {refitInfo.notes.map((note, index) => (
                     <Typography 
                       key={index} 
                       variant="caption" 
-                      sx={{ 
-                        display: 'block', 
-                        color: 'rgba(255, 255, 255, 0.6)',
-                        fontSize: '0.75rem',
-                        lineHeight: 1.2,
-                        mb: index < ship.appliedCanonicalRefit.notes.length - 1 ? 0.25 : 0
-                      }}
+                      className="build-view-card__footer-note"
                     >
                       • {note}
                     </Typography>
                   ))}
-                </Box>
+                </div>
               )}
             </>
+                  )}
+          {((currentShip.beginsWith && currentShip.beginsWith.length > 0) || (currentShipDef.beginsWith && currentShipDef.beginsWith.length > 0)) && (
+            <Typography variant="caption" className={`build-view-card__footer-begins-with ${!refitInfo.hasRefit ? 'build-view-card__footer-begins-with--no-refit' : ''}`}>
+              Begins with: {(currentShip.beginsWith || currentShipDef.beginsWith).map(w => w.name || w).join(', ')}
+                </Typography>
           )}
-          {((ship.beginsWith && ship.beginsWith.length > 0) || (shipDef.beginsWith && shipDef.beginsWith.length > 0)) && (
-            <Typography variant="caption" sx={{ fontWeight: 600, color: 'rgba(255, 255, 255, 0.8)', mt: (ship.refit || ship.appliedCanonicalRefit) ? 0.5 : 0 }}>
-              Begins with: {(ship.beginsWith || shipDef.beginsWith).map(w => w.name || w).join(', ')}
-            </Typography>
-          )}
-        </Box>
+        </div>
       )}
     </Card>
   );

@@ -4,7 +4,8 @@ import { Paper, Typography, Box, Chip, Tooltip as MuiTooltip } from '@mui/materi
 const BeginsWithSection = ({ 
   beginsWith, 
   squadronRefit = null,
-  getWeaponData = null 
+  getWeaponData = null,
+  shipDef = null
 }) => {
   if (!beginsWith || beginsWith.length === 0) {
     return null;
@@ -36,7 +37,7 @@ const BeginsWithSection = ({
 
           // Generate tooltip content
           const tooltipTitle = getWeaponData 
-            ? `Targets: ${getWeaponData(effectiveWeapon, [], { squadronRefit }).targets || "—"} • Attacks: ${getWeaponData(effectiveWeapon, [], { squadronRefit }).attacks ?? "—"} • Range: ${getWeaponData(effectiveWeapon, [], { squadronRefit }).range || "—"}`
+            ? `Targets: ${getWeaponData(effectiveWeapon, shipDef, 'hull', { squadronRefit }).targets || "—"} • Attacks: ${getWeaponData(effectiveWeapon, shipDef, 'hull', { squadronRefit }).attacks ?? "—"} • Range: ${getWeaponData(effectiveWeapon, shipDef, 'hull', { squadronRefit }).range || "—"}`
             : `Targets: ${effectiveWeapon.targets || "—"} • Attacks: ${effectiveWeapon.attacks ?? "—"} • Range: ${effectiveWeapon.range || "—"}`;
 
           return (

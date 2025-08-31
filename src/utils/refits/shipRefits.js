@@ -37,13 +37,13 @@ export function applyCanonicalRefitToShip(ship, canonicalRefit, selectedOption =
       result.ship.appliedCanonicalRefit = canonicalRefit;
       result.ship.squadronRefit = canonicalRefit; // Store for squadrons
       
-      return { success: true, ship: result.ship };
+      return { ok: true, ship: result.ship };
     } else {
-      return { success: false, error: result.error };
+      return { ok: false, error: result.error };
     }
   } catch (error) {
     console.error('Failed to apply refit:', error);
-    return { success: false, error: error.message };
+    return { ok: false, error: error.message };
   }
 }
 

@@ -8,7 +8,7 @@ import './styles/main.scss';
 import './styles/themes.scss';
 
 // Components
-import Logo from './components/Logo';
+import { Logo } from './components/SVGComponents';
 import CreateNewFleetView from './components/CreateNewFleetView';
 import BuildView from './components/BuildView';
 import PlayView from './components/PlayView';
@@ -34,6 +34,23 @@ import { collection, addDoc, getDocs, deleteDoc, doc, query, where, orderBy, set
 function AppContent(){
   const { muiTheme, currentTheme } = useTheme();
 
+  // Apply theme class to body element
+  useEffect(() => {
+    // Remove any existing theme classes
+    document.body.classList.remove('theme-space', 'theme-dark', 'theme-default', 'theme-vintage');
+    
+    // Add current theme class
+    if (currentTheme) {
+      document.body.classList.add(`theme-${currentTheme}`);
+      console.log('🎨 Applied theme class:', `theme-${currentTheme}`);
+    }
+    
+    // Cleanup function to remove theme class when component unmounts
+    return () => {
+      document.body.classList.remove('theme-space', 'theme-dark', 'theme-default', 'theme-vintage');
+    };
+  }, [currentTheme]);
+
   const [tab,setTab] = useState(0);
   const [faction,setFaction] = useState("Loyalists");
   const [points,setPoints] = useState(30);
@@ -48,6 +65,7 @@ function AppContent(){
   const [saveStatus, setSaveStatus] = useState('idle'); // 'idle', 'saving', 'saved'
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [FACTIONS, setFACTIONS] = useState(null);
+  const [REFITS, setREFITS] = useState(null);
   const [factionsLoading, setFactionsLoading] = useState(true);
   const [useRefits, setUseRefits] = useState(false);
   const [useJuggernauts, setUseJuggernauts] = useState(false);
@@ -80,32 +98,54 @@ function AppContent(){
     return () => unsubscribe();
   }, []);
 
-  // Load factions data
+  // Load factions and refits data
   useEffect(() => {
-    const loadFactions = async () => {
+    const loadData = async () => {
+      console.log('🔄 Starting data load...');
       try {
-        const response = await fetch(`/void-admiral/data/factions.json?v=${Date.now()}`, {
-          cache: 'no-cache',
-          headers: {
-            'Cache-Control': 'no-cache'
-          }
-        });
-        if (!response.ok) {
-          throw new Error(`Failed to load factions: ${response.status}`);
-        }
-        const factionsData = await response.json();
+        console.log('🔄 Fetching data files...');
+        const [factionsResponse, refitsResponse] = await Promise.all([
+          fetch(`/void-admiral/data/factions.json?v=${Date.now()}`, {
+            cache: 'no-cache',
+            headers: { 'Cache-Control': 'no-cache' }
+          }),
+          fetch(`/void-admiral/refits.json?v=${Date.now()}`, {
+            cache: 'no-cache',
+            headers: { 'Cache-Control': 'no-cache' }
+          })
+        ]);
         
-        // Factions data now uses canonical format directly
-        console.log('📦 Loaded factions with canonical refit format');
+        console.log('🔄 Fetch responses:', { 
+          factionsOk: factionsResponse.ok, 
+          refitsOk: refitsResponse.ok 
+        });
+
+        if (!factionsResponse.ok) {
+          throw new Error(`Failed to load factions: ${factionsResponse.status}`);
+        }
+        if (!refitsResponse.ok) {
+          throw new Error(`Failed to load refits: ${refitsResponse.status}`);
+        }
+
+        const [factionsData, refitsData] = await Promise.all([
+          factionsResponse.json(),
+          refitsResponse.json()
+        ]);
+        
+        console.log('📦 Loaded factions data');
+        console.log('🔧 Loaded refits data:', refitsData.length, 'refits');
+        console.log('🔧 First few refits:', refitsData.slice(0, 3).map(r => ({ id: r.id, name: r.name, scope: r.scope })));
+        
         setFACTIONS(factionsData);
+        setREFITS(refitsData);
       } catch (error) {
-        console.error('Failed to load factions:', error);
+        console.error('Failed to load data:', error);
       } finally {
         setFactionsLoading(false);
       }
     };
 
-    loadFactions();
+    loadData();
   }, []);
 
   const loadLocalStorageData = () => {
@@ -625,8 +665,16 @@ function AppContent(){
   }
 
   function removeRefit(shipId) {
+    console.log('🗑️ REMOVE_REFIT: Called for shipId:', shipId);
     setRoster(r => r.map(ship => {
       if (ship.id !== shipId) return ship;
+      
+      console.log('🗑️ REMOVE_REFIT: Processing ship:', {
+        id: ship.id,
+        className: ship.className,
+        hasCanonicalRefit: !!ship.appliedCanonicalRefit,
+        refitName: ship.appliedCanonicalRefit?.name
+      });
       
       // Use canonical refit system to properly restore stats
       if (ship.appliedCanonicalRefit) {
@@ -634,16 +682,23 @@ function AppContent(){
         const shipDef = ships[ship.className];
         const originalStatline = shipDef.statline ? { ...shipDef.statline } : {};
         
+        console.log('🗑️ REMOVE_REFIT: Removing refit:', ship.appliedCanonicalRefit.name);
+        
         // Remove canonical refit and restore original stats
-        return {
+        // Note: Weapon options will be automatically updated by the weapon system
+        // when appliedCanonicalRefit is removed
+        const updatedShip = {
           ...ship,
-          refit: null,
           appliedCanonicalRefit: null,
           statline: originalStatline
         };
+        
+        console.log('🗑️ REMOVE_REFIT: Ship updated, refit removed:', !updatedShip.appliedCanonicalRefit);
+        return updatedShip;
       }
       
-      // Fallback for legacy refits
+      console.log('🗑️ REMOVE_REFIT: No canonical refit found on ship');
+      // Fallback for legacy refits (shouldn't happen anymore)
       return { ...ship, refit: null };
     }));
   }
@@ -807,7 +862,7 @@ function AppContent(){
   return (
     <MuiThemeProvider theme={muiTheme}>
       <CssBaseline/>
-      <Box className={`app-root theme-${currentTheme} enhanced-cards`} sx={{ minHeight: '100vh' }}>
+      <Box className="app-root" sx={{ minHeight: '100vh' }}>
         <AppBar position="sticky" color="default" enableColorOnDark>
           <Toolbar>
             {/* Mobile hamburger menu */}
@@ -956,6 +1011,7 @@ function AppContent(){
                 roster={roster}
                 setRoster={setRoster}
                 factions={FACTIONS}
+                refits={REFITS}
                 ships={ships}
                 isEditingName={isEditingName}
                 setIsEditingName={setIsEditingName}

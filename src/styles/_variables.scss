@@ -1,24 +1,47 @@
-// Base Colors
-$color-primary: #1976d2;
-$color-primary-dark: #1565c0;
+// CSS Custom Properties (Base/Default values)
+// These will be overridden by theme classes in themes.scss
+:root {
+  // Primary colors (theme-dependent)
+  --primary-color: #1976d2;
+  --primary-color-rgb: 25, 118, 210;
+  --primary-color-dark: #1565c0;
+  
+  // Status colors (consistent across themes)
+  --color-success: #4caf50;
+  --color-error: #f44336;
+  --color-warning: #ff9800;
+  
+  // Background colors (theme-dependent)
+  --bg-primary: #121212;
+  --bg-secondary: #1f1f1f;
+  --bg-tertiary: #2e2e2e;
+  --bg-paper: #181818;
+  --bg-darker: #1f1f1f;
+  --bg-paper-rgb: 24, 24, 24;
+  --bg-darker-rgb: 31, 31, 31;
+  
+  // Text colors (theme-dependent)
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --text-disabled: rgba(255, 255, 255, 0.38);
+  
+  // Border colors (theme-dependent)
+  --border-color: rgba(255, 255, 255, 0.12);
+  --divider-color: rgba(255, 255, 255, 0.12);
+}
+
+// SCSS Variables for non-color properties (these stay as SCSS variables)
+// Status colors (for SCSS usage)
 $color-success: #4caf50;
 $color-error: #f44336;
 $color-warning: #ff9800;
 
-// Dark Theme Colors
-$color-bg-primary: #121212;
-$color-bg-secondary: #1f1f1f;
-$color-bg-tertiary: #2e2e2e;
-$color-bg-paper: #181818;
-
-// Text Colors
+// Border/text colors (for SCSS usage where CSS custom properties aren't suitable)
+$color-border: rgba(255, 255, 255, 0.12);
+$color-divider: rgba(255, 255, 255, 0.12);
 $color-text-primary: #ffffff;
 $color-text-secondary: rgba(255, 255, 255, 0.7);
 $color-text-disabled: rgba(255, 255, 255, 0.38);
-
-// Border Colors
-$color-border: rgba(255, 255, 255, 0.12);
-$color-divider: rgba(255, 255, 255, 0.12);
 
 // Spacing
 $spacing-xs: 0.25rem;

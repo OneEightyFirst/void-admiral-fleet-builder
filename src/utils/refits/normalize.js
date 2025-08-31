@@ -20,7 +20,8 @@ export function normalizeArc(str = "") {
     "Any": "Any"
   };
   
-  return map[m] || "Any";
+  // Don't default to "Any" - return undefined if not found
+  return map[m];
 }
 
 /**

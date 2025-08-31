@@ -1,0 +1,836 @@
+[
+  {
+    "id": "refit:loyalists:up-gunned-prow",
+    "name": "Up-gunned Prow",
+    "scope": "Loyalists",
+    "targets": ["capital"],
+    "description": "Your ship loses the benefits of armoured prows but adds +2 to the attacks of its prow mounted missiles or +1 to the attacks of its prow mounted lasers.",
+    "effects": [
+      {"type": "ruleChange", "text": "Lose Armoured Prows special rule"},
+      {"type": "weaponModify", "slot": "prow", "kindAny": ["missiles"], "attacksDelta": 2},
+      {"type": "weaponModify", "slot": "prow", "kindAny": ["lasers"], "attacksDelta": 1}
+    ],
+    "notes": ["Lose Armoured Prows special rule", "Prow missiles gain +2 attacks", "Prow lasers gain +1 attack"]
+  },
+  {
+    "id": "refit:loyalists:sloped-armour",
+    "name": "Sloped Armour",
+    "scope": "Loyalists",
+    "targets": ["squadron"],
+    "description": "Your frigate squadron subtract 2″ from their speed but gain the advantage of armoured prows.",
+    "effects": [
+      {"type": "statChange", "stat": "Speed", "delta": -2},
+      {"type": "ruleChange", "text": "Gain Armoured Prows special rule"}
+    ],
+    "notes": ["Speed reduced by 2\"", "Gain Armoured Prows special rule"]
+  },
+
+  {
+    "id": "refit:renegades:prow-launch-bays",
+    "name": "Prow Launch Bays",
+    "scope": "Renegades",
+    "targets": ["capital"],
+    "description": "Your ship exchanges its prow weapons for a single launch bay.",
+    "effects": [
+      {"type": "weaponReplace", "slot": "prow", "to": {"name": "Launch Bays", "kind": "bays", "targets": "360", "attacks": "1d6", "range": 18}}
+    ],
+    "notes": ["Prow weapons replaced with Launch Bays", "Launch Bays: 360° targeting, 1d6 attacks, 18\" range"]
+  },
+  {
+    "id": "refit:renegades:marauders",
+    "name": "Marauders",
+    "scope": "Renegades",
+    "targets": ["squadron"],
+    "description": "Your enslaver squadron may not use agile maneuvers but double their attack dice rolled during boarding actions as either attacker or defender.",
+    "effects": [
+      {"type": "ruleLose", "rule": "Agile Maneuvers"},
+      {"type": "boardingBuff", "multiplier": 2}
+    ],
+    "notes": ["Cannot use Agile Maneuvers special rule", "Double attack dice during boarding actions"]
+  },
+
+  {
+    "id": "refit:ancients:shadow-star",
+    "name": "Shadow Star",
+    "scope": "Ancients",
+    "targets": ["capital"],
+    "description": "Your star weaver subtracts one from its shields, but in return it is treated as being a small target.",
+    "effects": [
+      {"type": "statChange", "stat": "Shields", "delta": -1},
+      {"type": "targetProfile", "treatedAsSmallTarget": true}
+    ],
+    "constraints": {"shipClassesAny": ["Star Weaver"]},
+    "notes": ["Shields reduced by 1", "Treated as small target"]
+  },
+  {
+    "id": "refit:ancients:death-whispers",
+    "name": "Death Whispers",
+    "scope": "Ancients",
+    "targets": ["squadron"],
+    "description": "Your whisper squadron subtract two from their shields value, but they add +2 to the attacks of their prow weapons (+1 for lasers).",
+    "effects": [
+      {"type": "statChange", "stat": "Shields", "delta": -2},
+      {"type": "weaponModify", "slot": "prow", "kindAny": ["lasers"], "attacksDelta": 1},
+      {"type": "weaponModify", "slot": "prow", "kindAny": ["cannons","missiles"], "attacksDelta": 2}
+    ],
+    "notes": ["Shields reduced by 2", "Prow weapons gain +2 attacks", "Prow lasers gain +1 attack (instead of +2)"]
+  },
+
+  {
+    "id": "refit:brutes:heavy-rockets",
+    "name": "Heavy Rockets",
+    "scope": "Brutes",
+    "targets": ["capital"],
+    "description": "Your ship reduces the range of its prow mounted missile tubes by 6\", but adds +4 to their attacks.",
+    "effects": [
+      {"type": "weaponModify", "slot": "prow", "nameAny": ["Missile Tubes"], "attacksDelta": 4, "rangeDelta": -6}
+    ],
+    "notes": ["Prow Missile Tubes gain +4 attacks", "Prow Missile Tubes range reduced by 6\""]
+  },
+  {
+    "id": "refit:brutes:quick-cutters",
+    "name": "Quick Cutters",
+    "scope": "Brutes",
+    "targets": ["squadron"],
+    "description": "Your squadron of cutters subtract 2 from the attacks of their prow weapons, but add +2\" to their speed.",
+    "effects": [
+      {"type": "statChange", "stat": "Speed", "delta": 2},
+      {"type": "weaponModify", "slot": "prow", "attacksDelta": -2}
+    ],
+    "notes": ["Speed increased by 2\"", "Prow weapons lose 2 attacks"]
+  },
+
+  {
+    "id": "refit:cyborgs:inspection-ship",
+    "name": "Inspection Ship",
+    "scope": "Cyborgs",
+    "targets": ["capital"],
+    "description": "Your ship can not launch bombing runs. When boarding enemy ships it adds +1 to its attacks for each fighter token it currently has.",
+    "effects": [
+      {"type": "capability", "canLaunchBombingRuns": false},
+      {"type": "boardingBuff", "perFighterTokenBonus": 1}
+    ],
+    "notes": ["Cannot launch bombing runs", "Boarding: +1 attack per fighter token"]
+  },
+  {
+    "id": "refit:cyborgs:bulky-design",
+    "name": "Bulky Design",
+    "scope": "Cyborgs",
+    "targets": ["squadron"],
+    "description": "Your squadron of drones subtract 2\" from their speed but add +1 to their hull value.",
+    "effects": [
+      {"type": "statChange", "stat": "Speed", "delta": -2},
+      {"type": "statChange", "stat": "Hull", "delta": 1}
+    ],
+    "notes": ["Speed reduced by 2\"", "Hull increased by 1"]
+  },
+
+  {
+    "id": "refit:insectoids:crushing-appendages",
+    "name": "Crushing Appendages",
+    "scope": "Insectoids",
+    "targets": ["capital"],
+    "description": "Your ship subtracts 2 from the attacks of its prow weapon, but all of its ramming attacks get +1 to hit.",
+    "effects": [
+      {"type": "weaponModify", "slot": "prow", "attacksDelta": -2},
+      {"type": "rammingBuff", "toHitDelta": 1}
+    ],
+    "notes": ["Prow weapons lose 2 attacks", "Ramming attacks gain +1 to hit"]
+  },
+  {
+    "id": "refit:insectoids:micro-hives",
+    "name": "Micro Hives",
+    "scope": "Insectoids",
+    "targets": ["squadron"],
+    "description": "Your squadron of hive ships may add up to two additional pincer squadrons to their group.",
+    "effects": [
+      {"type": "squadronExpansion", "addShipClass": "Pincer", "maxCount": 2}
+    ],
+    "notes": ["May add up to 2 Pincer squadrons to the group"]
+  },
+
+  {
+    "id": "refit:mining-guilds:carrier-refit",
+    "name": "Carrier Refit",
+    "scope": "Mining Guilds",
+    "targets": ["capital"],
+    "description": "Your digger or rock hauler may select launch bays as a hull weapon option.",
+    "effects": [
+      {"type": "weaponOptionUnlock", "slot": "hull", "allowNamesAny": ["Launch Bays"]}
+    ],
+    "constraints": {"shipClassesAny": ["Digger", "Rock Hauler"]},
+    "notes": ["Allows Launch Bays as hull weapon option"]
+  },
+  {
+    "id": "refit:mining-guilds:auto-drillers",
+    "name": "Auto-Drillers",
+    "scope": "Mining Guilds",
+    "targets": ["squadron"],
+    "description": "Your squadron of haulers exchange their cannon turret for a light laser.",
+    "effects": [
+      {"type": "weaponReplace", "slot": "any", "nameAny": ["Cannon Turret"], "to": {"name": "Light Laser", "kind": "lasers", "targets": "Sides", "attacks": 1, "range": 12}}
+    ],
+    "notes": ["Cannon Turret replaced with Light Laser"]
+  },
+
+  {
+    "id": "refit:merchants:missile-systems",
+    "name": "Missile Systems",
+    "scope": "Merchants",
+    "targets": ["capital"],
+    "description": "Your ship may select missile turrets as a hull weapon option.",
+    "effects": [
+      {"type": "weaponOptionUnlock", "slot": "hull", "allowNamesAny": ["Missile Turrets"]}
+    ],
+    "notes": ["Allows Missile Turrets as hull weapon option"]
+  },
+  {
+    "id": "refit:merchants:auto-drillers",
+    "name": "Auto-Drillers",
+    "scope": "Merchants",
+    "targets": ["squadron"],
+    "description": "Your squadron of haulers exchange their cannon turret for a light laser.",
+    "effects": [
+      {"type": "weaponReplace", "slot": "any", "nameAny": ["Cannon Turret"], "to": {"name": "Light Laser", "kind": "lasers", "targets": "Sides", "attacks": 1, "range": 12}}
+    ],
+    "notes": ["Cannon Turret replaced with Light Laser"]
+  },
+
+  {
+    "id": "refit:disciples:command-chapel",
+    "name": "Command Chapel",
+    "scope": "Disciples",
+    "targets": ["capital"],
+    "description": "Your ship loses one of its hull mounted weapons. So long as your ship remains on the table you may roll an extra dice on your command board.",
+    "effects": [
+      {"type": "slotLoss", "slot": "hull", "count": 1},
+      {"type": "ruleChange", "text": "While ship remains on table, may roll an extra command die"}
+    ],
+    "notes": ["Hull weapon slots reduced by 1", "May roll extra command dice while ship remains on table"]
+  },
+  {
+    "id": "refit:disciples:blessed-weapons",
+    "name": "Blessed Weapons",
+    "scope": "Disciples",
+    "targets": ["squadron"],
+    "description": "Your squadron of zealots add +1 to the attacks of their prow weapons.",
+    "effects": [
+      {"type": "weaponModify", "slot": "prow", "attacksDelta": 1}
+    ],
+    "notes": ["Prow weapons gain +1 attack"]
+  },
+
+  {
+    "id": "refit:scrap-bots:drone-bombs",
+    "name": "Drone Bombs",
+    "scope": "Scrap Bots",
+    "targets": ["capital"],
+    "description": "Your ship exchanges one or more of its drone launchers for missiles.",
+    "effects": [
+      {"type": "weaponReplace", "slot": "any", "nameAny": ["Drone Launchers"], "to": {"name": "Missiles", "kind": "missiles", "targets": "Front", "attacks": 2, "range": 18}}
+    ],
+    "notes": ["Drone Launchers replaced with Missiles"]
+  },
+  {
+    "id": "refit:scrap-bots:overcharged-systems",
+    "name": "Overcharged Systems",
+    "scope": "Scrap Bots",
+    "targets": ["squadron"],
+    "description": "Your squadron of scrappers add +2\" to their speed but subtract 1 from their hull value.",
+    "effects": [
+      {"type": "statChange", "stat": "Speed", "delta": 2},
+      {"type": "statChange", "stat": "Hull", "delta": -1}
+    ],
+    "notes": ["Speed increased by 2\"", "Hull reduced by 1"]
+  },
+
+  {
+    "id": "refit:dusk-wraiths:leech-laser-array",
+    "name": "Leech Laser Array",
+    "scope": "Dusk Wraiths",
+    "targets": ["capital"],
+    "description": "Your ship subtracts 2 from its shields and gains a battery of leech lasers.",
+    "effects": [
+      {"type": "statChange", "stat": "Shields", "delta": -2},
+      {"type": "weaponAdd", "slot": "hull", "weapon": {"name": "Leech Lasers", "kind": "lasers", "targets": "Sides", "attacks": 3, "range": 12}}
+    ],
+    "notes": ["Shields reduced by 2", "Gains Leech Laser battery"]
+  },
+  {
+    "id": "refit:dusk-wraiths:shadow-cloak",
+    "name": "Shadow Cloak",
+    "scope": "Dusk Wraiths",
+    "targets": ["squadron"],
+    "description": "Your squadron of shadow fighters subtract 1 from their hull but gain +2\" to their speed.",
+    "effects": [
+      {"type": "statChange", "stat": "Hull", "delta": -1},
+      {"type": "statChange", "stat": "Speed", "delta": 2}
+    ],
+    "notes": ["Hull reduced by 1", "Speed increased by 2\""]
+  },
+
+  {
+    "id": "refit:liberationists:cyclone-turret",
+    "name": "Cyclone Turret",
+    "scope": "Liberationists",
+    "targets": ["capital"],
+    "description": "Your ship loses the benefits of motley crew, but adds a cyclone gun turret.",
+    "effects": [
+      {"type": "ruleLose", "rule": "Motley Crew"},
+      {"type": "weaponAdd", "slot": "hull", "weapon": {"name": "Cyclone Gun Turret", "kind": "cannons", "targets": "360", "attacks": 4, "range": 12}}
+    ],
+    "notes": ["Lose Motley Crew special rule", "Gains Cyclone Gun Turret"]
+  },
+  {
+    "id": "refit:liberationists:guerrilla-tactics",
+    "name": "Guerrilla Tactics",
+    "scope": "Liberationists",
+    "targets": ["squadron"],
+    "description": "Your squadron of freedom fighters may deploy up to 6\" outside of your deployment zone.",
+    "effects": [
+      {"type": "deployment", "deployOutsideZoneInches": 6}
+    ],
+    "notes": ["Deploy up to 6\" outside deployment zone"]
+  },
+
+  {
+    "id": "refit:fungoids:spore-banks",
+    "name": "Spore Banks",
+    "scope": "Fungoids",
+    "targets": ["capital"],
+    "description": "Your ship/squadron may exchange their hull mounted weapons for spore banks on a one for one basis.",
+    "effects": [
+      {"type": "weaponReplace", "slot": "hull", "to": {"name": "Spore Banks", "kind": "other", "targets": "Sides", "attacks": 2, "range": 12}}
+    ],
+    "notes": ["Hull weapons may be replaced with Spore Banks"]
+  },
+  {
+    "id": "refit:fungoids:toxic-spores",
+    "name": "Toxic Spores",
+    "scope": "Fungoids",
+    "targets": ["squadron"],
+    "description": "Your squadron of spore ships add +1 to the attacks of their spore weapons.",
+    "effects": [
+      {"type": "weaponModify", "slot": "any", "nameAny": ["Spore"], "attacksDelta": 1}
+    ],
+    "notes": ["Spore weapons gain +1 attack"]
+  },
+
+  {
+    "id": "refit:lost-colony:light-carrier",
+    "name": "Light Carrier",
+    "scope": "Lost Colony",
+    "targets": ["capital"],
+    "description": "Your survey ship subtracts 4″ from its speed, adds +1 to its flak score and gains the option to exchange its prow weapon for a launch bay.",
+    "effects": [
+      {"type": "statChange", "stat": "Speed", "delta": -4},
+      {"type": "statChange", "stat": "Flak", "delta": 1},
+      {"type": "weaponOptionAdd", "slot": "prow", "allowNamesAny": ["Launch Bays"]}
+    ],
+    "constraints": {"shipClassesAny": ["Survey Ship"]},
+    "notes": ["Speed reduced by 4\"", "Flak increased by 1", "May exchange prow weapon for Launch Bays"]
+  },
+  {
+    "id": "refit:lost-colony:emergency-repairs",
+    "name": "Emergency Repairs",
+    "scope": "Lost Colony",
+    "targets": ["squadron"],
+    "description": "Your squadron of repair ships add +1 to their hull value but subtract 2\" from their speed.",
+    "effects": [
+      {"type": "statChange", "stat": "Hull", "delta": 1},
+      {"type": "statChange", "stat": "Speed", "delta": -2}
+    ],
+    "notes": ["Hull increased by 1", "Speed reduced by 2\""]
+  },
+
+  {
+    "id": "refit:technocrats:technocrat-carrier",
+    "name": "Technocrat Carrier",
+    "scope": "Technocrats",
+    "targets": ["capital"],
+    "description": "Your ship may select launch bays as a hull weapon option (not transportable).",
+    "effects": [
+      {"type": "weaponOptionAdd", "slot": "hull", "allowNamesAny": ["Launch Bays"], "transportable": false}
+    ],
+    "notes": ["Allows Launch Bays as hull weapon option", "Launch Bays are not transportable"]
+  },
+  {
+    "id": "refit:technocrats:stealth-field",
+    "name": "Stealth Field",
+    "scope": "Technocrats",
+    "targets": ["squadron"],
+    "description": "Your squadron of Orderlies subtract 1 from their shields value. Enemy shooting always treats them as being inside of terrain (even when they aren't).",
+    "effects": [
+      {"type": "statChange", "stat": "Shields", "delta": -1},
+      {"type": "targetProfile", "alwaysTreatedAsInTerrain": true}
+    ],
+    "notes": ["Shields reduced by 1", "Always treated as being inside terrain for enemy shooting"]
+  },
+
+  {
+    "id": "refit:shadow-weavers:laser-blades",
+    "name": "Laser Blades",
+    "scope": "Shadow Weavers",
+    "targets": ["capital"],
+    "description": "Your ship exchanges one of its hull weapons for a short ranged laser.",
+    "effects": [
+      {"type": "weaponReplace", "slot": "hull", "to": {"name": "Blade Lasers", "kind": "lasers", "targets": "Fr/Sd", "attacks": 2, "range": 6}}
+    ],
+    "notes": ["Exchange one hull weapon for Blade Lasers", "Short range but powerful laser weapon"]
+  },
+  {
+    "id": "refit:shadow-weavers:advanced-scouts",
+    "name": "Advanced Scouts",
+    "scope": "Shadow Weavers",
+    "targets": ["squadron"],
+    "description": "Your squadron of dusk shifters may not be selected for holographic deception. They may however be deployed up to 6\" outside of your deployment zone.",
+    "effects": [
+      {"type": "ruleLose", "rule": "Holographic Deception"},
+      {"type": "deployment", "deployOutsideZoneInches": 6}
+    ],
+    "notes": ["Cannot use Holographic Deception", "Deploy up to 6\" outside deployment zone"]
+  },
+
+  {
+    "id": "refit:scavengers:pirate-crews",
+    "name": "Pirate Crews",
+    "scope": "Scavengers",
+    "targets": ["capital"],
+    "description": "Your ship sacrifices one of its hull mounted weapons, but may roll two extra attacks in any boarding action it participates in (as attacker or defender).",
+    "effects": [
+      {"type": "slotLose", "slot": "hull", "count": 1},
+      {"type": "boardingBuff", "attacksDelta": 2}
+    ],
+    "notes": ["Hull weapon slots reduced by 1", "Boarding actions gain +2 attacks"]
+  },
+  {
+    "id": "refit:scavengers:salvage-crews",
+    "name": "Salvage Crews",
+    "scope": "Scavengers",
+    "targets": ["squadron"],
+    "description": "Your squadron of raiders add +1 to their hull value but subtract 1\" from their speed.",
+    "effects": [
+      {"type": "statChange", "stat": "Hull", "delta": 1},
+      {"type": "statChange", "stat": "Speed", "delta": -1}
+    ],
+    "notes": ["Hull increased by 1", "Speed reduced by 1\""]
+  },
+
+  {
+    "id": "refit:cragborn:crystalline-composite",
+    "name": "Crystalline Composite",
+    "scope": "Cragborn",
+    "targets": ["capital"],
+    "description": "Your ship may select laser crystals as a hull weapon option.",
+    "effects": [
+      {"type": "weaponOptionAdd", "slot": "hull", "allowNamesAny": ["Laser Crystals"]}
+    ],
+    "notes": ["Allows Laser Crystals as hull weapon option"]
+  },
+  {
+    "id": "refit:cragborn:crystal-growth",
+    "name": "Crystal Growth",
+    "scope": "Cragborn",
+    "targets": ["squadron"],
+    "description": "Your squadron of crystal ships add +1 to their armour value but subtract 1\" from their speed.",
+    "effects": [
+      {"type": "statChange", "stat": "Armour", "delta": 1},
+      {"type": "statChange", "stat": "Speed", "delta": -1}
+    ],
+    "notes": ["Armour increased by 1", "Speed reduced by 1\""]
+  },
+
+  {
+    "id": "refit:pack-hunters:boarding-pods",
+    "name": "Boarding Pods",
+    "scope": "Pack Hunters",
+    "targets": ["capital"],
+    "description": "Your ship loses one of its hull mounted weapons. It may both board and shoot in the same activation, though not at the same target.",
+    "effects": [
+      {"type": "slotLose", "slot": "hull", "count": 1},
+      {"type": "capability", "boardAndShootSameActivation": true}
+    ],
+    "notes": ["Hull weapon slots reduced by 1", "Can board and shoot in same activation (different targets)"]
+  },
+  {
+    "id": "refit:pack-hunters:beast-cages",
+    "name": "Beast Cages",
+    "scope": "Pack Hunters",
+    "targets": ["squadron"],
+    "description": "Your squadron of jakals subtract 6″ from their weapons range but double their attack dice rolled during boarding actions as either attacker or defender.",
+    "effects": [
+      {"type": "weaponModify", "slot": "any", "rangeDelta": -6},
+      {"type": "boardingBuff", "multiplier": 2}
+    ],
+    "notes": ["All weapon ranges reduced by 6\"", "Double boarding attack dice (attacker or defender)"]
+  },
+
+  {
+    "id": "refit:psychic-slugs:psychic-amplifier",
+    "name": "Psychic Amplifier",
+    "scope": "Psychic Slugs",
+    "targets": ["capital"],
+    "description": "Your ship subtracts two from its shields. So long as your ship remains on the table you may roll an extra dice on your command board.",
+    "effects": [
+      {"type": "statChange", "stat": "Shields", "delta": -2},
+      {"type": "ruleGain", "rule": "extraCommandDice", "delta": 1}
+    ],
+    "notes": ["Shields reduced by 2", "May roll extra command dice while ship remains on table"]
+  },
+  {
+    "id": "refit:psychic-slugs:sluggish-servile",
+    "name": "Sluggish Servile",
+    "scope": "Psychic Slugs",
+    "targets": ["squadron"],
+    "description": "Your squadron of serviles subtract 2″ from their speed. They gain +1 to their shields value.",
+    "effects": [
+      {"type": "statChange", "stat": "Speed", "delta": -2},
+      {"type": "statChange", "stat": "Shields", "delta": 1}
+    ],
+    "notes": ["Speed reduced by 2\"", "Shields increased by 1"]
+  },
+
+  {
+    "id": "refit:noble-houses:superior-missile-systems",
+    "name": "Superior Missile Systems",
+    "scope": "Noble Houses",
+    "targets": ["capital"],
+    "description": "Your ship may select missile turrets as a hull weapons option.",
+    "effects": [
+      {"type": "weaponOptionAdd", "slot": "hull", "allowNamesAny": ["Missile Turrets"]}
+    ],
+    "notes": ["Allows Missile Turrets as hull weapon option"]
+  },
+  {
+    "id": "refit:noble-houses:elite-escort",
+    "name": "Elite Escort",
+    "scope": "Noble Houses",
+    "targets": ["squadron"],
+    "description": "Your squadron of escorts add +1 to their armour value and gain the armoured prows special rule.",
+    "effects": [
+      {"type": "statChange", "stat": "Armour", "delta": 1},
+      {"type": "ruleGain", "rule": "Armoured Prows"}
+    ],
+    "notes": ["Armour increased by 1", "Gain Armoured Prows special rule"]
+  },
+
+  {
+    "id": "refit:universal:dorsal-laser-turret",
+    "name": "Dorsal Laser Turret",
+    "scope": "Universal",
+    "targets": ["capital"],
+    "description": "Your ship sacrifices one from its shields rating to gain a light laser turret, or two shields for a heavy laser turret.",
+    "options": [
+      {
+        "name": "Light Laser Turret",
+        "effects": [
+          {"type": "statChange", "stat": "Shields", "delta": -1},
+          {"type": "weaponAdd", "slot": "hull", "weapon": {"name": "Light Laser Turret", "kind": "lasers", "targets": "360", "attacks": 2, "range": 12}}
+        ]
+      },
+      {
+        "name": "Heavy Laser Turret",
+        "effects": [
+          {"type": "statChange", "stat": "Shields", "delta": -2},
+          {"type": "weaponAdd", "slot": "hull", "weapon": {"name": "Heavy Laser Turret", "kind": "lasers", "targets": "360", "attacks": 4, "range": 12}}
+        ]
+      }
+    ],
+    "notes": ["Choose between Light (-1 Shield) or Heavy (-2 Shields) laser turret"]
+  },
+  {
+    "id": "refit:universal:dorsal-cannon-turret",
+    "name": "Dorsal Cannon Turret",
+    "scope": "Universal",
+    "targets": ["capital"],
+    "description": "Your ship sacrifices one from its shields rating to gain a light cannon turret, or two shields for a heavy cannon turret.",
+    "options": [
+      {
+        "name": "Light Cannon Turret",
+        "effects": [
+          {"type": "statChange", "stat": "Shields", "delta": -1},
+          {"type": "weaponAdd", "slot": "hull", "weapon": {"name": "Light Cannon Turret", "kind": "cannons", "targets": "360", "attacks": 2, "range": 12}}
+        ]
+      },
+      {
+        "name": "Heavy Cannon Turret",
+        "effects": [
+          {"type": "statChange", "stat": "Shields", "delta": -2},
+          {"type": "weaponAdd", "slot": "hull", "weapon": {"name": "Heavy Cannon Turret", "kind": "cannons", "targets": "360", "attacks": 4, "range": 12}}
+        ]
+      }
+    ],
+    "notes": ["Choose between Light (-1 Shield) or Heavy (-2 Shields) cannon turret"]
+  },
+  {
+    "id": "refit:universal:additional-shields",
+    "name": "Additional Shields",
+    "scope": "Universal",
+    "targets": ["capital"],
+    "description": "Your ship sacrifices 2″ from its speed to gain an additional shield.",
+    "effects": [
+      {"type": "statChange", "stat": "Speed", "delta": -2},
+      {"type": "statChange", "stat": "Shields", "delta": 1}
+    ],
+    "notes": ["Speed reduced by 2\"", "Shields increased by 1"]
+  },
+  {
+    "id": "refit:universal:enhanced-flak",
+    "name": "Enhanced Flak",
+    "scope": "Universal",
+    "targets": ["capital"],
+    "description": "Your ship sacrifices 1 from its shields to gain +1 flak.",
+    "effects": [
+      {"type": "statChange", "stat": "Shields", "delta": -1},
+      {"type": "statChange", "stat": "Flak", "delta": 1}
+    ],
+    "notes": ["Shields reduced by 1", "Flak increased by 1"]
+  },
+  {
+    "id": "refit:universal:extended-hull",
+    "name": "Extended Hull",
+    "scope": "Universal",
+    "targets": ["capital"],
+    "description": "Your ship sacrifices 2″ from its speed to gain additional hull points.",
+    "options": [
+      {
+        "name": "+1 Hull",
+        "effects": [
+          {"type": "statChange", "stat": "Speed", "delta": -2},
+          {"type": "statChange", "stat": "Hull", "delta": 1}
+        ]
+      },
+      {
+        "name": "+2 Hull",
+        "effects": [
+          {"type": "statChange", "stat": "Speed", "delta": -2},
+          {"type": "statChange", "stat": "Hull", "delta": 2}
+        ]
+      }
+    ],
+    "constraints": {"speedMin": 4},
+    "notes": ["Speed reduced by 2\"", "Choose +1 or +2 Hull points"]
+  },
+  {
+    "id": "refit:universal:advanced-shield-batteries",
+    "name": "Advanced Shield Batteries",
+    "scope": "Universal",
+    "targets": ["capital"],
+    "description": "Your ship sacrifices 4″ from its speed to gain +2 shields.",
+    "effects": [
+      {"type": "statChange", "stat": "Speed", "delta": -4},
+      {"type": "statChange", "stat": "Shields", "delta": 2}
+    ],
+    "constraints": {"speedMin": 6},
+    "notes": ["Speed reduced by 4\"", "Shields increased by 2"]
+  },
+  {
+    "id": "refit:universal:heavy-armour",
+    "name": "Heavy Armour",
+    "scope": "Universal",
+    "targets": ["capital"],
+    "description": "Your ship sacrifices 2″ from its speed to gain +1 armour.",
+    "effects": [
+      {"type": "statChange", "stat": "Speed", "delta": -2},
+      {"type": "statChange", "stat": "Armour", "delta": 1}
+    ],
+    "constraints": {"armourMax": 3},
+    "notes": ["Speed reduced by 2\"", "Armour increased by 1"]
+  },
+  {
+    "id": "refit:universal:enhanced-engines",
+    "name": "Enhanced Engines",
+    "scope": "Universal",
+    "targets": ["capital"],
+    "description": "Your ship sacrifices 1 from its shields to gain +2\" speed.",
+    "effects": [
+      {"type": "statChange", "stat": "Shields", "delta": -1},
+      {"type": "statChange", "stat": "Speed", "delta": 2}
+    ],
+    "notes": ["Shields reduced by 1", "Speed increased by 2\""]
+  },
+
+  {
+    "id": "refit:global:dorsal-laser-turret",
+    "name": "Dorsal Laser Turret",
+    "scope": "global",
+    "targets": ["capital"],
+    "description": "Your ship sacrifices one from its shields rating to gain a light laser turret, or two shields for a heavy laser turret.",
+    "options": [
+      {
+        "name": "Light Laser Turret",
+        "effects": [
+          {"type": "statChange", "stat": "Shields", "delta": -1},
+          {"type": "weaponAdd", "slot": "turret", "weapon": {"name": "Light Laser", "kind": "lasers", "targets": "Fr/Sd", "attacks": 1, "range": 12}}
+        ]
+      },
+      {
+        "name": "Heavy Laser Turret",
+        "effects": [
+          {"type": "statChange", "stat": "Shields", "delta": -2},
+          {"type": "weaponAdd", "slot": "turret", "weapon": {"name": "Heavy Laser", "kind": "lasers", "targets": "Fr/Sd", "attacks": 2, "range": 12}}
+        ]
+      }
+    ],
+    "notes": ["Sacrifice shields for laser turret"]
+  },
+  {
+    "id": "refit:global:dorsal-cannon-turret",
+    "name": "Dorsal Cannon Turret",
+    "scope": "global",
+    "targets": ["capital"],
+    "description": "Your ship sacrifices one from its flak rating to gain a light cannon turret, or two flak for a heavy cannon turret.",
+    "options": [
+      {
+        "name": "Light Cannon Turret",
+        "effects": [
+          {"type": "statChange", "stat": "Flak", "delta": -1},
+          {"type": "weaponAdd", "slot": "turret", "weapon": {"name": "Light Cannons", "kind": "cannons", "targets": "Fr/Sd", "attacks": 2, "range": 12}}
+        ]
+      },
+      {
+        "name": "Heavy Cannon Turret",
+        "effects": [
+          {"type": "statChange", "stat": "Flak", "delta": -2},
+          {"type": "weaponAdd", "slot": "turret", "weapon": {"name": "Heavy Cannons", "kind": "cannons", "targets": "Fr/Sd", "attacks": 4, "range": 12}}
+        ]
+      }
+    ],
+    "notes": ["Sacrifice flak for cannon turret"]
+  },
+  {
+    "id": "refit:global:additional-shields",
+    "name": "Additional Shields",
+    "scope": "global",
+    "targets": ["capital"],
+    "description": "Your ship sacrifices one of its flak for an extra point of shields.",
+    "effects": [
+      {"type": "statChange", "stat": "Flak", "delta": -1},
+      {"type": "statChange", "stat": "Shields", "delta": 1}
+    ],
+    "notes": ["Trade flak for shields"]
+  },
+  {
+    "id": "refit:global:enhanced-flak",
+    "name": "Enhanced Flak",
+    "scope": "global",
+    "targets": ["capital"],
+    "description": "Your ship sacrifices one of its shields for an extra point of flak.",
+    "effects": [
+      {"type": "statChange", "stat": "Shields", "delta": -1},
+      {"type": "statChange", "stat": "Flak", "delta": 1}
+    ],
+    "notes": ["Trade shields for flak"]
+  },
+  {
+    "id": "refit:global:extended-hull",
+    "name": "Extended Hull",
+    "scope": "global",
+    "targets": ["capital"],
+    "description": "Your ship subtracts 2″ from its speed in exchange for +1 to its hull. Or it may exchange 4″ from its speed for +2 hull. Ships may not reduce speed below 4″.",
+    "options": [
+      {
+        "name": "+1 Hull",
+        "effects": [
+          {"type": "statChange", "stat": "Speed", "delta": -2},
+          {"type": "statChange", "stat": "Hull", "delta": 1}
+        ]
+      },
+      {
+        "name": "+2 Hull",
+        "effects": [
+          {"type": "statChange", "stat": "Speed", "delta": -4},
+          {"type": "statChange", "stat": "Hull", "delta": 2}
+        ]
+      }
+    ],
+    "constraints": {"speedMin": 4},
+    "notes": ["Trade speed for hull points"]
+  },
+  {
+    "id": "refit:global:advanced-shield-batteries",
+    "name": "Advanced Shield Batteries",
+    "scope": "global",
+    "targets": ["capital"],
+    "description": "Your ship sacrifices one of its hull weapon slots to gain +2 to its shield value.",
+    "effects": [
+      {"type": "slotLoss", "slot": "hull", "count": 1},
+      {"type": "statChange", "stat": "Shields", "delta": 2}
+    ],
+    "notes": ["Lose hull weapon slot for +2 shields"]
+  },
+  {
+    "id": "refit:global:heavy-armour",
+    "name": "Heavy Armour",
+    "scope": "global",
+    "targets": ["capital"],
+    "description": "Your ship sacrifices one shield and one flak in exchange for +1 armour (max 3).",
+    "effects": [
+      {"type": "statChange", "stat": "Shields", "delta": -1},
+      {"type": "statChange", "stat": "Flak", "delta": -1},
+      {"type": "statChange", "stat": "Armour", "delta": 1}
+    ],
+    "constraints": {"armourMax": 3},
+    "notes": ["Trade shields + flak for armour (max 3)"]
+  },
+  {
+    "id": "refit:global:enhanced-engines",
+    "name": "Enhanced Engines",
+    "scope": "global",
+    "targets": ["capital"],
+    "description": "Your ship subtracts one from its armour value in exchange for +4″ speed.",
+    "effects": [
+      {"type": "statChange", "stat": "Armour", "delta": -1},
+      {"type": "statChange", "stat": "Speed", "delta": 4}
+    ],
+    "notes": ["Trade armour for +4\" speed"]
+  },
+  {
+    "id": "refit:global:enhanced-flak-squadron",
+    "name": "Enhanced Flak",
+    "scope": "global",
+    "targets": ["squadron"],
+    "description": "A squadron sacrifices 1 point from their shields to gain +1 to their flak value.",
+    "effects": [
+      {"type": "statChange", "stat": "Shields", "delta": -1},
+      {"type": "statChange", "stat": "Flak", "delta": 1}
+    ],
+    "notes": ["Trade shields for flak"]
+  },
+  {
+    "id": "refit:global:enhanced-shields-squadron",
+    "name": "Enhanced Shields",
+    "scope": "global",
+    "targets": ["squadron"],
+    "description": "A squadron sacrifices 1 point from their flak to gain +1 to their shield value. Squadrons with a flak score of zero may no longer offer flak support.",
+    "effects": [
+      {"type": "statChange", "stat": "Flak", "delta": -1},
+      {"type": "statChange", "stat": "Shields", "delta": 1}
+    ],
+    "notes": ["Trade flak for shields", "Ships with 0 flak cannot provide flak support"]
+  },
+  {
+    "id": "refit:global:bulky-design",
+    "name": "Bulky Design",
+    "scope": "global",
+    "targets": ["squadron"],
+    "description": "A squadron gains +1 to their hull value. They must subtract 1 from either their shields, or their flak value.",
+    "options": [
+      {
+        "name": "Subtract from Shields",
+        "effects": [
+          {"type": "statChange", "stat": "Shields", "delta": -1},
+          {"type": "statChange", "stat": "Hull", "delta": 1}
+        ]
+      },
+      {
+        "name": "Subtract from Flak",
+        "effects": [
+          {"type": "statChange", "stat": "Flak", "delta": -1},
+          {"type": "statChange", "stat": "Hull", "delta": 1}
+        ]
+      }
+    ],
+    "notes": ["Hull +1, choose to lose shields or flak", "Ships with >1 hull not small targets"]
+  }
+]

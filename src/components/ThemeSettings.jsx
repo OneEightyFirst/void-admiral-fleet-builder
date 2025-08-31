@@ -24,7 +24,7 @@ const ThemeSettings = () => {
 
   return (
     <Box sx={{ maxWidth: 800, mx: 'auto' }}>
-      <Typography variant="h4" sx={{ fontWeight: 700, color: 'text.primary', mb: 1 }}>
+      <Typography variant="h4" className="page-subtitle">
         Theme Settings
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>

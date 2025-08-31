@@ -33,7 +33,7 @@ const CreateNewFleetView = ({
       minHeight: '60vh',
       textAlign: 'center'
     }}>
-      <Typography variant="h4" sx={{ mb: 1, color: 'white' }}>
+      <Typography variant="h4" className="page-title">
         Create New Fleet
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
