@@ -484,6 +484,12 @@ body {
     margin-top: $spacing-sm;
   }
   
+  &__header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
   &__new-fleet-button {
     padding: 0.5rem 1rem;
     border: 1px solid rgba(255, 255, 255, 0.3);
@@ -497,6 +503,42 @@ body {
     &:hover {
       border-color: var(--primary-color);
       background-color: rgba(25, 118, 210, 0.08);
+    }
+  }
+  
+  &__mode-toggle {
+    display: flex;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  
+  &__mode-button {
+    padding: 6px 12px;
+    border: none;
+    background-color: var(--bg-paper);
+    color: var(--text-primary);
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background-color: var(--bg-secondary);
+    }
+    
+    &--active {
+      background-color: var(--primary-color);
+      color: white;
+      
+      &:hover {
+        background-color: var(--primary-color);
+        opacity: 0.9;
+      }
+    }
+    
+    &:first-child {
+      border-right: 1px solid var(--border-color);
     }
   }
   
@@ -658,6 +700,12 @@ body {
   border: none;
   border-radius: 8px;
   overflow: hidden;
+  
+  // Play mode: disable all interactivity
+  .play-view & {
+    pointer-events: none;
+    user-select: none;
+  }
   
   &__header {
     padding: $spacing-md;
@@ -943,6 +991,11 @@ body {
     
     &-counter {
       font-weight: 400;
+      
+      &--hidden {
+        opacity: 0;
+        visibility: hidden;
+      }
     }
   }
 
@@ -956,6 +1009,11 @@ body {
     font-size: 0.625rem;
     opacity: 0.6;
     font-style: italic;
+    
+    &--hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
   }
 
   &__table-header {
@@ -972,6 +1030,23 @@ body {
     letter-spacing: 0.05em;
     text-align: center;
     opacity: 0.8;
+    line-height: 1.5rem;
+  }
+
+  &__separator {
+    height: 1px;
+    background-color: var(--primary-color);
+    display: none; // Hidden by default
+    
+    // Only show in play mode
+    .play-view & {
+      display: block;
+    }
+  }
+  
+  // Play mode: remove header padding when content is hidden
+  .play-view &__header {
+    padding: 0;
   }
 
   &__rows {
@@ -1038,6 +1113,22 @@ body {
     border-radius: 8px;
     border: 1px solid var(--primary-color);
   }
+  
+  &__ship-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    background-color: transparent;
+    border: 3px solid var(--text-secondary);
+    border-radius: 50%;
+    margin-right: 0.5rem;
+    flex-shrink: 0;
+  }
 
   &__target,
   &__attacks,
@@ -1045,6 +1136,17 @@ body {
     text-align: center;
     font-size: 0.875rem;
     font-weight: 500;
+  }
+  
+  // Play mode: compact weapon rows
+  .play-view & {
+    min-height: auto;
+    border-left: none; // Remove 5px left border
+  }
+  
+  .play-view &__content {
+    min-height: auto;
+    height: auto;
   }
 }
 
@@ -1347,6 +1449,11 @@ body {
     font-size: 0.75rem;
     opacity: 0.7;
     font-weight: 500;
+    
+    &--hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
   }
 
   &__column-label {

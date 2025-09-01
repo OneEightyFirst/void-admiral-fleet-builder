@@ -20,7 +20,8 @@ const BeginsWithSection = ({
   beginsWith, 
   squadronRefit = null,
   getWeaponData = null,
-  shipDef = null
+  shipDef = null,
+  isPlayMode = false
 }) => {
   if (!beginsWith || beginsWith.length === 0) {
     return null;

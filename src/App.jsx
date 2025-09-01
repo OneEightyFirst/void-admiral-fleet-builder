@@ -34,23 +34,7 @@ import { collection, addDoc, getDocs, deleteDoc, doc, query, where, orderBy, set
 function AppContent(){
   const { muiTheme, currentTheme } = useTheme();
 
-  // Apply theme class to body element
-  useEffect(() => {
-    // Remove any existing theme classes
-    document.body.classList.remove('theme-space', 'theme-dark', 'theme-default', 'theme-vintage');
-    
-    // Add current theme class
-    if (currentTheme) {
-      document.body.classList.add(`theme-${currentTheme}`);
-      console.log('🎨 Applied theme class:', `theme-${currentTheme}`);
-    }
-    
-    // Cleanup function to remove theme class when component unmounts
-    return () => {
-      document.body.classList.remove('theme-space', 'theme-dark', 'theme-default', 'theme-vintage');
-    };
-  }, [currentTheme]);
-
+  // State declarations first
   const [tab,setTab] = useState(0);
   const [faction,setFaction] = useState("Loyalists");
   const [points,setPoints] = useState(30);
@@ -69,6 +53,38 @@ function AppContent(){
   const [factionsLoading, setFactionsLoading] = useState(true);
   const [useRefits, setUseRefits] = useState(false);
   const [useJuggernauts, setUseJuggernauts] = useState(false);
+  const [isPlayMode, setIsPlayMode] = useState(false);
+
+  // Apply theme class to body element
+  useEffect(() => {
+    // Remove any existing theme classes
+    document.body.classList.remove('theme-space', 'theme-dark', 'theme-default', 'theme-vintage');
+    
+    // Add current theme class
+    if (currentTheme) {
+      document.body.classList.add(`theme-${currentTheme}`);
+      console.log('🎨 Applied theme class:', `theme-${currentTheme}`);
+    }
+    
+    // Cleanup function to remove theme class when component unmounts
+    return () => {
+      document.body.classList.remove('theme-space', 'theme-dark', 'theme-default', 'theme-vintage');
+    };
+  }, [currentTheme]);
+
+  // Apply play-view class to body when in play mode
+  useEffect(() => {
+    if (isPlayMode) {
+      document.body.classList.add('play-view');
+    } else {
+      document.body.classList.remove('play-view');
+    }
+    
+    // Cleanup function
+    return () => {
+      document.body.classList.remove('play-view');
+    };
+  }, [isPlayMode]);
   
   const isMobile = useMediaQuery(muiTheme.breakpoints.down('md'));
   
@@ -887,11 +903,6 @@ function AppContent(){
                   iconPosition="start"
                 />
                 <Tab 
-                  label="Play"
-                  icon={<PlayIcon/>} 
-                  iconPosition="start"
-                />
-                <Tab 
                   label="Fleets"
                   icon={<FolderIcon/>} 
                   iconPosition="start"
@@ -948,14 +959,10 @@ function AppContent(){
                 <ListItemText primary="Build" />
               </ListItem>
               <ListItem button onClick={() => { setTab(1); setDrawerOpen(false); }}>
-                <ListItemIcon><PlayIcon /></ListItemIcon>
-                <ListItemText primary="Play" />
-              </ListItem>
-              <ListItem button onClick={() => { setTab(2); setDrawerOpen(false); }}>
                 <ListItemIcon><FolderIcon /></ListItemIcon>
                 <ListItemText primary="Fleets" />
               </ListItem>
-              <ListItem button onClick={() => { setTab(3); setDrawerOpen(false); }}>
+              <ListItem button onClick={() => { setTab(2); setDrawerOpen(false); }}>
                 <ListItemIcon><PaletteIcon /></ListItemIcon>
                 <ListItemText primary="Theme" />
               </ListItem>
@@ -1042,20 +1049,13 @@ function AppContent(){
                 saveFleet={saveFleet}
                 startNewFleet={startNewFleet}
                 signInWithGoogle={signInWithGoogle}
+                isPlayMode={isPlayMode}
+                setIsPlayMode={setIsPlayMode}
               />
             )
           )}
 
           {tab===1 && (
-            <PlayView
-              faction={faction}
-              roster={roster}
-              ships={ships}
-              factions={FACTIONS}
-            />
-          )}
-
-          {tab===2 && (
             <FleetsView
               user={user}
               savedFleets={savedFleets}
@@ -1068,7 +1068,7 @@ function AppContent(){
             />
           )}
 
-          {tab===3 && (
+          {tab===2 && (
             <ThemeSettings />
           )}
         </Box>

@@ -8,7 +8,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { getStatDisplayName, formatStatValue, calculateEffectiveHullSlots } from '../utils/gameUtils';
 import { hasRefit, getRefitName, getRefitNotes } from '../utils/refitDisplayUtils';
 import { getWeaponDataByIndex } from '../utils/refits/weaponData';
-import { ProwIcon, HullIcon } from './SVGComponents';
+import { ProwIcon, HullIcon, RearIcon } from './SVGComponents';
 import BeginsWithSection from './shared/BeginsWithSection';
 
 // Helper functions for weapon display
@@ -40,6 +40,20 @@ const formatCondensedStats = (weaponData) => {
   return parts.join(' · ');
 };
 
+// Helper function to get weapon icon based on location
+const getWeaponIcon = (location, size = 14) => {
+  switch (location) {
+    case 'prow':
+      return <ProwIcon size={size} />;
+    case 'hull':
+      return <HullIcon size={size} />;
+    case 'rear':
+      return <RearIcon size={size} />;
+    default:
+      return <ProwIcon size={size} />;
+  }
+};
+
 // Swipeable Weapon Row Component
 const SwipeableWeaponRow = ({ 
   weaponName, 
@@ -50,7 +64,10 @@ const SwipeableWeaponRow = ({
   onCountChange,
   onTap,
   onPreciseEdit,
-  sectionType
+  sectionType,
+  weaponLocation = 'prow', // 'prow', 'hull', 'rear'
+  isPlayMode = false,
+  shipNumber = null // For squadrons: 1, 2, 3, etc.
 }) => {
   const [startX, setStartX] = React.useState(0);
   const [isDragging, setIsDragging] = React.useState(false);
@@ -184,8 +201,15 @@ const SwipeableWeaponRow = ({
         }}
       >
         <div className="weapon-row__name">
+          {isPlayMode && (
+            <>
+              {shipNumber && <span className="weapon-row__ship-number">{shipNumber}</span>}
+              {getWeaponIcon(weaponLocation, 14)}
+              {' '}
+            </>
+          )}
           {weaponName}
-          {currentCount > 1 && (
+          {(!isPlayMode || !shipNumber) && currentCount > 1 && (
             <span className="weapon-row__count">x{currentCount}</span>
           )}
         </div>
@@ -224,7 +248,9 @@ const BuildViewCard = ({
   onSelectWeapon,
   onAddWeapon,
   onRemoveWeapon,
-  children // For weapon selection UI that comes from the parent (legacy support)
+  children, // For weapon selection UI that comes from the parent (legacy support)
+  // View mode
+  isPlayMode = false
 }) => {
   // Determine if this is a squadron or single ship based on shipDef.squadron
   const isSquadron = shipDef?.squadron === true;
@@ -426,30 +452,63 @@ const BuildViewCard = ({
               return (
                 <div className="weapon-section">
                   <div className="weapon-section__header weapon-section__header--sticky">
-                    <div className="weapon-section__title">
-                      <ProwIcon size={16} />
-                      <span>Prow Weapons <span className="weapon-section__title-counter">(Select {totalSelected}/{maxWeapons})</span></span>
-                    </div>
-                    <div className="weapon-section__table-header">
-                      <div className="weapon-section__helper">Swipe to adjust.</div>
-                      <div className="weapon-section__column-label">Target</div>
-                      <div className="weapon-section__column-label">Attacks</div>
-                      <div className="weapon-section__column-label">Range</div>
-                    </div>
+                    {!isPlayMode && (
+                      <div className="weapon-section__title">
+                        <ProwIcon size={16} />
+                        <span>Prow Weapons <span className="weapon-section__title-counter">(Select {totalSelected}/{maxWeapons}) - Each weapon = 1 ship</span></span>
+                      </div>
+                    )}
+                    {!isPlayMode && (
+                      <div className="weapon-section__table-header">
+                        <div className="weapon-section__helper">Swipe to adjust.</div>
+                        <div className="weapon-section__column-label">Target</div>
+                        <div className="weapon-section__column-label">Attacks</div>
+                        <div className="weapon-section__column-label">Range</div>
+                      </div>
+                    )}
+
                   </div>
 
                   <div className="weapon-section__rows">
-                    {currentShipDef.prow.options.map((option, optionIndex) => {
-                      // Handle both string and object formats for prow weapons
-                      const selectedCount = (currentShip.loadout?.prow || []).filter(p => {
-                        if (typeof p === 'string') {
-                          return p === option.name;
+                    {currentShipDef.prow.options
+                      .map((option, optionIndex) => {
+                        // Handle both string and object formats for prow weapons
+                        const selectedCount = (currentShip.loadout?.prow || []).filter(p => {
+                          if (typeof p === 'string') {
+                            return p === option.name;
+                          }
+                          return p.optionIndex === optionIndex;
+                        }).length;
+                        
+                        // In play mode, only show selected weapons
+                        if (isPlayMode && selectedCount === 0) {
+                          return null;
                         }
-                        return p.optionIndex === optionIndex;
-                      }).length;
-                      const weaponData = getWeaponDataByIndex({ optionIndex }, currentShipDef, 'prow', currentShip);
-                      
-                      return (
+                        
+                        const weaponData = getWeaponDataByIndex({ optionIndex }, currentShipDef, 'prow', currentShip);
+                        
+                        // In play mode for squadrons, render individual weapon instances with ship numbers
+                        if (isPlayMode && selectedCount > 0) {
+                          return Array.from({ length: selectedCount }, (_, index) => (
+                            <SwipeableWeaponRow
+                              key={`${optionIndex}-${index}`}
+                              weaponName={option.name}
+                              weaponData={weaponData}
+                              currentCount={1}
+                              maxCount={1}
+                              isMaxed={true}
+                              sectionType="single"
+                              weaponLocation="prow"
+                              isPlayMode={isPlayMode}
+                              shipNumber={index + 1}
+                              onCountChange={() => {}} // No interaction in play mode
+                              onTap={() => {}} // No interaction in play mode
+                              onPreciseEdit={() => {}} // No interaction in play mode
+                            />
+                          ));
+                        }
+                        
+                        return (
                         <SwipeableWeaponRow
                           key={optionIndex}
                           weaponName={option.name}
@@ -458,6 +517,8 @@ const BuildViewCard = ({
                           maxCount={maxWeapons}
                           isMaxed={remaining === 0 && selectedCount > 0}
                           sectionType="multi"
+                          weaponLocation="prow"
+                          isPlayMode={isPlayMode}
                           onCountChange={(newCount) => {
                             const delta = newCount - selectedCount;
                             if (delta > 0) {
@@ -477,7 +538,7 @@ const BuildViewCard = ({
                           }}
                         />
                       );
-                    })}
+                    }).filter(Boolean).flat()}
                   </div>
 
                   {/* Info Alert for Squadron Prow - moved below weapon rows */}
@@ -495,21 +556,32 @@ const BuildViewCard = ({
               return (
                 <div className="weapon-section">
                   <div className="weapon-section__header weapon-section__header--sticky">
-                    <div className="weapon-section__title">
-                      <ProwIcon size={16} />
-                      <span>Prow Weapons <span className="weapon-section__title-counter">(Select 1)</span></span>
-                    </div>
-                    <div className="weapon-section__table-header">
-                      <div className="weapon-section__helper">Tap a row to select.</div>
-                      <div className="weapon-section__column-label">Target</div>
-                      <div className="weapon-section__column-label">Attacks</div>
-                      <div className="weapon-section__column-label">Range</div>
-                    </div>
+                    {!isPlayMode && (
+                      <div className="weapon-section__title">
+                        <ProwIcon size={16} />
+                        <span>Prow Weapons <span className="weapon-section__title-counter">(Select 1)</span></span>
+                      </div>
+                    )}
+                    {!isPlayMode && (
+                      <div className="weapon-section__table-header">
+                        <div className="weapon-section__helper">Tap a row to select.</div>
+                        <div className="weapon-section__column-label">Target</div>
+                        <div className="weapon-section__column-label">Attacks</div>
+                        <div className="weapon-section__column-label">Range</div>
+                      </div>
+                    )}
+
                   </div>
 
                   <div className="weapon-section__rows">
                     {currentShipDef.prow.options.map((option, optionIndex) => {
                       const isOptionSelected = currentShip.loadout?.prow?.optionIndex === optionIndex;
+                      
+                      // In play mode, only show selected weapons
+                      if (isPlayMode && !isOptionSelected) {
+                        return null;
+                      }
+                      
                       const weaponData = getWeaponDataByIndex({ optionIndex }, currentShipDef, 'prow', currentShip);
                       
                       return (
@@ -521,6 +593,8 @@ const BuildViewCard = ({
                           maxCount={1}
                           isMaxed={isOptionSelected}
                           sectionType="single"
+                          weaponLocation="prow"
+                          isPlayMode={isPlayMode}
                           onCountChange={(newCount) => {
                             // Single-select doesn't use swipe, only tap
                           }}
@@ -544,7 +618,7 @@ const BuildViewCard = ({
                           }}
                         />
                       );
-                    })}
+                    }).filter(Boolean)}
                   </div>
 
                   {/* Info Alert for Capital Ship Prow - moved below weapon rows */}
@@ -564,76 +638,150 @@ const BuildViewCard = ({
             const totalSelected = (currentShip.loadout?.hull || []).length;
             const effectiveSlots = calculateEffectiveHullSlots(currentShip, currentShipDef);
             const remaining = effectiveSlots - totalSelected;
+            const isSingleSelect = effectiveSlots === 1;
             
             return (
               <div className="weapon-section">
                 <div className="weapon-section__header weapon-section__header--sticky">
-                  <div className="weapon-section__title">
-                    <HullIcon size={16} />
-                    <span>Hull Weapons <span className="weapon-section__title-counter">(Select {totalSelected}/{effectiveSlots})</span></span>
-                  </div>
-                  <div className="weapon-section__table-header">
-                    <div className="weapon-section__helper">Swipe to adjust.</div>
-                    <div className="weapon-section__column-label">Target</div>
-                    <div className="weapon-section__column-label">Attacks</div>
-                    <div className="weapon-section__column-label">Range</div>
-                  </div>
+                  {!isPlayMode && (
+                    <div className="weapon-section__title">
+                      <HullIcon size={16} />
+                      <span>Hull Weapons <span className="weapon-section__title-counter">{isSingleSelect ? `(Select 1)` : `(Select ${totalSelected}/${effectiveSlots})`}</span></span>
+                    </div>
+                  )}
+                  {!isPlayMode && (
+                    <div className="weapon-section__table-header">
+                      <div className="weapon-section__helper">{isSingleSelect ? 'Tap a row to select.' : 'Swipe to adjust.'}</div>
+                      <div className="weapon-section__column-label">Target</div>
+                      <div className="weapon-section__column-label">Attacks</div>
+                      <div className="weapon-section__column-label">Range</div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="weapon-section__rows">
                   {currentShipDef.hull.options.map((option, optionIndex) => {
-                    // Handle both string and object formats for hull weapons
-                    const selectedCount = (currentShip.loadout?.hull || []).filter(h => {
-                      if (typeof h === 'string') {
-                        return h === option.name;
+                    if (isSingleSelect) {
+                      // Single-select logic (like prow weapons)
+                      const isSelected = (currentShip.loadout?.hull || []).some(h => {
+                        if (typeof h === 'string') {
+                          return h === option.name;
+                        }
+                        return h.optionIndex === optionIndex;
+                      });
+                      
+                      // In play mode, only show selected weapons
+                      if (isPlayMode && !isSelected) {
+                        return null;
                       }
-                      return h.optionIndex === optionIndex;
-                    }).length;
-                    const weaponData = getWeaponDataByIndex({ optionIndex }, currentShipDef, 'hull', currentShip);
-                    
-                    return (
-                      <SwipeableWeaponRow
-                        key={optionIndex}
-                        weaponName={option.name}
-                        weaponData={weaponData}
-                        currentCount={selectedCount}
-                        maxCount={currentShipDef.hull.select}
-                        isMaxed={remaining === 0 && selectedCount > 0}
-                        sectionType="multi"
-                        onCountChange={(newCount) => {
-                          const delta = newCount - selectedCount;
-                          if (delta > 0) {
-                            // Add weapons - pass weapon name, not index
-                            for (let i = 0; i < delta; i++) {
-                              onAddWeapon && onAddWeapon('hull', option.name);
+                      
+                      const weaponData = getWeaponDataByIndex({ optionIndex }, currentShipDef, 'hull', currentShip);
+                      
+                      return (
+                        <SwipeableWeaponRow
+                          key={optionIndex}
+                          weaponName={option.name}
+                          weaponData={weaponData}
+                          currentCount={isSelected ? 1 : 0}
+                          maxCount={1}
+                          isMaxed={isSelected}
+                          sectionType="single"
+                          weaponLocation="hull"
+                          isPlayMode={isPlayMode}
+                          onCountChange={(newCount) => {
+                            // Single-select doesn't use swipe, only tap
+                          }}
+                          onTap={() => {
+                            // Tap to select for single-select weapons
+                            if (isSelected) {
+                              // If already selected, clear selection
+                              onSelectWeapon && onSelectWeapon('hull', null);
+                            } else {
+                              // Select this weapon with optionIndex format
+                              onSelectWeapon && onSelectWeapon('hull', { optionIndex, name: option.name });
                             }
-                          } else if (delta < 0) {
-                            // Remove weapons - pass weapon name, not index
-                            for (let i = 0; i < Math.abs(delta); i++) {
-                              onRemoveWeapon && onRemoveWeapon('hull', option.name);
+                          }}
+                          onPreciseEdit={() => {
+                            // For single-select, precise edit just toggles selection
+                            if (isSelected) {
+                              onSelectWeapon && onSelectWeapon('hull', null);
+                            } else {
+                              onSelectWeapon && onSelectWeapon('hull', { optionIndex, name: option.name });
                             }
-                          }
-                        }}
-                        onPreciseEdit={() => {
-                          // Open precise edit modal/sheet
-                        }}
-                      />
-                    );
-                  })}
+                          }}
+                        />
+                      );
+                    } else {
+                      // Multi-select logic (existing)
+                      const selectedCount = (currentShip.loadout?.hull || []).filter(h => {
+                        if (typeof h === 'string') {
+                          return h === option.name;
+                        }
+                        return h.optionIndex === optionIndex;
+                      }).length;
+                      
+                      // In play mode, only show selected weapons
+                      if (isPlayMode && selectedCount === 0) {
+                        return null;
+                      }
+                      
+                      const weaponData = getWeaponDataByIndex({ optionIndex }, currentShipDef, 'hull', currentShip);
+                      
+                      return (
+                        <SwipeableWeaponRow
+                          key={optionIndex}
+                          weaponName={option.name}
+                          weaponData={weaponData}
+                          currentCount={selectedCount}
+                          maxCount={currentShipDef.hull.select}
+                          isMaxed={remaining === 0 && selectedCount > 0}
+                          sectionType="multi"
+                          weaponLocation="hull"
+                          isPlayMode={isPlayMode}
+                          onCountChange={(newCount) => {
+                            const delta = newCount - selectedCount;
+                            if (delta > 0) {
+                              // Add weapons - pass weapon name, not index
+                              for (let i = 0; i < delta; i++) {
+                                onAddWeapon && onAddWeapon('hull', option.name);
+                              }
+                            } else if (delta < 0) {
+                              // Remove weapons - pass weapon name, not index
+                              for (let i = 0; i < Math.abs(delta); i++) {
+                                onRemoveWeapon && onRemoveWeapon('hull', option.name);
+                              }
+                            }
+                          }}
+                          onPreciseEdit={() => {
+                            // Open precise edit modal/sheet
+                          }}
+                        />
+                      );
+                    }
+                  }).filter(Boolean)}
                 </div>
 
                 {/* Info Alert for Hull - moved below weapon rows */}
-                {remaining > 0 && (
-                  <div className="weapon-section__alert">
-                    <Alert severity="info">Choose {remaining} more hull weapon(s).</Alert>
-                  </div>
+                {isSingleSelect ? (
+                  !totalSelected && (
+                    <div className="weapon-section__alert">
+                      <Alert severity="info">Pick {effectiveSlots} hull option.</Alert>
+                    </div>
+                  )
+                ) : (
+                  remaining > 0 && (
+                    <div className="weapon-section__alert">
+                      <Alert severity="info">Choose {remaining} more hull weapon(s).</Alert>
+                    </div>
+                  )
                 )}
               </div>
             );
           })()}
       </div>
 
-
+      {/* Separator between weapon sections */}
+      <div className="weapon-section__separator"></div>
 
       {/* Refit and other rule notations */}
       {refitInfo.hasRefit && (

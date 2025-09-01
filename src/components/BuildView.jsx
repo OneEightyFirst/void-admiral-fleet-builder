@@ -124,7 +124,9 @@ const BuildView = ({
   removeRefitFromGroup,
   saveFleet,
   startNewFleet,
-  signInWithGoogle
+  signInWithGoogle,
+  isPlayMode,
+  setIsPlayMode
 }) => {
 
   
@@ -477,13 +479,30 @@ const BuildView = ({
           />
         </div>
         
-        {/* New Fleet Button */}
-        <button 
-          className="build-view__new-fleet-button"
+        {/* New Fleet Button and Build/Play Toggle */}
+        <div className="build-view__header-actions">
+          <button 
+            className="build-view__new-fleet-button"
           onClick={startNewFleet}
         >
           New Fleet
-        </button>
+          </button>
+          
+          <div className="build-view__mode-toggle">
+            <button 
+              className={`build-view__mode-button ${!isPlayMode ? 'build-view__mode-button--active' : ''}`}
+              onClick={() => setIsPlayMode(false)}
+            >
+              Build
+            </button>
+            <button 
+              className={`build-view__mode-button ${isPlayMode ? 'build-view__mode-button--active' : ''}`}
+              onClick={() => setIsPlayMode(true)}
+            >
+              Play
+            </button>
+          </div>
+        </div>
       </div>
       
       {!user && (
@@ -500,6 +519,7 @@ const BuildView = ({
       )}
 
       <Grid container spacing={2}>
+        {!isPlayMode && (
         <Grid item xs={12} md={3}>
           <Card><CardContent>
             <FormControl fullWidth size="small" className="build-view__form-control--mb-2">
@@ -606,8 +626,9 @@ const BuildView = ({
             </Stack>
           </CardContent></Card>
         </Grid>
+        )}
 
-        <Grid item xs={12} md={9}>
+        <Grid item xs={12} md={isPlayMode ? 12 : 9}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <Card>
@@ -694,6 +715,7 @@ const BuildView = ({
                         faction={faction}
                         onDuplicateGroup={duplicateGroup}
                         onRemoveGroup={removeGroup}
+                        isPlayMode={isPlayMode}
                         onSelectWeapon={(location, weaponOption) => {
                           // For squadrons, apply weapon selection to the first available ship
                           const targetShip = squadronShips.find(ship => {
@@ -772,6 +794,7 @@ const BuildView = ({
                                 squadronRefit={squadronShips[0]?.squadronRefit}
                                 getWeaponData={getWeaponDataByIndex}
                                 shipDef={def}
+                                isPlayMode={isPlayMode}
                               />
                         </Grid>
                         )}
@@ -843,10 +866,29 @@ const BuildView = ({
                         onRemoveShip={removeShip}
                         onRemoveGroup={removeGroup}
                         onSelectWeapon={(location, weaponOption) => {
-                          // Handle weapon selection (prow only allows one)
+                          // Handle weapon selection (prow and single-slot hull)
                           if (location === 'prow') {
-
                             pickProw(s.id, weaponOption);
+                          } else if (location === 'hull') {
+                            // Handle single-select hull weapons (when effective slots = 1)
+                            if (weaponOption === null) {
+                              // Clear hull selection
+                              // Remove all hull weapons first
+                              const currentHull = s.loadout?.hull || [];
+                              currentHull.forEach(weapon => {
+                                const weaponName = typeof weapon === 'string' ? weapon : weapon.name;
+                                removeHullByName(s.id, weaponName, def);
+                              });
+                            } else {
+                              // Clear existing hull selection and add new one
+                              const currentHull = s.loadout?.hull || [];
+                              currentHull.forEach(weapon => {
+                                const weaponName = typeof weapon === 'string' ? weapon : weapon.name;
+                                removeHullByName(s.id, weaponName, def);
+                              });
+                              // Add the new weapon
+                              addHull(s.id, weaponOption.name, def);
+                            }
                           }
                         }}
                         onAddWeapon={(location, weaponName) => {
@@ -861,6 +903,7 @@ const BuildView = ({
                             removeHullByName(s.id, weaponName, def);
                           }
                         }}
+                        isPlayMode={isPlayMode}
                       />
                     </Grid>
                   );

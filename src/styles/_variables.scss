@@ -24,6 +24,7 @@
   --text-primary: #ffffff;
   --text-secondary: rgba(255, 255, 255, 0.7);
   --text-disabled: rgba(255, 255, 255, 0.38);
+  --text-header: #1f1f1f;
   
   // Border colors (theme-dependent)
   --border-color: rgba(255, 255, 255, 0.12);
@@ -76,6 +77,9 @@ $transition-fast: 0.15s ease;
 $transition-slow: 0.5s ease;
 
 // Typography
+$font-family-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+$font-family-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', monospace;
+
 $font-size-xs: 0.75rem;
 $font-size-sm: 0.875rem;
 $font-size-md: 1rem;
@@ -89,3 +93,8 @@ $font-weight-semibold: 600;
 $font-weight-bold: 700;
 $font-weight-black: 800;
 $font-weight-heavy: 900;
+
+$line-height-tight: 1.25;
+$line-height-normal: 1.5;
+$line-height-relaxed: 1.625;
+$line-height-loose: 2;
