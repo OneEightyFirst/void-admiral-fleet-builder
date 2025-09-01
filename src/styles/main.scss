@@ -514,14 +514,17 @@ body {
   }
   
   &__mode-button {
-    padding: 6px 12px;
+    padding: 8px;
     border: none;
     background-color: var(--bg-paper);
     color: var(--text-primary);
     cursor: pointer;
-    font-size: 0.875rem;
-    font-weight: 500;
     transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
     
     &:hover {
       background-color: var(--bg-secondary);
@@ -541,6 +544,45 @@ body {
       border-right: 1px solid var(--border-color);
     }
   }
+  
+  &__icon-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-paper);
+    color: var(--text-primary);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover:not(:disabled) {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+      color: white;
+    }
+    
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    &--saved {
+      background-color: #4caf50;
+      border-color: #4caf50;
+      color: white;
+      
+      &:hover {
+        background-color: #4caf50;
+        border-color: #4caf50;
+        opacity: 0.9;
+      }
+    }
+  }
+  
+
   
   &__sign-in-container {
     margin-bottom: 24px;
@@ -692,6 +734,117 @@ body {
     bottom: 16px;
     right: 16px;
     z-index: 1000;
+  }
+  
+  &__ship-paper {
+    margin-bottom: 8px;
+  }
+  
+  &__fluff-paper {
+    margin-bottom: 8px;
+  }
+  
+  &__rule-paper {
+    margin-bottom: 8px;
+  }
+  
+  &__ability-paper {
+    margin-bottom: 8px;
+  }
+  
+  &__refit-paper {
+    margin-bottom: 8px;
+  }
+  
+  &__form-control {
+    &--mb-2.MuiFormControl-root {
+      margin-bottom: 16px !important;
+    }
+    
+    &--mt-1.MuiFormControl-root {
+      margin-top: 8px !important;
+    }
+  }
+  
+  &__divider {
+    &--my-2.MuiDivider-root {
+      margin-top: 8px !important;
+      margin-bottom: 8px !important;
+    }
+    
+    &--my-1.MuiDivider-root {
+      margin-top: 4px !important;
+      margin-bottom: 4px !important;
+    }
+  }
+  
+  &__secondary-nav {
+    position: sticky;
+    top: 55px;
+    z-index: 1100;
+    background-color: var(--bg-paper);
+    border-bottom: 1px solid var(--border-color);
+    padding: 12px 24px;
+    margin-bottom: 24px;
+    box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.2), 0px 4px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 10px 0px rgba(0, 0, 0, 0.12);
+    
+    &-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 0 auto;
+      
+      @media (max-width: 849px) {
+        flex-direction: column;
+        gap: 12px;
+        align-items: stretch;
+      }
+    }
+    
+    &-left {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      
+      @media (max-width: 849px) {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+      }
+    }
+    
+    // Name and faction container
+    &-name-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      
+      @media (max-width: 849px) {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        width: 100%;
+      }
+    }
+    
+    // Buttons container
+    &-buttons-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-left: auto; // Push to right on desktop
+      
+      @media (max-width: 849px) {
+        justify-content: space-between;
+        width: 100%;
+        margin-left: 0;
+      }
+    }
+  }
+  
+  &__main-grid.MuiGrid-root {
+    padding: 16px !important;
+    padding-bottom: 64px !important;
   }
 }
 
@@ -1060,11 +1213,26 @@ body {
   cursor: grab;
   user-select: none;
   touch-action: pan-x;
-  border-bottom: 1px solid var(--border-color);
   overflow: hidden;
 
-  &:last-child {
-    border-bottom: none;
+  &__content {
+    position: relative;
+    z-index: 2;
+    background-color: var(--bg-paper);
+    min-height: 64px;
+    display: grid;
+    grid-template-columns: 1fr auto auto auto;
+    align-items: center;
+    padding: 0 $spacing-md;
+    gap: $spacing-sm;
+    border-left: 5px solid transparent;
+    transition: transform 200ms ease-out;
+
+    .play-view & {
+      min-height: auto;
+      height: auto;
+      border-left: none;
+    }
   }
 
   &--dragging {
@@ -1147,6 +1315,22 @@ body {
   .play-view &__content {
     min-height: auto;
     height: auto;
+  }
+  
+  // Indent begins-with weapons that don't have ship numbers in Play mode
+  .play-view &__name:not(:has(.weapon-row__ship-number)) {
+    margin-left: 2.2rem; // Adjusted indentation for begins-with weapons
+  }
+}
+
+// Squadron ship separator for Play mode
+.squadron-ship-separator {
+  display: none;
+  border-bottom: 1px solid var(--primary-color);
+  
+  // Only show in Play mode
+  .play-view & {
+    display: block;
   }
 }
 

@@ -81,7 +81,7 @@ export const Logo = ({ height = 32, className = '' }) => {
 };
 
 // Prow weapons - double chevron pointing up
-export const ProwIcon = ({ size = 16, className = '' }) => {
+export const ProwIcon = ({ size = 14, className = '' }) => {
   return (
     <svg 
       width={size} 
@@ -105,7 +105,7 @@ export const ProwIcon = ({ size = 16, className = '' }) => {
 };
 
 // Rear weapons - double chevron pointing down (for Merchants)
-export const RearIcon = ({ size = 16, className = '' }) => {
+export const RearIcon = ({ size = 14, className = '' }) => {
   return (
     <svg 
       width={size} 
@@ -129,7 +129,7 @@ export const RearIcon = ({ size = 16, className = '' }) => {
 };
 
 // Hull weapons - double chevron pointing sideways
-export const HullIcon = ({ size = 16, className = '' }) => {
+export const HullIcon = ({ size = 14, className = '' }) => {
   return (
     <svg 
       width={size} 
@@ -152,11 +152,39 @@ export const HullIcon = ({ size = 16, className = '' }) => {
   );
 };
 
+// Begins with weapons - double horizontal bars
+export const BeginsWithIcon = ({ size = 14, className = '' }) => {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 12.78 11.78"
+      className={className}
+      style={{ display: 'inline-block' }}
+    >
+      <g>
+        <polygon
+          fill="currentColor"
+          points="12.77 0 12.77 4.36 6.39 4.37 0 4.37 0 0 6.38 0 12.77 0"
+        />
+        <polygon
+          fill="currentColor"
+          points="12.78 7.4 12.78 11.77 6.39 11.78 0 11.78 0 7.41 6.39 7.41 12.78 7.4"
+        />
+      </g>
+    </svg>
+  );
+};
+
+
+
+
 // Default export for backward compatibility
 export default {
   DiceFace,
   Logo,
   ProwIcon,
   RearIcon,
-  HullIcon
+  HullIcon,
+  BeginsWithIcon
 };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { HullIcon } from '../SVGComponents';
+import { BeginsWithIcon } from '../SVGComponents';
 
 // Helper functions for weapon display (same as BuildViewCard)
 const formatAttacks = (attacksObj) => {
@@ -31,7 +31,10 @@ const BeginsWithSection = ({
     <div className="weapon-section">
       <div className="weapon-section__header weapon-section__header--sticky">
         <div className="weapon-section__table-header">
-          <div className="weapon-section__title">Begins with</div>
+          <div className="weapon-section__title">
+            <BeginsWithIcon size={16} />
+            <span>Begins with</span>
+          </div>
           <div className="weapon-section__column-label">Target</div>
           <div className="weapon-section__column-label">Attacks</div>
           <div className="weapon-section__column-label">Range</div>

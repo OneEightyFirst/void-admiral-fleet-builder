@@ -1,5 +1,10 @@
 // Theme-specific styles controlled by body classes
 
+// Global AppBar override to remove MUI's default background-image
+.MuiAppBar-root {
+  background-image: none !important;
+}
+
 // Default theme styles
 body.theme-default {
   // Define CSS custom properties for default theme

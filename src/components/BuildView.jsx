@@ -36,7 +36,8 @@ import {
   Check as CheckIcon,
   Edit as EditIcon,
   Close as CloseIcon,
-  Login as LoginIcon
+  Login as LoginIcon,
+  PlayArrow as PlayIcon
 } from '@mui/icons-material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
@@ -449,58 +450,86 @@ const BuildView = ({
 
   return (
     <>
-      {/* Fleet Name Header */}
-      <div className="build-view__header flex-between">
-        <div className="build-view__header-content flex-center flex-gap-2">
-          {isEditingName ? (
-            <ClickAwayListener onClickAway={() => setIsEditingName(false)}>
-              <TextField 
-                value={fleetName}
-                onChange={e => setFleetName(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && setIsEditingName(false)}
+      {/* Secondary Sticky Navigation */}
+      <div className="build-view__secondary-nav">
+                <div className="build-view__secondary-nav-content">
+          <div className="build-view__secondary-nav-left">
+            {/* Name and Faction - Mobile: Stack vertically, Desktop: Inline */}
+            <div className="build-view__secondary-nav-name-row">
+              {isEditingName ? (
+                <ClickAwayListener onClickAway={() => setIsEditingName(false)}>
+                  <TextField 
+                    value={fleetName}
+                    onChange={e => setFleetName(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && setIsEditingName(false)}
+                    size="small"
+                    autoFocus
+                    className="build-view__header-fleet-name"
+                  />
+                </ClickAwayListener>
+              ) : (
+                <Typography 
+                  variant="h4" 
+                  className="build-view__fleet-name-display"
+                  onClick={() => setIsEditingName(true)}
+                >
+                  {fleetName}
+                </Typography>
+              )}
+              <Chip 
+                label={faction} 
+                variant="outlined" 
                 size="small"
-                autoFocus
-                className="build-view__header-fleet-name"
               />
-            </ClickAwayListener>
-          ) : (
-            <Typography 
-              variant="h4" 
-              className="build-view__fleet-name-display"
-              onClick={() => setIsEditingName(true)}
-            >
-              {fleetName}
-            </Typography>
-          )}
-          <Chip 
-            label={faction} 
-            variant="outlined" 
-            size="small"
-          />
-        </div>
-        
-        {/* New Fleet Button and Build/Play Toggle */}
-        <div className="build-view__header-actions">
-          <button 
-            className="build-view__new-fleet-button"
-          onClick={startNewFleet}
-        >
-          New Fleet
-          </button>
-          
-          <div className="build-view__mode-toggle">
-            <button 
-              className={`build-view__mode-button ${!isPlayMode ? 'build-view__mode-button--active' : ''}`}
-              onClick={() => setIsPlayMode(false)}
-            >
-              Build
-            </button>
-            <button 
-              className={`build-view__mode-button ${isPlayMode ? 'build-view__mode-button--active' : ''}`}
-              onClick={() => setIsPlayMode(true)}
-            >
-              Play
-            </button>
+            </div>
+            
+            {/* Mobile: Action buttons go in buttons row, Desktop: Inline with name */}
+            <div className="build-view__secondary-nav-buttons-row">
+              {/* New Fleet and Save Buttons - Symbol Only */}
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button 
+                  className="build-view__icon-button"
+                  onClick={startNewFleet}
+                  title="New Fleet"
+                >
+                  <AddIcon fontSize="small" />
+                </button>
+                
+                {/* Debug: Show save button conditions */}
+                {console.log('Save button debug:', { user: !!user, fleetName: fleetName.trim(), rosterLength: roster.length })}
+                {/* Temporarily always show save button for debugging */}
+                <button 
+                  className={`build-view__icon-button ${saveStatus === 'saved' ? 'build-view__icon-button--saved' : ''}`}
+                  onClick={saveFleet}
+                  disabled={saveStatus === 'saving' || !user || !fleetName.trim() || roster.length === 0}
+                  title={saveStatus === 'saved' ? 'Saved' : 'Save'}
+                >
+                  {saveStatus === 'saving' ? (
+                    <CircularProgress size={16} color="inherit" />
+                  ) : (
+                    <SaveIcon fontSize="small" />
+                  )}
+                </button>
+              </div>
+              
+              {/* Build/Play Toggle - Symbol Only */}
+              <div className="build-view__mode-toggle">
+                <button 
+                  className={`build-view__mode-button ${!isPlayMode ? 'build-view__mode-button--active' : ''}`}
+                  onClick={() => setIsPlayMode(false)}
+                  title="Build Mode"
+                >
+                  <EditIcon fontSize="small" />
+                </button>
+                <button 
+                  className={`build-view__mode-button ${isPlayMode ? 'build-view__mode-button--active' : ''}`}
+                  onClick={() => setIsPlayMode(true)}
+                  title="Play Mode"
+                >
+                  <PlayIcon fontSize="small" />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -518,7 +547,7 @@ const BuildView = ({
         </div>
       )}
 
-      <Grid container spacing={2}>
+      <Grid container spacing={2} className="build-view__main-grid">
         {!isPlayMode && (
         <Grid item xs={12} md={3}>
           <Card><CardContent>
@@ -631,29 +660,32 @@ const BuildView = ({
         <Grid item xs={12} md={isPlayMode ? 12 : 9}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
-              <Card>
-                <CardContent>
-                  <Typography variant="subtitle1" className="build-view__section-title--bold">Faction Overview</Typography>
-
                   {factions && getFluff(faction, factions) && (
+                <Accordion disableGutters className="build-view__accordion--mb-1">
+                  <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
+                    <Typography variant="subtitle2" className="build-view__accordion-title">Faction Overview</Typography>
+                  </AccordionSummary>
+                  <AccordionDetails className="build-view__accordion-details">
                     <Paper variant="outlined" className="build-view__fluff-paper">
                       <Typography variant="body2" color="text.secondary">{getFluff(faction, factions)}</Typography>
                     </Paper>
+                  </AccordionDetails>
+                </Accordion>
                   )}
 
-                  <Accordion disableGutters className="build-view__accordion--mb-1" defaultExpanded>
+              <Accordion disableGutters className="build-view__accordion--mb-1" defaultExpanded>
                     <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
-                      <Typography variant="subtitle2" className="build-view__accordion-title">Special Rules</Typography>
+                  <Typography variant="subtitle2" className="build-view__accordion-title">Special Rules</Typography>
                     </AccordionSummary>
-                    <AccordionDetails className="build-view__accordion-details">
+                <AccordionDetails className="build-view__accordion-details">
                       {getSpecialRules(faction, factions).length === 0 ? (
                         <Typography variant="body2" color="text.secondary">None listed.</Typography>
                       ) : (
                         <Stack spacing={0.75}>
                           {getSpecialRules(faction, factions).map((r, i)=>(
-                            <Paper key={i} variant="outlined" className="build-view__rule-paper">
-                              <Typography variant="body2" className="build-view__rule-name">{r.name}</Typography>
-                              <Typography variant="body2" color="text.secondary" className="build-view__rule-description">{r.description}</Typography>
+                        <Paper key={i} variant="outlined" className="build-view__rule-paper">
+                          <Typography variant="body2" className="build-view__rule-name">{r.name}</Typography>
+                          <Typography variant="body2" color="text.secondary" className="build-view__rule-description">{r.description}</Typography>
                             </Paper>
                           ))}
                         </Stack>
@@ -663,23 +695,23 @@ const BuildView = ({
 
                   <Accordion disableGutters>
                     <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
-                      <Typography variant="subtitle2" className="build-view__accordion-title">Command Abilities</Typography>
+                  <Typography variant="subtitle2" className="build-view__accordion-title">Command Abilities</Typography>
                     </AccordionSummary>
-                    <AccordionDetails className="build-view__accordion-details">
+                <AccordionDetails className="build-view__accordion-details">
                       {getCommandAbilities(faction, factions).length === 0 ? (
                         <Typography variant="body2" color="text.secondary">None listed.</Typography>
                       ) : (
                         <Grid container spacing={1}>
                           {getCommandAbilities(faction, factions).sort((a,b)=>a.dice-b.dice).map((c, i)=>(
                             <Grid key={i} item xs={12} sm={6} lg={4}>
-                              <Paper variant="outlined" className="build-view__ability-paper">
+                          <Paper variant="outlined" className="build-view__ability-paper">
                                 <Stack direction="row" spacing={1} alignItems="stretch">
-                                  <Box className="build-view__ability-dice-container">
+                              <Box className="build-view__ability-dice-container">
                                     <DiceFace value={c.dice} size={32} />
                                   </Box>
-                                  <Stack className="build-view__ability-content">
-                                    <Typography variant="body2" className="build-view__ability-name">{c.name}</Typography>
-                                    <Typography variant="body2" color="text.secondary" className="build-view__ability-description">{c.description}</Typography>
+                              <Stack className="build-view__ability-content">
+                                <Typography variant="body2" className="build-view__ability-name">{c.name}</Typography>
+                                <Typography variant="body2" color="text.secondary" className="build-view__ability-description">{c.description}</Typography>
                                   </Stack>
                                 </Stack>
                               </Paper>
@@ -689,8 +721,6 @@ const BuildView = ({
                       )}
                     </AccordionDetails>
                   </Accordion>
-                </CardContent>
-              </Card>
             </Grid>
             
             {/* Ship Cards */}
@@ -916,17 +946,7 @@ const BuildView = ({
         </Grid>
       </Grid>
       
-      {/* Floating Save Button */}
-      {user && fleetName.trim() && roster.length > 0 && (
-        <Fab 
-          color={saveStatus === 'saved' ? 'success' : 'primary'}
-          onClick={saveFleet}
-          disabled={saveStatus === 'saving'}
-          className="build-view__save-fab"
-        >
-          {saveStatus === 'saving' ? <CircularProgress size={24} color="inherit" /> : <SaveIcon />}
-        </Fab>
-      )}
+
 
       {/* Refit Modal */}
       <RefitModal

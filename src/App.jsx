@@ -1,9 +1,10 @@
 import React, { useMemo, useState, useEffect } from "react";
 import {
   ThemeProvider as MuiThemeProvider, CssBaseline, AppBar, Toolbar, Typography, Tabs, Tab, Box,
-  Stack, Button, IconButton, Avatar, ClickAwayListener, Drawer, List, ListItem, ListItemIcon, ListItemText, Divider, useMediaQuery
+  Stack, Button, IconButton, Avatar, ClickAwayListener, Drawer, List, ListItem, ListItemIcon, ListItemText, Divider, useMediaQuery,
+  Menu, MenuItem
 } from "@mui/material";
-import { Delete as DeleteIcon, PlayArrow as PlayIcon, Save as SaveIcon, Folder as FolderIcon, Login as LoginIcon, Logout as LogoutIcon, Build as BuildIcon, Menu as MenuIcon, Palette as PaletteIcon } from "@mui/icons-material";
+import { Delete as DeleteIcon, PlayArrow as PlayIcon, Save as SaveIcon, Folder as FolderIcon, Login as LoginIcon, Logout as LogoutIcon, Build as BuildIcon, Menu as MenuIcon, Palette as PaletteIcon, Close as CloseIcon } from "@mui/icons-material";
 import './styles/main.scss';
 import './styles/themes.scss';
 
@@ -47,13 +48,13 @@ function AppContent(){
   const [isEditingName, setIsEditingName] = useState(false);
   const [nameSubmitted, setNameSubmitted] = useState(false);
   const [saveStatus, setSaveStatus] = useState('idle'); // 'idle', 'saving', 'saved'
-  const [drawerOpen, setDrawerOpen] = useState(false);
   const [FACTIONS, setFACTIONS] = useState(null);
   const [REFITS, setREFITS] = useState(null);
   const [factionsLoading, setFactionsLoading] = useState(true);
   const [useRefits, setUseRefits] = useState(false);
   const [useJuggernauts, setUseJuggernauts] = useState(false);
   const [isPlayMode, setIsPlayMode] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   // Apply theme class to body element
   useEffect(() => {
@@ -881,54 +882,96 @@ function AppContent(){
       <Box className="app-root" sx={{ minHeight: '100vh' }}>
         <AppBar position="sticky" color="default" enableColorOnDark>
           <Toolbar>
-            {/* Mobile hamburger menu */}
-            {isMobile && (
-              <IconButton
-                edge="start"
-                onClick={() => setDrawerOpen(true)}
-                sx={{ mr: 2 }}
-              >
-                <MenuIcon />
-              </IconButton>
-            )}
-            
             <Logo height={28} className="nav-logo" />
             
-            {/* Desktop tabs - hidden on mobile */}
-            {!isMobile && (
-              <Tabs value={tab} onChange={(e,v)=>setTab(v)}>
-                <Tab 
-                  label="Build"
-                  icon={<BuildIcon/>} 
-                  iconPosition="start"
-                />
-                <Tab 
-                  label="Fleets"
-                  icon={<FolderIcon/>} 
-                  iconPosition="start"
-                />
-                <Tab 
-                  label="Theme"
-                  icon={<PaletteIcon/>} 
-                  iconPosition="start"
-                />
-              </Tabs>
-            )}
+            <Box sx={{ flex: 1 }} />
             
-            <Box sx={{ flex:1 }} />
-            
-            {/* Authentication UI */}
+            {/* Navigation Dropdown */}
             {loading ? (
               <Typography variant="body2" color="text.secondary">Loading...</Typography>
             ) : user ? (
-              <Stack direction="row" alignItems="center" spacing={1}>
+              <Stack direction="row" spacing={1} alignItems="center">
                 <Avatar src={user.photoURL} alt={user.displayName} sx={{ width: 32, height: 32 }} />
-                <Typography variant="body2" sx={{ display: { xs: 'none', sm: 'block' } }}>
-                  {user.displayName}
-                </Typography>
-                <IconButton color="inherit" onClick={handleSignOut} title="Sign Out">
-                  <LogoutIcon />
+                <IconButton
+                  color="inherit"
+                  onClick={(e) => setDropdownOpen(e.currentTarget)}
+                  sx={{ padding: 1 }}
+                >
+                  {dropdownOpen ? <CloseIcon /> : <MenuIcon />}
                 </IconButton>
+                <Menu
+                  anchorEl={dropdownOpen}
+                  open={Boolean(dropdownOpen)}
+                  onClose={() => setDropdownOpen(false)}
+                  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                  transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                  PaperProps={{
+                    sx: {
+                      mt: 1,
+                      minWidth: 200,
+                      '& .MuiMenuItem-root': {
+                        py: 1,
+                      },
+                    },
+                  }}
+                >
+                  {/* User Info */}
+                  <MenuItem disabled sx={{ flexDirection: 'column', alignItems: 'flex-start', py: 1.5 }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                      {user.displayName}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {user.email}
+                    </Typography>
+                  </MenuItem>
+                  <Divider />
+                  
+                  {/* Navigation Items */}
+                  <MenuItem
+                    onClick={() => {
+                      setTab(1);
+                      setDropdownOpen(false);
+                    }}
+                  >
+                    <ListItemIcon>
+                      <FolderIcon fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText>Fleets</ListItemText>
+                  </MenuItem>
+                  <MenuItem
+                    onClick={() => {
+                      startNewFleet();
+                      setDropdownOpen(false);
+                    }}
+                  >
+                    <ListItemIcon>
+                      <BuildIcon fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText>New Fleet</ListItemText>
+                  </MenuItem>
+                  <Divider />
+                  
+                  {/* Theme */}
+                  <MenuItem
+                    onClick={() => {
+                      setTab(2);
+                      setDropdownOpen(false);
+                    }}
+                  >
+                    <ListItemIcon>
+                      <PaletteIcon fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText>Theme</ListItemText>
+                  </MenuItem>
+                  
+                  {/* Logout */}
+                  <MenuItem onClick={handleSignOut}>
+                    <ListItemIcon>
+                      <LogoutIcon fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText>Logout</ListItemText>
+                  </MenuItem>
+                </Menu>
               </Stack>
             ) : (
               <Button
@@ -943,60 +986,9 @@ function AppContent(){
           </Toolbar>
         </AppBar>
 
-        {/* Mobile drawer */}
-        <Drawer
-          anchor="left"
-          open={drawerOpen}
-          onClose={() => setDrawerOpen(false)}
-          ModalProps={{
-            keepMounted: true,
-          }}
-        >
-          <Box sx={{ width: 250 }} role="presentation">
-            <List>
-              <ListItem button onClick={() => { setTab(0); setDrawerOpen(false); }}>
-                <ListItemIcon><BuildIcon /></ListItemIcon>
-                <ListItemText primary="Build" />
-              </ListItem>
-              <ListItem button onClick={() => { setTab(1); setDrawerOpen(false); }}>
-                <ListItemIcon><FolderIcon /></ListItemIcon>
-                <ListItemText primary="Fleets" />
-              </ListItem>
-              <ListItem button onClick={() => { setTab(2); setDrawerOpen(false); }}>
-                <ListItemIcon><PaletteIcon /></ListItemIcon>
-                <ListItemText primary="Theme" />
-              </ListItem>
-            </List>
-            <Divider />
-            {/* Authentication section */}
-            <Box sx={{ p: 2 }}>
-              {user ? (
-                <Stack direction="row" alignItems="center" spacing={1}>
-                  <Avatar src={user.photoURL} alt={user.displayName} sx={{ width: 32, height: 32 }} />
-                  <Box sx={{ flex: 1 }}>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                      {user.displayName}
-                    </Typography>
-                    <Button size="small" onClick={handleSignOut} startIcon={<LogoutIcon />}>
-                      Sign Out
-                    </Button>
-                  </Box>
-                </Stack>
-              ) : (
-                <Button
-                  fullWidth
-                  variant="outlined"
-                  startIcon={<LoginIcon />}
-                  onClick={signInWithGoogle}
-                >
-                  Sign In
-                </Button>
-              )}
-            </Box>
-          </Box>
-        </Drawer>
 
-        <Box sx={{ p:2, pb: 8 }}>
+
+        <Box>
           {tab===0 && (
             !nameSubmitted ? (
               <CreateNewFleetView
