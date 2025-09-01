@@ -272,8 +272,8 @@ body.theme-default {
       }
   }
 
-  // PlayViewCard default theme colors
-  .play-view-card {
+  // Ship Card Header default theme colors (shared by Build and Play View)
+  .ship-card {
     &__header {
       &-faction,
       &-name,
@@ -435,11 +435,8 @@ body.theme-vintage {
     }
   }
 
-  // PlayViewCard vintage theme colors
-  .play-view-card {
-    background-color: var(--bg-paper);
-    color: #e5e2d8;
-    
+  // Ship Card Header vintage theme colors (shared by Build and Play View)
+  .ship-card {
     &__header {
       background-color: var(--primary-color);
       
@@ -454,6 +451,12 @@ body.theme-vintage {
         color: #ffffff;
       }
     }
+  }
+  
+  // PlayViewCard vintage theme colors
+  .play-view-card {
+    background-color: var(--bg-paper);
+    color: #e5e2d8;
     
     &__stats {
       &-labels {
@@ -867,8 +870,8 @@ body.theme-space {
     }
   }
 
-  // PlayViewCard space theme colors
-  .play-view-card {
+  // Ship Card Header space theme colors (shared by Build and Play View)
+  .ship-card {
     &__header {
       &-faction,
       &-name,

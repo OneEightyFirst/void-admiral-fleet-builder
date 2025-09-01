@@ -176,25 +176,25 @@ const PlayViewCard = ({ ship, squadron, faction, shipDef }) => {
   return (
     <Card className="play-view-card">
             {/* Header Section */}
-      <div className="play-view-card__header">
-        <div className="play-view-card__header-content">
-          <div className="play-view-card__header-left">
-            <div className="play-view-card__header-faction">
+      <div className="ship-card__header">
+        <div className="ship-card__header-content">
+          <div className="ship-card__header-left">
+            <div className="ship-card__header-faction">
               {faction.toUpperCase()}
             </div>
-            <div className="play-view-card__header-name">
+            <div className="ship-card__header-name">
               {currentShip.className}
             </div>
-            <div className="play-view-card__header-size">
+            <div className="ship-card__header-size">
               {currentShipDef.size}
             </div>
           </div>
-          <div className="play-view-card__header-right">
-            <div className="play-view-card__header-cost">
+          <div className="ship-card__header-right">
+            <div className="ship-card__header-cost">
               {costDisplay}
             </div>
             {isSquadron && (
-              <div className="play-view-card__header-count">
+              <div className="ship-card__header-count">
                 {squadron.length} ships
               </div>
             )}

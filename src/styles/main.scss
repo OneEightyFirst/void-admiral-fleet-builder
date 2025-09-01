@@ -680,24 +680,7 @@ body {
     }
     
     &-info {
-      // Container for faction, ship name, size
-    }
-    
-    &-faction {
-      font-size: 0.75rem !important;
-      font-weight: 600 !important;
-      letter-spacing: 0.1em !important;
-      line-height: 1 !important;
-    }
-    
-    &-name {
-      font-weight: 800 !important;
-      line-height: 1 !important;
-      margin: 0 !important;
-    }
-    
-    &-size {
-      line-height: 1 !important;
+      // Container for faction, ship name, size (legacy - now using PlayView classes)
     }
     
     &-actions {
@@ -746,6 +729,7 @@ body {
   
   &__stats-section {
     // Container for always-visible stats
+    border-bottom: 1px solid var(--primary-color);
   }
 
   &__weapons {
@@ -871,11 +855,76 @@ body {
   }
 }
 
+// Shared Ship Card Header styles (used by both Build and Play View cards)
+.ship-card {
+  &__header {
+    padding: $spacing-md;
+    margin-bottom: 0;
+    
+    &-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      width: 100%;
+    }
+    
+    &-left {
+      display: flex;
+      flex-direction: column;
+      gap: 0.125rem;
+    }
+    
+    &-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.125rem;
+    }
+    
+    &-faction {
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1;
+    }
+    
+    &-name {
+      font-weight: bold;
+      font-size: 1.5rem;
+      line-height: 1;
+    }
+    
+    &-size {
+      font-size: 0.875rem;
+      line-height: 1;
+    }
+    
+    &-cost {
+      font-weight: 600;
+      text-align: right;
+    }
+    
+    &-count {
+      font-size: 0.875rem;
+      text-align: right;
+    }
+  }
+}
+
+// Squadron Card Header styles
+.squadron-card {
+  &__header {
+    margin-bottom: 0;
+  }
+}
+
 // Mobile-First Weapon Selection Components
 .weapon-section {
   &__header {
     padding: $spacing-sm $spacing-md;
     border-bottom: 1px solid var(--border-color);
+    background-color: var(--bg-darker);
     
     &--sticky {
       position: sticky;
@@ -891,6 +940,10 @@ body {
     font-weight: 600;
     font-size: 0.875rem;
     margin-bottom: 0.25rem;
+    
+    &-counter {
+      font-weight: 400;
+    }
   }
 
   &__status {

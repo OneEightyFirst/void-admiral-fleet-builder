@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Card, Typography, Box, Grid, IconButton, Button, Stack, Chip, Tooltip as MuiTooltip, Alert
+  Card, Box, Grid, IconButton, Button, Stack, Chip, Tooltip as MuiTooltip, Alert
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
@@ -284,30 +284,30 @@ const BuildViewCard = ({
   return (
     <Card className="build-view-card">
       {/* Header Section */}
-      <div className="build-view-card__header">
-        <div className="build-view-card__header-content">
-          <div className="build-view-card__header-info">
-            <Typography
-              variant="overline"
-              className="build-view-card__header-faction"
-            >
+      <div className="ship-card__header">
+        <div className="ship-card__header-content">
+          <div className="ship-card__header-left">
+            <div className="ship-card__header-faction">
               {faction.toUpperCase()}
-            </Typography>
-            <Typography
-              variant="h5"
-              className="build-view-card__header-name"
-            >
+            </div>
+            <div className="ship-card__header-name">
               {currentShip.className}
-            </Typography>
-            <Typography
-              variant="body2"
-              className="build-view-card__header-size"
-            >
+            </div>
+            <div className="ship-card__header-size">
               {currentShipDef.size}
-            </Typography>
+            </div>
           </div>
-          
-          <div className="build-view-card__header-right">
+          <div className="ship-card__header-right">
+            <div className="ship-card__header-cost">
+              {/* Add cost/points display here similar to PlayView */}
+            </div>
+            {isSquadron && (
+              <div className="ship-card__header-count">
+                {/* Add squadron count here similar to PlayView */}
+              </div>
+            )}
+            
+            {/* Actions and Delete Button */}
             <Stack direction="row" spacing={1} alignItems="center" className="build-view-card__header-actions">
               {currentShip.isFree && (
               <Chip size="small" label="Free" color="success" />
@@ -340,17 +340,17 @@ const BuildViewCard = ({
             )}
                 </>
               )}
-            </Stack>
-            
-            {/* Delete Button - positioned in upper right corner of header */}
-            <MuiTooltip title={isSquadron ? "Remove Squadron" : "Remove Ship"} arrow>
+              
+              {/* Delete Button */}
+              <MuiTooltip title={isSquadron ? "Remove Squadron" : "Remove Ship"} arrow>
             <IconButton 
-                className="build-view-card__header-delete-button"
-                onClick={isSquadron ? () => onRemoveGroup(currentShip.groupId) : () => onRemoveShip(currentShip.id)}
+                  className="build-view-card__header-delete-button"
+                  onClick={isSquadron ? () => onRemoveGroup(currentShip.groupId) : () => onRemoveShip(currentShip.id)}
             >
               <DeleteIcon />
             </IconButton>
-            </MuiTooltip>
+              </MuiTooltip>
+          </Stack>
           </div>
         </div>
       </div>
@@ -428,7 +428,7 @@ const BuildViewCard = ({
                   <div className="weapon-section__header weapon-section__header--sticky">
                     <div className="weapon-section__title">
                       <ProwIcon size={16} />
-                      <span>Prow Weapons — Select {maxWeapons} ({totalSelected}/{maxWeapons})</span>
+                      <span>Prow Weapons <span className="weapon-section__title-counter">(Select {totalSelected}/{maxWeapons})</span></span>
                     </div>
                     <div className="weapon-section__table-header">
                       <div className="weapon-section__helper">Swipe to adjust.</div>
@@ -497,7 +497,7 @@ const BuildViewCard = ({
                   <div className="weapon-section__header weapon-section__header--sticky">
                     <div className="weapon-section__title">
                       <ProwIcon size={16} />
-                      <span>Prow Weapons — Select 1</span>
+                      <span>Prow Weapons <span className="weapon-section__title-counter">(Select 1)</span></span>
                     </div>
                     <div className="weapon-section__table-header">
                       <div className="weapon-section__helper">Tap a row to select.</div>
@@ -570,7 +570,7 @@ const BuildViewCard = ({
                 <div className="weapon-section__header weapon-section__header--sticky">
                   <div className="weapon-section__title">
                     <HullIcon size={16} />
-                    <span>Hull Weapons — Select {effectiveSlots} ({totalSelected}/{effectiveSlots})</span>
+                    <span>Hull Weapons <span className="weapon-section__title-counter">(Select {totalSelected}/{effectiveSlots})</span></span>
                   </div>
                   <div className="weapon-section__table-header">
                     <div className="weapon-section__helper">Swipe to adjust.</div>
