@@ -480,10 +480,12 @@ const BuildViewCard = ({
 
       {/* Begins With Section - hide in Play mode */}
       {!isPlayMode && ((isSquadron && children) ? (
-        // For squadrons, use the children content (which includes BeginsWithSection)
-        <div className="build-view-card__begins-with">
-          {children}
-        </div>
+        // For squadrons, only render if there are beginsWith weapons
+        ((currentShip.beginsWith && currentShip.beginsWith.length > 0) || (currentShipDef.beginsWith && currentShipDef.beginsWith.length > 0)) && (
+          <div className="build-view-card__begins-with">
+            {children}
+          </div>
+        )
       ) : (
         // For capital ships, render BeginsWithSection directly if they have beginsWith weapons
         ((currentShip.beginsWith && currentShip.beginsWith.length > 0) || (currentShipDef.beginsWith && currentShipDef.beginsWith.length > 0)) && (

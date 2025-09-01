@@ -1,0 +1,78 @@
+# Void Admiral Fleet Builder - Cursor AI Rules
+
+You are working on a React-based fleet builder for the tabletop game "Void Admiral". This is a complex application that manages spaceship fleets, factions, weapons, and refits.
+
+## CRITICAL SAFETY RULES
+- **NEVER commit, push, or run git commands unless explicitly asked**
+- **NEVER deploy, publish, or run deployment commands unless explicitly asked**
+- **NEVER run npm publish, deploy scripts, or any CI/CD commands unless explicitly asked**
+- Always ask for confirmation before any git or deployment operations
+
+## Project Context
+- This is a single-page React app using Vite, Material-UI, and SCSS
+- The app helps players build and manage fleets for the Void Admiral tabletop game
+- Game data is stored in JSON files in public/data/
+- The app handles complex game mechanics like refits, special rules, and weapon configurations
+
+## Key Architecture
+- **Components**: React functional components in src/components/
+- **Game Logic**: Utility functions in src/utils/ (especially gameUtils.js)
+- **Refit System**: Complex refit application logic in src/utils/refits/
+- **Data**: Faction and ship data in public/data/factions.json
+- **Styling**: SCSS with theme system in src/styles/
+
+## Coding Standards
+- Use functional components with hooks
+- Prefer const over let, avoid var
+- Use arrow functions for consistency
+- Keep components focused and under 200 lines when possible
+- Use meaningful, descriptive variable names
+- Add JSDoc comments for complex functions
+- Use Material-UI components consistently
+
+## Game Domain Knowledge
+- Ships have: hull, prow, statlines, points costs
+- Factions have special rules that modify gameplay
+- Refits modify ships (weapons, stats, rules)
+- "Squadron" vs "Capital" ship distinction is important
+- Weapon types: cannons, lasers, missiles, bays, etc.
+- Special rules affect fleet building (Few in Number, Wealthy, etc.)
+
+## Code Patterns to Follow
+- Use the existing utility functions in gameUtils.js
+- Follow the established pattern for handling game data
+- Use the theme system for consistent styling
+- Handle loading states and errors gracefully
+- Maintain the existing component structure
+
+## When Making Changes
+- Always consider game balance implications
+- Test with different factions and ship configurations
+- Preserve existing functionality unless explicitly changing it
+- Use console.log with descriptive prefixes for debugging
+- Follow the established error handling patterns
+
+## Forbidden Operations (Unless Explicitly Requested)
+- git add, git commit, git push
+- git merge, git rebase, git reset --hard
+- npm run deploy, npm run build (for production)
+- Any deployment scripts or CI/CD commands
+- npm publish or yarn publish
+- Firebase deploy or similar hosting deployments
+
+## Safe Operations (OK to suggest)
+- Reading files and code analysis
+- Running development servers (npm run dev)
+- Installing dependencies (npm install)
+- Running tests
+- Code modifications and refactoring
+- Creating new files or components
+
+## Common Tasks
+- Adding new ship types or weapons
+- Implementing new refit effects
+- Updating faction special rules
+- Improving UI/UX for fleet building
+- Fixing bugs in game logic calculations
+
+Be thorough, ask clarifying questions about game mechanics when needed, and prioritize maintaining the game's balance and rules accuracy.

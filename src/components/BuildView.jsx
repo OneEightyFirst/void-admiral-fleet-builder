@@ -616,7 +616,8 @@ const BuildView = ({
             )}
             {uniqueClash && <Alert severity="warning" className="build-view__alert--mt-1">Unique rule: two non‑squadron ships are armed identically. Change a prow or hull mix.</Alert>}
             
-            {/* Content Toggles */}
+            {/* Content Toggles - HIDDEN */}
+            {/*
             <Divider className="build-view__divider--my-2"/>
             <Typography variant="subtitle2" className="build-view__toggle-section-title">
               Additional Content
@@ -653,6 +654,7 @@ const BuildView = ({
                 className={`build-view__form-control-label ${useJuggernauts ? 'build-view__form-control-label--active' : ''}`}
               />
             </Stack>
+            */}
           </CardContent></Card>
         </Grid>
         )}
