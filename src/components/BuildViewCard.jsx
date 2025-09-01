@@ -9,6 +9,7 @@ import { getStatDisplayName, formatStatValue, calculateEffectiveHullSlots } from
 import { hasRefit, getRefitName, getRefitNotes } from '../utils/refitDisplayUtils';
 import { getWeaponDataByIndex } from '../utils/refits/weaponData';
 import { ProwIcon, HullIcon } from './SVGComponents';
+import BeginsWithSection from './shared/BeginsWithSection';
 
 // Helper functions for weapon display
 const formatAttacks = (attacksObj) => {
@@ -392,73 +393,170 @@ const BuildViewCard = ({
         </div>
       </div>
 
+      {/* Begins With Section */}
+      {(isSquadron && children) ? (
+        // For squadrons, use the children content (which includes BeginsWithSection)
+        <div className="build-view-card__begins-with">
+          {children}
+        </div>
+      ) : (
+        // For capital ships, render BeginsWithSection directly if they have beginsWith weapons
+        ((currentShip.beginsWith && currentShip.beginsWith.length > 0) || (currentShipDef.beginsWith && currentShipDef.beginsWith.length > 0)) && (
+          <div className="build-view-card__begins-with">
+            <BeginsWithSection 
+              beginsWith={currentShip.beginsWith || currentShipDef.beginsWith}
+              squadronRefit={currentShip.squadronRefit}
+              getWeaponData={getWeaponDataByIndex}
+              shipDef={currentShipDef}
+            />
+          </div>
+        )
+      )}
+
       {/* Mobile-First Weapon Selection Section */}
-      {!isSquadron && (
-        <div className="build-view-card__weapons-mobile">
+      <div className="build-view-card__weapons">
           {/* Prow Section */}
-          {currentShipDef.prow && currentShipDef.prow.select > 0 && (
-            <div className="weapon-section">
-              <div className="weapon-section__header weapon-section__header--sticky">
-                <div className="weapon-section__title">
-                  <ProwIcon size={16} />
-                  <span>Prow Weapons — Select 1</span>
-                </div>
-                <div className="weapon-section__table-header">
-                  <div className="weapon-section__helper">Tap a row to select.</div>
-                  <div className="weapon-section__column-label">Target</div>
-                  <div className="weapon-section__column-label">Attacks</div>
-                  <div className="weapon-section__column-label">Range</div>
-                </div>
-              </div>
+          {currentShipDef.prow && currentShipDef.prow.select > 0 && (() => {
+            if (isSquadron) {
+              // Squadron multi-select logic (like hull weapons)
+              const totalSelected = (currentShip.loadout?.prow || []).length;
+              const maxWeapons = 3; // Squadrons can select up to 3 weapons
+              const remaining = maxWeapons - totalSelected;
+              
+              return (
+                <div className="weapon-section">
+                  <div className="weapon-section__header weapon-section__header--sticky">
+                    <div className="weapon-section__title">
+                      <ProwIcon size={16} />
+                      <span>Prow Weapons — Select {maxWeapons} ({totalSelected}/{maxWeapons})</span>
+                    </div>
+                    <div className="weapon-section__table-header">
+                      <div className="weapon-section__helper">Swipe to adjust.</div>
+                      <div className="weapon-section__column-label">Target</div>
+                      <div className="weapon-section__column-label">Attacks</div>
+                      <div className="weapon-section__column-label">Range</div>
+                    </div>
+                  </div>
 
-              <div className="weapon-section__rows">
-                {currentShipDef.prow.options.map((option, optionIndex) => {
-                  const isSelected = currentShip.loadout?.prow?.optionIndex === optionIndex;
-                  const weaponData = getWeaponDataByIndex({ optionIndex }, currentShipDef, 'prow', currentShip);
-                  
-                  return (
-                    <SwipeableWeaponRow
-                      key={optionIndex}
-                      weaponName={option.name}
-                      weaponData={weaponData}
-                      currentCount={isSelected ? 1 : 0}
-                      maxCount={1}
-                      isMaxed={isSelected}
-                      sectionType="single"
-                      onCountChange={(newCount) => {
-                        // Single-select doesn't use swipe, only tap
-                      }}
-                      onTap={() => {
-                        // Tap to select for single-select weapons
-                        if (isSelected) {
-                          // If already selected, clear selection
-                          onSelectWeapon && onSelectWeapon('prow', null);
-                        } else {
-                          // Select this weapon with optionIndex format
-                          onSelectWeapon && onSelectWeapon('prow', { optionIndex, name: option.name });
+                  <div className="weapon-section__rows">
+                    {currentShipDef.prow.options.map((option, optionIndex) => {
+                      // Handle both string and object formats for prow weapons
+                      const selectedCount = (currentShip.loadout?.prow || []).filter(p => {
+                        if (typeof p === 'string') {
+                          return p === option.name;
                         }
-                      }}
-                      onPreciseEdit={() => {
-                        // For single-select, precise edit just toggles selection
-                        if (isSelected) {
-                          // Clear selection logic would go here
-                        } else {
-                          onSelectWeapon && onSelectWeapon('prow', optionIndex);
-                        }
-                      }}
-                    />
-                  );
-                })}
-              </div>
+                        return p.optionIndex === optionIndex;
+                      }).length;
+                      const weaponData = getWeaponDataByIndex({ optionIndex }, currentShipDef, 'prow', currentShip);
+                      
+                      return (
+                        <SwipeableWeaponRow
+                          key={optionIndex}
+                          weaponName={option.name}
+                          weaponData={weaponData}
+                          currentCount={selectedCount}
+                          maxCount={maxWeapons}
+                          isMaxed={remaining === 0 && selectedCount > 0}
+                          sectionType="multi"
+                          onCountChange={(newCount) => {
+                            const delta = newCount - selectedCount;
+                            if (delta > 0) {
+                              // Add weapons - pass weapon name, not index
+                              for (let i = 0; i < delta; i++) {
+                                onAddWeapon && onAddWeapon('prow', option.name);
+                              }
+                            } else if (delta < 0) {
+                              // Remove weapons - pass weapon name, not index
+                              for (let i = 0; i < Math.abs(delta); i++) {
+                                onRemoveWeapon && onRemoveWeapon('prow', option.name);
+                              }
+                            }
+                          }}
+                          onPreciseEdit={() => {
+                            // Open precise edit modal/sheet
+                          }}
+                        />
+                      );
+                    })}
+                  </div>
 
-              {/* Info Alert for Prow - moved below weapon rows */}
-              {!currentShip.loadout?.prow && (
-                <div className="weapon-section__alert">
-                  <Alert severity="info">Pick {currentShipDef.prow.select} prow option.</Alert>
+                  {/* Info Alert for Squadron Prow - moved below weapon rows */}
+                  {remaining > 0 && (
+                    <div className="weapon-section__alert">
+                      <Alert severity="info">Choose {remaining} more prow weapon(s).</Alert>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          )}
+              );
+            } else {
+              // Capital ship single-select logic (existing)
+              const isSelected = currentShip.loadout?.prow?.optionIndex !== undefined;
+              
+              return (
+                <div className="weapon-section">
+                  <div className="weapon-section__header weapon-section__header--sticky">
+                    <div className="weapon-section__title">
+                      <ProwIcon size={16} />
+                      <span>Prow Weapons — Select 1</span>
+                    </div>
+                    <div className="weapon-section__table-header">
+                      <div className="weapon-section__helper">Tap a row to select.</div>
+                      <div className="weapon-section__column-label">Target</div>
+                      <div className="weapon-section__column-label">Attacks</div>
+                      <div className="weapon-section__column-label">Range</div>
+                    </div>
+                  </div>
+
+                  <div className="weapon-section__rows">
+                    {currentShipDef.prow.options.map((option, optionIndex) => {
+                      const isOptionSelected = currentShip.loadout?.prow?.optionIndex === optionIndex;
+                      const weaponData = getWeaponDataByIndex({ optionIndex }, currentShipDef, 'prow', currentShip);
+                      
+                      return (
+                        <SwipeableWeaponRow
+                          key={optionIndex}
+                          weaponName={option.name}
+                          weaponData={weaponData}
+                          currentCount={isOptionSelected ? 1 : 0}
+                          maxCount={1}
+                          isMaxed={isOptionSelected}
+                          sectionType="single"
+                          onCountChange={(newCount) => {
+                            // Single-select doesn't use swipe, only tap
+                          }}
+                          onTap={() => {
+                            // Tap to select for single-select weapons
+                            if (isOptionSelected) {
+                              // If already selected, clear selection
+                              onSelectWeapon && onSelectWeapon('prow', null);
+                            } else {
+                              // Select this weapon with optionIndex format
+                              onSelectWeapon && onSelectWeapon('prow', { optionIndex, name: option.name });
+                            }
+                          }}
+                          onPreciseEdit={() => {
+                            // For single-select, precise edit just toggles selection
+                            if (isOptionSelected) {
+                              // Clear selection logic would go here
+                            } else {
+                              onSelectWeapon && onSelectWeapon('prow', optionIndex);
+                            }
+                          }}
+                        />
+                      );
+                    })}
+                  </div>
+
+                  {/* Info Alert for Capital Ship Prow - moved below weapon rows */}
+                  {!isSelected && (
+                    <div className="weapon-section__alert">
+                      <Alert severity="info">Pick {currentShipDef.prow.select} prow option.</Alert>
+                    </div>
+                  )}
+                </div>
+              );
+            }
+          })()}
 
           {/* Hull Section */}
           {currentShipDef.hull && currentShipDef.hull.select > 0 && (() => {
@@ -475,7 +573,7 @@ const BuildViewCard = ({
                     <span>Hull Weapons — Select {effectiveSlots} ({totalSelected}/{effectiveSlots})</span>
                   </div>
                   <div className="weapon-section__table-header">
-                    <div className="weapon-section__helper">Swipe a row to add/remove.</div>
+                    <div className="weapon-section__helper">Swipe to adjust.</div>
                     <div className="weapon-section__column-label">Target</div>
                     <div className="weapon-section__column-label">Attacks</div>
                     <div className="weapon-section__column-label">Range</div>
@@ -533,43 +631,28 @@ const BuildViewCard = ({
               </div>
             );
           })()}
-        </div>
-      )}
+      </div>
 
-      {/* Legacy weapon selection content for squadrons and info alerts */}
-      {(isSquadron || children) && (
-        <div className="build-view-card__content">
-          {children}
-        </div>
-      )}
 
-      {/* Refit and Begins With indicator */}
-      {(refitInfo.hasRefit || (currentShipDef.beginsWith && currentShipDef.beginsWith.length > 0)) && (
+
+      {/* Refit and other rule notations */}
+      {refitInfo.hasRefit && (
         <div className="build-view-card__footer">
-          {refitInfo.hasRefit && (
-            <>
-              <Typography variant="caption" className="build-view-card__footer-refit-title">
-                {isSquadron ? 'Squadron Refit' : 'Refit'}: {refitInfo.name}
-              </Typography>
-              {refitInfo.notes && refitInfo.notes.length > 0 && (
-                <div className="build-view-card__footer-notes">
-                  {refitInfo.notes.map((note, index) => (
-                    <Typography 
-                      key={index} 
-                      variant="caption" 
-                      className="build-view-card__footer-note"
-                    >
-                      • {note}
-                    </Typography>
-                  ))}
-                </div>
-              )}
-            </>
-                  )}
-          {((currentShip.beginsWith && currentShip.beginsWith.length > 0) || (currentShipDef.beginsWith && currentShipDef.beginsWith.length > 0)) && (
-            <Typography variant="caption" className={`build-view-card__footer-begins-with ${!refitInfo.hasRefit ? 'build-view-card__footer-begins-with--no-refit' : ''}`}>
-              Begins with: {(currentShip.beginsWith || currentShipDef.beginsWith).map(w => w.name || w).join(', ')}
+          <Typography variant="caption" className="build-view-card__footer-refit-title">
+            {isSquadron ? 'Squadron Refit' : 'Refit'}: {refitInfo.name}
+          </Typography>
+          {refitInfo.notes && refitInfo.notes.length > 0 && (
+            <div className="build-view-card__footer-notes">
+              {refitInfo.notes.map((note, index) => (
+                <Typography 
+                  key={index} 
+                  variant="caption" 
+                  className="build-view-card__footer-note"
+                >
+                  • {note}
                 </Typography>
+              ))}
+            </div>
           )}
         </div>
       )}

@@ -85,15 +85,38 @@ const PlayViewCard = ({ ship, squadron, faction, shipDef }) => {
         // Convert each ship in squadron to index-based format
         const convertedShip = convertLoadoutToIndices(rawShip, currentShipDef);
         
-        // Add prow weapon for this ship
+        // Add prow weapons for this ship (now supports arrays)
         if (convertedShip.loadout?.prow) {
-          const weaponData = getWeaponDataByIndex(convertedShip.loadout.prow, currentShipDef, 'prow', convertedShip);
-          const weaponName = currentShipDef.prow?.options?.[convertedShip.loadout.prow.optionIndex]?.name || 'Unknown';
-          allWeapons.push({
-            name: weaponName,
-            data: weaponData,
-            type: 'prow',
-            shipIndex: shipIndex
+          // Handle both single weapon (legacy) and array format (new multi-select)
+          const prowWeapons = Array.isArray(convertedShip.loadout.prow) 
+            ? convertedShip.loadout.prow 
+            : [convertedShip.loadout.prow];
+            
+          prowWeapons.forEach(prowWeapon => {
+            let weaponData, weaponName;
+            
+            if (typeof prowWeapon === 'string') {
+              // Handle string-based weapon names
+              weaponName = prowWeapon;
+              // Find the option index for this weapon name
+              const optionIndex = currentShipDef.prow?.options?.findIndex(opt => opt.name === prowWeapon);
+              if (optionIndex !== -1) {
+                weaponData = getWeaponDataByIndex({ optionIndex }, currentShipDef, 'prow', convertedShip);
+              }
+            } else {
+              // Handle index-based weapon objects
+              weaponData = getWeaponDataByIndex(prowWeapon, currentShipDef, 'prow', convertedShip);
+              weaponName = currentShipDef.prow?.options?.[prowWeapon.optionIndex]?.name || 'Unknown';
+            }
+            
+            if (weaponData) {
+              allWeapons.push({
+                name: weaponName,
+                data: weaponData,
+                type: 'prow',
+                shipIndex: shipIndex
+              });
+            }
           });
         }
         
@@ -179,7 +202,7 @@ const PlayViewCard = ({ ship, squadron, faction, shipDef }) => {
         </div>
       </div>
 
-            {/* Stats Section */}
+      {/* Stats Section */}
       <div className="play-view-card__stats">
         {/* Stat Labels Row */}
         <div className="play-view-card__stats-labels">
@@ -207,7 +230,7 @@ const PlayViewCard = ({ ship, squadron, faction, shipDef }) => {
                   {formatStatValue(statName, statline[statName])}
                 </Typography>
               </div>
-            ))}
+          ))}
           </div>
         </div>
       </div>
@@ -228,28 +251,97 @@ const PlayViewCard = ({ ship, squadron, faction, shipDef }) => {
                   </Typography>
                 ))}
               </div>
+                        )}
+            
+            {/* Begins With Weapons (common to all ships) */}
+            {((currentShip.beginsWith && currentShip.beginsWith.length > 0) || (currentShipDef.beginsWith && currentShipDef.beginsWith.length > 0)) && (
+              <>
+                <div className="play-view-card__begins-with-header">
+                  <Typography variant="h6" className="play-view-card__begins-with-title">
+                    Begins with
+                  </Typography>
+                </div>
+                
+                <div className="play-view-card__weapons-header">
+                  <div className="play-view-card__weapons-header-grid">
+                    <div>
+                      {/* Empty column for weapon names */}
+                    </div>
+                    <div className="play-view-card__weapons-header-label">
+                      Target
+                    </div>
+                    <div className="play-view-card__weapons-header-label">
+                      Attacks
+                    </div>
+                    <div className="play-view-card__weapons-header-label">
+                      Range
+                    </div>
+                  </div>
+                </div>
+                
+                {(currentShip.beginsWith || currentShipDef.beginsWith || []).map((beginsWithWeapon, index) => {
+                  const weaponData = getWeaponDataByIndex(beginsWithWeapon, currentShipDef, 'begins', currentShip);
+                  const weaponName = beginsWithWeapon.name || beginsWithWeapon;
+                  
+                  return (
+                    <div key={`begins-${index}`} className="play-view-card__weapons-row play-view-card__weapons-row--begins-with">
+                      <div className="play-view-card__weapons-row-grid">
+                        <div className="play-view-card__weapons-row-name">
+                          <ProwIcon size={16} />
+                          <Typography variant="body1" className="play-view-card__weapons-row-title">
+                            {weaponName}
+                          </Typography>
+                        </div>
+                        <div>
+                          <Typography variant="body1" className="play-view-card__weapons-row-stat">
+                            {weaponData?.targets || '?'}
+                          </Typography>
+                        </div>
+                        <div>
+                          <Typography variant="body1" className="play-view-card__weapons-row-stat">
+                            {formatAttacks(weaponData?.attacks) || '?'}
+                          </Typography>
+                        </div>
+                        <div>
+                          <Typography variant="body1" className="play-view-card__weapons-row-stat">
+                            {formatRange(weaponData?.range) || '?'}
+                          </Typography>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </>
             )}
             
-            {/* Squadron Weapons Table Header */}
-            <div className="play-view-card__weapons-header">
-              <div className="play-view-card__weapons-header-grid">
-                <div>
-                  {/* Empty column for weapon names */}
+            {/* Squadron Selected Weapons */}
+            {allWeapons.length > 0 && (
+              <>
+                <div className="play-view-card__selected-weapons-header">
+                  <Typography variant="h6" className="play-view-card__selected-weapons-title">
+                    Selected Weapons
+                  </Typography>
                 </div>
-                <div className="play-view-card__weapons-header-label">
-                  Target
+                
+                <div className="play-view-card__weapons-header">
+                  <div className="play-view-card__weapons-header-grid">
+                    <div>
+                      {/* Empty column for weapon names */}
+                    </div>
+                    <div className="play-view-card__weapons-header-label">
+              Target
+                    </div>
+                    <div className="play-view-card__weapons-header-label">
+                      Attacks
+                    </div>
+                    <div className="play-view-card__weapons-header-label">
+                      Range
+                    </div>
+                  </div>
                 </div>
-                <div className="play-view-card__weapons-header-label">
-                  Attacks
-                </div>
-                <div className="play-view-card__weapons-header-label">
-                  Range
-                </div>
-              </div>
-            </div>
-            
-                        {/* Squadron Weapons Rows */}
-            {allWeapons.map((weapon, index) => (
+                
+                {/* Squadron Weapons Rows */}
+                {allWeapons.map((weapon, index) => (
               <div key={index} className={`play-view-card__weapons-row ${index === allWeapons.length - 1 ? 'play-view-card__weapons-row--last' : ''}`}>
                 <div className="play-view-card__weapons-row-grid">
                   <div className="play-view-card__weapons-row-name">
@@ -278,11 +370,13 @@ const PlayViewCard = ({ ship, squadron, faction, shipDef }) => {
                   <div>
                     <Typography variant="body1" className="play-view-card__weapons-row-stat">
                       {formatRange(weapon.data.range)}
-                    </Typography>
+            </Typography>
                   </div>
                 </div>
               </div>
             ))}
+              </>
+            )}
           </>
         ) : (
                     // Capital ship weapons display
@@ -297,10 +391,10 @@ const PlayViewCard = ({ ship, squadron, faction, shipDef }) => {
                   Target
                 </div>
                 <div className="play-view-card__weapons-header-label">
-                  Attacks
+              Attacks
                 </div>
                 <div className="play-view-card__weapons-header-label">
-                  Range
+              Range
                 </div>
               </div>
             </div>

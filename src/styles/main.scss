@@ -483,6 +483,174 @@ body {
   &__alert {
     margin-top: $spacing-sm;
   }
+  
+  &__new-fleet-button {
+    padding: 0.5rem 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: transparent;
+    color: white;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      border-color: var(--primary-color);
+      background-color: rgba(25, 118, 210, 0.08);
+    }
+  }
+  
+  &__sign-in-container {
+    margin-bottom: 24px;
+    text-align: center;
+  }
+  
+  &__form-control--mb-2 {
+    margin-bottom: 16px;
+  }
+  
+  &__form-control--mt-1 {
+    margin-top: 8px;
+  }
+  
+  &__divider--my-2 {
+    margin: 16px 0;
+  }
+  
+  &__divider--my-1 {
+    margin: 8px 0;
+  }
+  
+  &__section-title--bold {
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+  
+  &__ship-paper {
+    padding: 8px;
+  }
+  
+  &__tooltip-box {
+    cursor: help;
+  }
+  
+  &__ship-name {
+    font-weight: 700;
+  }
+  
+  &__caption-block {
+    display: block;
+    margin-top: 4px;
+  }
+  
+  &__alert--mt-1 {
+    margin-top: 8px;
+  }
+  
+  &__toggle-section-title {
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+  }
+  
+  &__toggle-label {
+    font-weight: 600;
+  }
+  
+  &__form-control-label {
+    margin: 0;
+    
+    .MuiFormControlLabel-label {
+      color: var(--text-secondary);
+    }
+    
+    &--active .MuiFormControlLabel-label {
+      color: var(--primary-color);
+    }
+  }
+  
+  &__fluff-paper {
+    padding: 8px;
+    margin-bottom: 8px;
+  }
+  
+  &__accordion--mb-1 {
+    margin-bottom: 8px;
+  }
+  
+  &__accordion-title {
+    font-weight: 800;
+  }
+  
+  &__accordion-details {
+    padding-top: 0;
+  }
+  
+  &__rule-paper {
+    padding: 8px;
+  }
+  
+  &__rule-name {
+    font-weight: 700;
+  }
+  
+  &__rule-description {
+    margin-top: 4px;
+  }
+  
+  &__ability-paper {
+    padding: 8px;
+    height: 100%;
+  }
+  
+  &__ability-dice-container {
+    display: flex;
+    align-items: center;
+  }
+  
+  &__ability-content {
+    flex: 1;
+  }
+  
+  &__ability-name {
+    font-weight: 700;
+  }
+  
+  &__ability-description {
+    margin-top: 4px;
+  }
+  
+  &__refit-paper {
+    padding: 8px;
+    margin-top: 8px;
+  }
+  
+  &__refit-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  &__refit-title {
+    font-weight: 700;
+  }
+  
+  &__refit-button {
+    min-width: auto;
+    width: 40px;
+    height: 40px;
+    
+    &--error {
+      // Error variant styling handled by MUI color prop
+    }
+  }
+  
+  &__save-fab {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    z-index: 1000;
+  }
 }
 
 // Build View Card styles (theme-independent structure only)
@@ -507,6 +675,7 @@ body {
     }
     
     &-delete-button {
+      margin-top: 0;
       // Delete button styling handled by themes
     }
     
@@ -580,11 +749,7 @@ body {
   }
 
   &__weapons {
-    // Container for weapon selection sections (legacy)
-  }
-
-  &__weapons-mobile {
-    // Container for mobile-first weapon selection
+    // Container for weapon selection sections
   }
 
   &__weapon-section {
@@ -701,8 +866,8 @@ body {
     padding: 0 0.125rem;
   }
   
-  &__content {
-    padding: $spacing-md;
+  &__begins-with {
+    // No padding - content should handle its own spacing
   }
 }
 
@@ -745,7 +910,6 @@ body {
     grid-template-columns: 3fr 1fr 1fr 1fr;
     align-items: center;
     gap: 0.5rem;
-    padding-top: 0.5rem;
   }
 
   &__column-label {
@@ -1100,7 +1264,6 @@ body {
 
 // Weapon section styles
 .weapon-section {
-  margin-bottom: $spacing-md;
 
   &__header {
     // margin-bottom removed for tighter spacing
@@ -1125,7 +1288,6 @@ body {
     grid-template-columns: 3fr 1fr 1fr 1fr;
     align-items: center;
     gap: 0.5rem;
-    padding-top: 0.5rem;
   }
 
   &__helper {

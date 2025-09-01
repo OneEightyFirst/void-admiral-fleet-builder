@@ -18,6 +18,7 @@ body.theme-default {
   --text-primary: #ffffff;
   --text-secondary: rgba(255, 255, 255, 0.7);
   --text-disabled: rgba(255, 255, 255, 0.38);
+  --text-header: #1f1f1f;
   
   --border-color: rgba(255, 255, 255, 0.12);
   --divider-color: rgba(255, 255, 255, 0.12);
@@ -53,7 +54,7 @@ body.theme-default {
       &-faction,
       &-name,
       &-size {
-        color: #1f1f1f;
+        color: var(--text-header);
       }
     }
 
@@ -99,7 +100,7 @@ body.theme-default {
     }
 
     // Mobile weapon selection styling
-    &__weapons-mobile .weapon-section {
+    &__weapons .weapon-section {
       &__header {
         background-color: var(--bg-darker);
         color: var(--text-primary);
@@ -259,7 +260,7 @@ body.theme-default {
       background-color: var(--bg-secondary);
     }
 
-    &__content {
+    &__begins-with {
       background-color: var(--bg-paper);
     }
 
@@ -268,10 +269,26 @@ body.theme-default {
         background-color: var(--bg-secondary);
       }
     }
+      }
   }
-}
 
-// Vintage theme styles
+  // PlayViewCard default theme colors
+  .play-view-card {
+    &__header {
+      &-faction,
+      &-name,
+      &-size {
+        color: var(--text-header);
+      }
+      
+      &-cost,
+      &-count {
+        color: #ffffff;
+      }
+    }
+  }
+
+  // Vintage theme styles
 body.theme-vintage {
   // Define CSS custom properties for vintage theme
   --primary-color: #ca4a3c;
@@ -289,6 +306,7 @@ body.theme-vintage {
   --text-primary: #e5e2d8;
   --text-secondary: rgba(229, 226, 216, 0.7);
   --text-disabled: rgba(229, 226, 216, 0.38);
+  --text-header: #1f1f1f;
   
   --border-color: rgba(229, 226, 216, 0.12);
   --divider-color: rgba(229, 226, 216, 0.12);
@@ -324,7 +342,7 @@ body.theme-vintage {
       &-faction,
       &-name,
       &-size {
-        color: #e5e2d8;
+        color: var(--text-header);
       }
     }
     
@@ -427,10 +445,13 @@ body.theme-vintage {
       
       &-faction,
       &-name,
-      &-size,
+      &-size {
+        color: var(--text-header);
+      }
+      
       &-cost,
       &-count {
-        color: #e5e2d8;
+        color: #ffffff;
       }
     }
     
@@ -528,6 +549,7 @@ body.theme-space {
   --text-primary: #ffffff;
   --text-secondary: rgba(255, 255, 255, 0.7);
   --text-disabled: rgba(255, 255, 255, 0.38);
+  --text-header: #1f1f1f;
   
   --border-color: rgba(255, 255, 255, 0.1);
   --divider-color: rgba(255, 255, 255, 0.1);
@@ -745,7 +767,7 @@ body.theme-space {
       &-faction,
       &-name,
       &-size {
-        color: #ffffff;
+        color: var(--text-header);
       }
     }
     
@@ -841,6 +863,22 @@ body.theme-space {
       &:disabled {
         opacity: 0.3;
         cursor: not-allowed;
+      }
+    }
+  }
+
+  // PlayViewCard space theme colors
+  .play-view-card {
+    &__header {
+      &-faction,
+      &-name,
+      &-size {
+        color: var(--text-header);
+      }
+      
+      &-cost,
+      &-count {
+        color: #ffffff;
       }
     }
   }

@@ -1,5 +1,20 @@
 import React from 'react';
-import { Paper, Typography, Box, Chip, Tooltip as MuiTooltip } from '@mui/material';
+import { HullIcon } from '../SVGComponents';
+
+// Helper functions for weapon display (same as BuildViewCard)
+const formatAttacks = (attacksObj) => {
+  if (!attacksObj) return '';
+  if (typeof attacksObj === 'string') return attacksObj;
+  if (typeof attacksObj === 'object' && attacksObj.dice) {
+    return attacksObj.star ? `${attacksObj.dice}*` : attacksObj.dice;
+  }
+  return attacksObj.toString();
+};
+
+const formatRange = (range) => {
+  if (!range) return '';
+  return `${range}"`;
+};
 
 const BeginsWithSection = ({ 
   beginsWith, 
@@ -12,11 +27,17 @@ const BeginsWithSection = ({
   }
 
   return (
-    <Paper variant="outlined" sx={{ p: 1, mb: 1, backgroundColor: 'rgb(58, 56, 57)' }}>
-      <Typography variant="caption" sx={{ fontWeight: 700, mb: 1.5, display: 'block', fontSize: '0.875rem' }}>
-        Begins with
-      </Typography>
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+    <div className="weapon-section">
+      <div className="weapon-section__header weapon-section__header--sticky">
+        <div className="weapon-section__table-header">
+          <div className="weapon-section__title">Begins with</div>
+          <div className="weapon-section__column-label">Target</div>
+          <div className="weapon-section__column-label">Attacks</div>
+          <div className="weapon-section__column-label">Range</div>
+        </div>
+      </div>
+
+      <div className="weapon-section__rows">
         {beginsWith.map((weapon, idx) => {
           // Check if this weapon has been replaced by a squadron refit
           const effectiveWeapon = (() => {
@@ -35,31 +56,27 @@ const BeginsWithSection = ({
             return weapon;
           })();
 
-          // Generate tooltip content
-          const tooltipTitle = getWeaponData 
-            ? `Targets: ${getWeaponData(effectiveWeapon, shipDef, 'hull', { squadronRefit }).targets || "—"} • Attacks: ${getWeaponData(effectiveWeapon, shipDef, 'hull', { squadronRefit }).attacks ?? "—"} • Range: ${getWeaponData(effectiveWeapon, shipDef, 'hull', { squadronRefit }).range || "—"}`
-            : `Targets: ${effectiveWeapon.targets || "—"} • Attacks: ${effectiveWeapon.attacks ?? "—"} • Range: ${effectiveWeapon.range || "—"}`;
+          // Get weapon data for display
+          const weaponData = getWeaponData 
+            ? getWeaponData(effectiveWeapon, shipDef, 'hull', { squadronRefit })
+            : effectiveWeapon;
 
           return (
-            <MuiTooltip 
+            <div 
               key={`begins-${idx}`} 
-              title={tooltipTitle} 
-              arrow
+              className="weapon-row weapon-row--readonly weapon-row--selected"
             >
-              <Chip 
-                color="primary"
-                label={effectiveWeapon.name}
-                sx={{ 
-                  '& .MuiChip-label': { 
-                    fontWeight: 600 
-                  } 
-                }}
-              />
-            </MuiTooltip>
+              <div className="weapon-row__content">
+                <div className="weapon-row__name">{effectiveWeapon.name}</div>
+                <div className="weapon-row__target">{weaponData.targets || "—"}</div>
+                <div className="weapon-row__attacks">{formatAttacks(weaponData.attacks) || "—"}</div>
+                <div className="weapon-row__range">{formatRange(weaponData.range) || "—"}</div>
+              </div>
+            </div>
           );
         })}
-      </Box>
-    </Paper>
+      </div>
+    </div>
   );
 };
 

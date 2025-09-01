@@ -478,25 +478,16 @@ const BuildView = ({
         </div>
         
         {/* New Fleet Button */}
-        <Button 
-          variant="outlined" 
+        <button 
+          className="build-view__new-fleet-button"
           onClick={startNewFleet}
-          size="small"
-          sx={{ 
-            color: 'white',
-            borderColor: 'rgba(255, 255, 255, 0.3)',
-            '&:hover': {
-              borderColor: 'primary.main',
-              backgroundColor: 'rgba(25, 118, 210, 0.08)'
-            }
-          }}
         >
           New Fleet
-        </Button>
+        </button>
       </div>
       
       {!user && (
-        <Box sx={{ mb: 3, textAlign: 'center' }}>
+        <div className="build-view__sign-in-container">
           <Button 
             variant="outlined" 
             startIcon={<LoginIcon/>}
@@ -505,13 +496,13 @@ const BuildView = ({
           >
             Sign In to Save
           </Button>
-        </Box>
+        </div>
       )}
 
       <Grid container spacing={2}>
         <Grid item xs={12} md={3}>
           <Card><CardContent>
-            <FormControl fullWidth size="small" sx={{ mb: 2 }}>
+            <FormControl fullWidth size="small" className="build-view__form-control--mb-2">
               <InputLabel>Game Size</InputLabel>
               <Select label="Game Size" value={points} onChange={e=>setPoints(e.target.value)}>
                 <MenuItem value={15}>15 pts - Quick Skirmish</MenuItem>
@@ -521,15 +512,15 @@ const BuildView = ({
               </Select>
             </FormControl>
             
-            <FormControl fullWidth size="small" sx={{ mt:1 }}>
+            <FormControl fullWidth size="small" className="build-view__form-control--mt-1">
               <InputLabel>Faction</InputLabel>
               <Select label="Faction" value={faction} onChange={e=>{ setFaction(e.target.value); setRoster([]); }}>
                 {factions ? Object.keys(factions).filter(f => f !== 'Universal').map(f=> <MenuItem key={f} value={f}>{f}</MenuItem>) : []}
               </Select>
             </FormControl>
 
-            <Divider sx={{ my:2 }}/>
-            <Typography variant="subtitle1" sx={{ fontWeight:800, mb:1 }}>Add Ships</Typography>
+            <Divider className="build-view__divider--my-2"/>
+            <Typography variant="subtitle1" className="build-view__section-title--bold">Add Ships</Typography>
             <Stack spacing={1}>
               {Object.entries(ships).map(([cls,def])=> {
                 // Create tooltip content with ship stats
@@ -540,11 +531,11 @@ const BuildView = ({
                   'No stats available';
                 
                 return (
-                <Paper key={cls} variant="outlined" sx={{ p:1 }}>
+                <Paper key={cls} variant="outlined" className="build-view__ship-paper">
                   <Stack direction="row" justifyContent="space-between" alignItems="center">
                     <MuiTooltip title={statsTooltip} arrow>
-                      <Box sx={{ cursor: 'help' }}>
-                        <Typography variant="subtitle2" sx={{ fontWeight:700 }}>{cls}</Typography>
+                      <Box className="build-view__tooltip-box">
+                        <Typography variant="subtitle2" className="build-view__ship-name">{cls}</Typography>
                         <Typography variant="caption" color="text.secondary">
                           {def.squadron ? (
                             faction === "Insectoids" && cls === "Pincer" ? 
@@ -562,23 +553,23 @@ const BuildView = ({
                 );
               })}
             </Stack>
-            <Divider sx={{ my:1 }}/>
+            <Divider className="build-view__divider--my-1"/>
             <Typography>Total: {used}/{cap} pts</Typography>
             {cap !== points && (
-              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+              <Typography variant="caption" color="text.secondary" className="build-view__caption-block">
                 {cap < points ? `Reduced from ${points} pts (Few in Number)` : `Increased from ${points} pts (${factions ? getSpecialRules(faction, factions).find(r => r.name === "Wealthy" || r.name === "Industrious")?.name : ""})`}
               </Typography>
             )}
             {useRefits && (
-              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+              <Typography variant="caption" color="text.secondary" className="build-view__caption-block">
                 Refits: {usedRefits}/{maxRefits} used
               </Typography>
             )}
-            {uniqueClash && <Alert severity="warning" sx={{ mt:1 }}>Unique rule: two non‑squadron ships are armed identically. Change a prow or hull mix.</Alert>}
+            {uniqueClash && <Alert severity="warning" className="build-view__alert--mt-1">Unique rule: two non‑squadron ships are armed identically. Change a prow or hull mix.</Alert>}
             
             {/* Content Toggles */}
-            <Divider sx={{ my: 2 }}/>
-            <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1, color: 'text.primary' }}>
+            <Divider className="build-view__divider--my-2"/>
+            <Typography variant="subtitle2" className="build-view__toggle-section-title">
               Additional Content
             </Typography>
             <Stack spacing={1}>
@@ -591,16 +582,11 @@ const BuildView = ({
                   />
                 }
                 label={
-                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                  <Typography variant="body2" className="build-view__toggle-label">
                     Use Refits
                   </Typography>
                 }
-                sx={{ 
-                  margin: 0,
-                  '& .MuiFormControlLabel-label': {
-                    color: useRefits ? 'primary.main' : 'text.secondary'
-                  }
-                }}
+                className={`build-view__form-control-label ${useRefits ? 'build-view__form-control-label--active' : ''}`}
               />
               <FormControlLabel
                 control={
@@ -611,16 +597,11 @@ const BuildView = ({
                   />
                 }
                 label={
-                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                  <Typography variant="body2" className="build-view__toggle-label">
                     Use Juggernauts
                   </Typography>
                 }
-                sx={{ 
-                  margin: 0,
-                  '& .MuiFormControlLabel-label': {
-                    color: useJuggernauts ? 'primary.main' : 'text.secondary'
-                  }
-                }}
+                className={`build-view__form-control-label ${useJuggernauts ? 'build-view__form-control-label--active' : ''}`}
               />
             </Stack>
           </CardContent></Card>
@@ -631,27 +612,27 @@ const BuildView = ({
             <Grid item xs={12}>
               <Card>
                 <CardContent>
-                  <Typography variant="subtitle1" sx={{ fontWeight:800, mb:1 }}>Faction Overview</Typography>
+                  <Typography variant="subtitle1" className="build-view__section-title--bold">Faction Overview</Typography>
 
                   {factions && getFluff(faction, factions) && (
-                    <Paper variant="outlined" sx={{ p:1, mb:1 }}>
+                    <Paper variant="outlined" className="build-view__fluff-paper">
                       <Typography variant="body2" color="text.secondary">{getFluff(faction, factions)}</Typography>
                     </Paper>
                   )}
 
-                  <Accordion disableGutters sx={{ mb:1 }} defaultExpanded>
+                  <Accordion disableGutters className="build-view__accordion--mb-1" defaultExpanded>
                     <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
-                      <Typography variant="subtitle2" sx={{ fontWeight:800 }}>Special Rules</Typography>
+                      <Typography variant="subtitle2" className="build-view__accordion-title">Special Rules</Typography>
                     </AccordionSummary>
-                    <AccordionDetails sx={{ pt:0 }}>
+                    <AccordionDetails className="build-view__accordion-details">
                       {getSpecialRules(faction, factions).length === 0 ? (
                         <Typography variant="body2" color="text.secondary">None listed.</Typography>
                       ) : (
                         <Stack spacing={0.75}>
                           {getSpecialRules(faction, factions).map((r, i)=>(
-                            <Paper key={i} variant="outlined" sx={{ p:1 }}>
-                              <Typography variant="body2" sx={{ fontWeight:700 }}>{r.name}</Typography>
-                              <Typography variant="body2" color="text.secondary" sx={{ mt:0.5 }}>{r.description}</Typography>
+                            <Paper key={i} variant="outlined" className="build-view__rule-paper">
+                              <Typography variant="body2" className="build-view__rule-name">{r.name}</Typography>
+                              <Typography variant="body2" color="text.secondary" className="build-view__rule-description">{r.description}</Typography>
                             </Paper>
                           ))}
                         </Stack>
@@ -661,23 +642,23 @@ const BuildView = ({
 
                   <Accordion disableGutters>
                     <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
-                      <Typography variant="subtitle2" sx={{ fontWeight:800 }}>Command Abilities</Typography>
+                      <Typography variant="subtitle2" className="build-view__accordion-title">Command Abilities</Typography>
                     </AccordionSummary>
-                    <AccordionDetails sx={{ pt:0 }}>
+                    <AccordionDetails className="build-view__accordion-details">
                       {getCommandAbilities(faction, factions).length === 0 ? (
                         <Typography variant="body2" color="text.secondary">None listed.</Typography>
                       ) : (
                         <Grid container spacing={1}>
                           {getCommandAbilities(faction, factions).sort((a,b)=>a.dice-b.dice).map((c, i)=>(
                             <Grid key={i} item xs={12} sm={6} lg={4}>
-                              <Paper variant="outlined" sx={{ p:1, height: '100%' }}>
+                              <Paper variant="outlined" className="build-view__ability-paper">
                                 <Stack direction="row" spacing={1} alignItems="stretch">
-                                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                  <Box className="build-view__ability-dice-container">
                                     <DiceFace value={c.dice} size={32} />
                                   </Box>
-                                  <Stack sx={{ flex: 1 }}>
-                                    <Typography variant="body2" sx={{ fontWeight:700 }}>{c.name}</Typography>
-                                    <Typography variant="body2" color="text.secondary" sx={{ mt:0.5 }}>{c.description}</Typography>
+                                  <Stack className="build-view__ability-content">
+                                    <Typography variant="body2" className="build-view__ability-name">{c.name}</Typography>
+                                    <Typography variant="body2" color="text.secondary" className="build-view__ability-description">{c.description}</Typography>
                                   </Stack>
                                 </Stack>
                               </Paper>
@@ -713,209 +694,98 @@ const BuildView = ({
                         faction={faction}
                         onDuplicateGroup={duplicateGroup}
                         onRemoveGroup={removeGroup}
+                        onSelectWeapon={(location, weaponOption) => {
+                          // For squadrons, apply weapon selection to the first available ship
+                          const targetShip = squadronShips.find(ship => {
+                            if (location === 'prow') {
+                              return !ship.loadout.prow || ship.loadout.prow.name !== weaponOption?.name;
+                            }
+                            return true;
+                          }) || squadronShips[0];
+                          
+                          if (location === 'prow') {
+                            pickProw(targetShip.id, weaponOption);
+                          }
+                        }}
+                        onAddWeapon={(location, weaponName) => {
+                          // For squadrons, add weapon to the first available ship
+                          const targetShip = squadronShips[0];
+                          if (location === 'hull') {
+                            addHull(targetShip.id, weaponName, def);
+                          } else if (location === 'prow') {
+                            // Add prow weapon to squadron (multi-select)
+                            const updatedShip = { ...targetShip };
+                            if (!updatedShip.loadout.prow) {
+                              updatedShip.loadout.prow = [];
+                            }
+                            updatedShip.loadout.prow.push(weaponName);
+                            
+                            // Update the roster
+                            setRoster(prevRoster => 
+                              prevRoster.map(ship => 
+                                ship.id === targetShip.id ? updatedShip : ship
+                              )
+                            );
+                          }
+                        }}
+                        onRemoveWeapon={(location, weaponName) => {
+                          // For squadrons, remove weapon from the ship that has it
+                          if (location === 'hull') {
+                            const targetShip = squadronShips.find(ship => 
+                              ship.loadout.hull && ship.loadout.hull.includes(weaponName)
+                            ) || squadronShips[0];
+                            removeHullByName(targetShip.id, weaponName, def);
+                          } else if (location === 'prow') {
+                            // Remove prow weapon from squadron (multi-select)
+                            const targetShip = squadronShips.find(ship => 
+                              ship.loadout.prow && ship.loadout.prow.some(p => 
+                                (typeof p === 'string' ? p : p.name) === weaponName
+                              )
+                            ) || squadronShips[0];
+                            
+                            const updatedShip = { ...targetShip };
+                            if (updatedShip.loadout.prow) {
+                              const index = updatedShip.loadout.prow.findIndex(p => 
+                                (typeof p === 'string' ? p : p.name) === weaponName
+                              );
+                              if (index !== -1) {
+                                updatedShip.loadout.prow.splice(index, 1);
+                              }
+                            }
+                            
+                            // Update the roster
+                            setRoster(prevRoster => 
+                              prevRoster.map(ship => 
+                                ship.id === targetShip.id ? updatedShip : ship
+                              )
+                            );
+                          }
+                        }}
                       >
                         {/* Squadron weapon selection content */}
                         <Grid container spacing={2}>
                           {/* Begins with weapons section */}
                           {((squadronShips[0]?.beginsWith && squadronShips[0].beginsWith.length > 0) || (def.beginsWith && def.beginsWith.length > 0)) && (
-                            <Grid item xs={12}>
+                          <Grid item xs={12}>
                               <BeginsWithSection 
                                 beginsWith={squadronShips[0]?.beginsWith || def.beginsWith}
                                 squadronRefit={squadronShips[0]?.squadronRefit}
                                 getWeaponData={getWeaponDataByIndex}
                                 shipDef={def}
                               />
-                            </Grid>
-                          )}
+                        </Grid>
+                        )}
 
-                          {/* Individual ships in squadron */}
-                          {squadronShips.map((squadShip, idx) => (
-                            <Grid key={squadShip.id} item xs={12}>
-                              <Paper variant="outlined" sx={{ p:1, mb:1 }}>
-                                {/* Prow weapons for this ship */}
-                                {def.prow.select > 0 && def.prow.options.length > 0 && (
-                                  <Box sx={{ mb:1 }}>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
-                                      <Box sx={{
-                                        width: 20,
-                                        height: 20,
-                                        borderRadius: '50%',
-                                        border: '2px solid white',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        flexShrink: 0
-                                      }}>
-                                        <Typography
-                                          variant="body2"
-                                          sx={{
-                                            fontWeight: 700,
-                                            fontSize: '0.7rem',
-                                            lineHeight: 1
-                                          }}
-                                        >
-                                          {idx + 1}
-                                        </Typography>
-                                      </Box>
-                                      <Typography variant="caption" sx={{ fontWeight:700 }}>Ship</Typography>
-                                      <Typography variant="caption" sx={{ color: 'text.secondary' }}>|</Typography>
-                                      <ProwIcon size={14} />
-                                      <Typography variant="caption" sx={{ fontWeight:700 }}>Prow — Select {def.prow.select}</Typography>
-                                    </Box>
-                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                                      {getModifiedWeaponOptions(def.prow.options, squadShip, 'prow').map((o, optionIndex)=> {
-                                        const selected = squadShip.loadout.prow?.optionIndex === optionIndex || squadShip.loadout.prow?.name === o.name;
-                                        const weaponData = getWeaponDataByIndex(optionIndex, def, 'prow', squadShip);
-                                        return (
-                                          <MuiTooltip key={o.name} title={`Targets: ${weaponData.targets||"—"} • Attacks: ${weaponData.attacks??"—"} • Range: ${weaponData.range||"—"}`} arrow>
-                                            <Chip clickable color={selected?"primary":"default"} onClick={()=>pickProw(squadShip.id, o)} label={o.name} />
-                                          </MuiTooltip>
-                                        );
-                                      })}
-                                    </Box>
-                                  </Box>
-                                )}
 
-                                {/* Hull weapons for this ship */}
-                                {(() => {
-                                  const effectiveSlots = calculateEffectiveHullSlots(squadShip, def);
-                                  return effectiveSlots > 0;
-                                })() && (
-                                  <Box>
-                                    {(() => {
-                                      const effectiveSlots = calculateEffectiveHullSlots(squadShip, def);
-                                      return effectiveSlots > 0;
-                                    })() && (
-                                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
-                                        <Box sx={{
-                                          width: 20,
-                                          height: 20,
-                                          borderRadius: '50%',
-                                          border: '2px solid white',
-                                          display: 'flex',
-                                          alignItems: 'center',
-                                          justifyContent: 'center',
-                                          flexShrink: 0
-                                        }}>
-                                          <Typography
-                                            variant="body2"
-                                            sx={{
-                                              fontWeight: 700,
-                                              fontSize: '0.7rem',
-                                              lineHeight: 1
-                                            }}
-                                          >
-                                            {idx + 1}
-                                          </Typography>
-                                        </Box>
-                                        <Typography variant="caption" sx={{ fontWeight:700 }}>Ship</Typography>
-                                        <Typography variant="caption" sx={{ color: 'text.secondary' }}>|</Typography>
-                                        <HullIcon size={14} />
-                                        <Typography variant="caption" sx={{ fontWeight:700 }}>Hull — Select {calculateEffectiveHullSlots(squadShip, def)} (mix allowed)</Typography>
-                                      </Box>
-                                    )}
-                                    {hasUnplannedConstruction(faction, factions) && squadShip.loadout.isRandomized ? (
-                                      <Alert severity="info" sx={{ mb: 1 }}>
-                                        Weapons randomly assigned at game start. Hull selection disabled.
-                                      </Alert>
-                                    ) : (
-                                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                                        {/* Show selectable hull options */}
-                                        {getModifiedWeaponOptions(def.hull.options, squadShip, 'hull').map((o, index)=> {
-                                          const currentCount = (squadShip.loadout.hull||[]).filter(name => name === o.name).length;
-                                          const totalEditable = (squadShip.loadout.hull || []).filter(n=>!(def.beginsWith||[]).some(b=>b.name===n)).length;
-                                          const effectiveSlots = calculateEffectiveHullSlots(squadShip, def);
-                                          const canAdd = totalEditable < effectiveSlots && !o.addedByRefit; // Can't add refit weapons manually
-                                          const canRemove = currentCount > 0 && !o.addedByRefit; // Can't remove refit weapons
-                                          const isAtLimit = totalEditable >= effectiveSlots;
-                                          const hasSelection = currentCount > 0;
-                                          const shouldHighlight = isAtLimit && hasSelection;
-                                          const isRefitWeapon = o.addedByRefit;
-                                          
-                                          return (
-                                            <MuiTooltip key={o.name} title={`Targets: ${getWeaponDataByIndex(index, def, 'hull', squadShip).targets||"—"} • Attacks: ${getWeaponDataByIndex(index, def, 'hull', squadShip).attacks??"—"} • Range: ${getWeaponDataByIndex(index, def, 'hull', squadShip).range||"—"}`} arrow>
-                                              <Chip 
-                                                color={isRefitWeapon ? "warning" : (shouldHighlight ? "primary" : "default")}
-                                                sx={{ 
-                                                  '& .MuiChip-label': { 
-                                                    display: 'flex', 
-                                                    alignItems: 'center', 
-                                                    gap: 0.5,
-                                                    px: 1
-                                                  },
-                                                  ...(isRefitWeapon && {
-                                                    border: '2px solid #ffc107',
-                                                    backgroundColor: 'rgba(255, 193, 7, 0.1)'
-                                                  })
-                                                }}
-                                                label={
-                                                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                                    <Typography variant="caption">
-                                                      {o.name} {isRefitWeapon && '(Refit)'}
-                                                    </Typography>
-                                                    {!isRefitWeapon && (
-                                                      <>
-                                                    <IconButton 
-                                                      size="small" 
-                                                      disabled={!canRemove}
-                                                      onClick={(e)=> {
-                                                        e.stopPropagation();
-                                                        removeHullByName(squadShip.id, o.name, def);
-                                                      }}
-                                                      sx={{ p: 0.25, minWidth: 'auto', color: 'inherit' }}
-                                                    >
-                                                      <RemoveIcon fontSize="small" />
-                                                    </IconButton>
-                                                    <Typography variant="body2" sx={{ minWidth: 16, textAlign: 'center', fontSize: '0.75rem' }}>
-                                                      {currentCount}
-                                                    </Typography>
-                                                    <IconButton 
-                                                      size="small" 
-                                                      disabled={!canAdd}
-                                                      onClick={(e)=> {
-                                                        e.stopPropagation();
-                                                        addHull(squadShip.id, o.name, def);
-                                                      }}
-                                                      sx={{ p: 0.25, minWidth: 'auto', color: 'inherit' }}
-                                                    >
-                                                      <PlusIcon fontSize="small" />
-                                                    </IconButton>
-                                                      </>
-                                                    )}
-                                                    {isRefitWeapon && (
-                                                      <Typography variant="body2" sx={{ minWidth: 16, textAlign: 'center', fontSize: '0.75rem', fontWeight: 'bold' }}>
-                                                        1
-                                                      </Typography>
-                                                    )}
-                                                  </Box>
-                                                }
-                                              />
-                                            </MuiTooltip>
-                                          );
-                                        })}
-                                      </Box>
-                                    )}
-                                    {(() => {
-                                      const editableCount = (squadShip.loadout.hull||[]).filter(n=>!(def.beginsWith||[]).some(b=>b.name===n)).length;
-                                      // Account for hull weapon slots consumed by refits
-                                      const refitHullCost = squadShip.refit?.cost?.hull_weapons ? parseInt(squadShip.refit.cost.hull_weapons.replace('-', '')) : 0;
-                                      const effectiveSlots = def.hull.select - refitHullCost;
-                                      return editableCount < effectiveSlots && <Alert severity="info" sx={{ mt:1 }}>Choose {effectiveSlots - editableCount} more hull weapon(s).</Alert>;
-                                    })()}
-                                  </Box>
-                                )}
-                              </Paper>
-                            </Grid>
-                          ))}
                         </Grid>
 
                         {/* Squadron Refit Button - only when squadron refits are enabled */}
                         {useRefits && (
                           <Grid item xs={12}>
-                            <Paper variant="outlined" sx={{ p: 1, mt: 1 }}>
-                              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <Paper variant="outlined" className="build-view__refit-paper">
+                              <Box className="build-view__refit-header">
                                 <Box>
-                                  <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+                                  <Typography variant="subtitle2" className="build-view__refit-title">
                                     Squadron Refit
                                   </Typography>
                                   {squadronShips[0].squadronRefit ? (
@@ -939,11 +809,7 @@ const BuildView = ({
 
                                       handleOpenSquadronRefitModal(squadronShips);
                                     }}
-                                    sx={{
-                                      minWidth: 'auto',
-                                      width: 40,
-                                      height: 40
-                                    }}
+                                    className="build-view__refit-button"
                                   >
                                     {squadronShips[0].squadronRefit ? <EditIcon fontSize="small" /> : <AddIcon fontSize="small" />}
                                   </Button>
@@ -953,11 +819,7 @@ const BuildView = ({
                                       variant="outlined"
                                       color="error"
                                       onClick={() => handleClearSquadronRefit(squadronShips[0].groupId)}
-                                      sx={{
-                                        minWidth: 'auto',
-                                        width: 40,
-                                        height: 40
-                                      }}
+                                      className="build-view__refit-button build-view__refit-button--error"
                                     >
                                       <CloseIcon fontSize="small" />
                                     </Button>
@@ -1017,12 +879,7 @@ const BuildView = ({
           color={saveStatus === 'saved' ? 'success' : 'primary'}
           onClick={saveFleet}
           disabled={saveStatus === 'saving'}
-          sx={{ 
-            position: 'fixed', 
-            bottom: 16, 
-            right: 16,
-            zIndex: 1000
-          }}
+          className="build-view__save-fab"
         >
           {saveStatus === 'saving' ? <CircularProgress size={24} color="inherit" /> : <SaveIcon />}
         </Fab>
