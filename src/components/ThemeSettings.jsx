@@ -1,171 +1,92 @@
 import React from 'react';
-import {
-  Box,
-  Typography,
-  Card,
-  CardContent,
-  Radio,
-  RadioGroup,
+import { 
+  Box, 
+  Typography, 
+  FormControl, 
   FormControlLabel,
-  FormControl,
-  FormLabel,
-  Chip,
-  Stack,
+  RadioGroup,
+  Radio,
   Paper,
+  Stack
 } from '@mui/material';
 import { useTheme } from '../contexts/ThemeContext';
 
 const ThemeSettings = () => {
-  const { currentTheme, themes, switchTheme, user, isLoading } = useTheme();
+  const { currentTheme, switchTheme, themes } = useTheme();
 
   const handleThemeChange = (event) => {
     switchTheme(event.target.value);
   };
 
+  // Define theme color swatches
+  const themeSwatches = {
+    default: {
+      primary: '#3874cb',
+      background: '#181818',
+      surface: '#1f1f1f',
+      text: '#ffffff'
+    },
+    vintage: {
+      primary: '#ca4a3c',
+      background: '#3a3839',
+      surface: '#444243',
+      text: '#f5f5dc'
+    }
+  };
+
+  const ColorSwatch = ({ colors }) => (
+    <Stack direction="row" spacing={0.5} sx={{ ml: 4, mt: 0.5 }}>
+      {Object.entries(colors).map(([name, color]) => (
+        <Box
+          key={name}
+          sx={{
+            width: 20,
+            height: 20,
+            backgroundColor: color,
+            borderRadius: '50%',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.3)'
+          }}
+          title={`${name}: ${color}`}
+        />
+      ))}
+    </Stack>
+  );
+
   return (
-    <Box sx={{ maxWidth: 800, mx: 'auto' }}>
-      <Typography variant="h4" className="page-subtitle">
+    <Box sx={{ p: 3, maxWidth: 600, mx: 'auto' }}>
+      <Typography variant="h4" gutterBottom>
         Theme Settings
       </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
-        Choose your preferred color theme for the application
-      </Typography>
-
-      <FormControl component="fieldset">
-        <FormLabel component="legend" sx={{ mb: 2, color: 'text.primary', fontWeight: 600 }}>
-          Available Themes
-        </FormLabel>
-        <RadioGroup
-          value={currentTheme}
-          onChange={handleThemeChange}
-        >
-          {Object.entries(themes).map(([key, theme]) => (
-            <Paper
-              key={key}
-              variant="outlined"
-              sx={{
-                p: 2,
-                mb: 2,
-                border: currentTheme === key ? 2 : 1,
-                borderColor: currentTheme === key ? 'primary.main' : 'divider',
-                transition: 'all 0.2s ease-in-out',
-                '&:hover': {
-                  borderColor: 'primary.main',
-                  backgroundColor: 'action.hover',
-                },
-              }}
-            >
-              <FormControlLabel
-                value={key}
-                control={<Radio />}
-                label={
-                  <Box sx={{ ml: 1, width: '100%' }}>
-                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
-                      {theme.name}
-                    </Typography>
-                    
-                    {/* Theme Preview */}
-                    <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
-                      {/* Primary Color */}
-                      <Box
-                        sx={{
-                          width: 40,
-                          height: 20,
-                          backgroundColor: theme.palette.primary.main,
-                          borderRadius: 1,
-                          border: '1px solid',
-                          borderColor: 'divider',
-                        }}
-                      />
-                      {/* Background Color or special pattern for space theme */}
-                      <Box
-                        sx={{
-                          width: 40,
-                          height: 20,
-                          backgroundColor: key === 'space' ? '#0f1419' : theme.palette.background.default,
-                          backgroundImage: key === 'space' ? 'radial-gradient(circle at 20% 50%, #ffffff 1px, transparent 1px), radial-gradient(circle at 80% 50%, #64b5f6 1px, transparent 1px), radial-gradient(circle at 40% 80%, #ab47bc 1px, transparent 1px)' : 'none',
-                          backgroundSize: key === 'space' ? '20px 20px, 15px 15px, 25px 25px' : 'auto',
-                          borderRadius: 1,
-                          border: '1px solid',
-                          borderColor: 'divider',
-                        }}
-                      />
-                      {/* Text Color */}
-                      <Box
-                        sx={{
-                          width: 40,
-                          height: 20,
-                          backgroundColor: theme.palette.text.primary,
-                          borderRadius: 1,
-                          border: '1px solid',
-                          borderColor: 'divider',
-                        }}
-                      />
-                      {/* Secondary Color (if exists) */}
-                      {theme.palette.secondary && (
-                        <Box
-                          sx={{
-                            width: 40,
-                            height: 20,
-                            backgroundColor: theme.palette.secondary.main,
-                            borderRadius: 1,
-                            border: '1px solid',
-                            borderColor: 'divider',
-                          }}
-                        />
-                      )}
-                    </Stack>
-
-                    {/* Color Labels */}
-                    <Stack direction="row" spacing={1} flexWrap="wrap">
-                      <Chip
-                        label={`Primary: ${theme.palette.primary.main}`}
-                        size="small"
-                        variant="outlined"
-                      />
-                      <Chip
-                        label={`Background: ${theme.palette.background.default}`}
-                        size="small"
-                        variant="outlined"
-                      />
-                      {theme.palette.secondary && (
-                        <Chip
-                          label={`Accent: ${theme.palette.secondary.main}`}
-                          size="small"
-                          variant="outlined"
-                        />
-                      )}
-                    </Stack>
-                  </Box>
-                }
-                sx={{ width: '100%', alignItems: 'flex-start' }}
-              />
-            </Paper>
-          ))}
-        </RadioGroup>
-      </FormControl>
-
-      {/* Current Theme Info */}
-      <Paper variant="outlined" sx={{ p: 3, mt: 4 }}>
-        <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-          Current Theme: {themes[currentTheme].name}
-        </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-          {user ? (
-            <>
-              🔄 Theme settings are synced with your Firebase account and will follow you across devices.
-            </>
-          ) : (
-            <>
-              💾 Theme settings are saved locally. Sign in to sync across devices.
-            </>
-          )}
-        </Typography>
-        {isLoading && (
-          <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
-            Loading theme preferences...
+      
+      <Paper sx={{ p: 3, mt: 3 }}>
+        <FormControl component="fieldset">
+          <Typography variant="h6" gutterBottom>
+            Choose Theme
           </Typography>
-        )}
+          <RadioGroup
+            value={currentTheme}
+            onChange={handleThemeChange}
+            name="theme-selection"
+          >
+            {Object.entries(themes).map(([key, theme]) => (
+              <Box key={key}>
+                <FormControlLabel
+                  value={key}
+                  control={<Radio />}
+                  label={theme.name}
+                />
+                {themeSwatches[key] && (
+                  <ColorSwatch colors={themeSwatches[key]} />
+                )}
+              </Box>
+            ))}
+          </RadioGroup>
+        </FormControl>
+        
+        <Typography variant="body2" sx={{ mt: 2, opacity: 0.7 }}>
+          Choose your preferred theme. Changes are applied immediately and saved automatically.
+        </Typography>
       </Paper>
     </Box>
   );

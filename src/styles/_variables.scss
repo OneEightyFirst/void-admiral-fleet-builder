@@ -1,34 +1,37 @@
 // CSS Custom Properties (Base/Default values)
 // These will be overridden by theme classes in themes.scss
 :root {
-  // Primary colors (theme-dependent)
-  --primary-color: #1976d2;
-  --primary-color-rgb: 25, 118, 210;
-  --primary-color-dark: #1565c0;
+  // Primary Brand Color
+  --primary: #3874cb;
+  --primary-rgb: 56, 116, 203;
+  --primary-dark: #2e5aa3;
+  
+  // Gray Scale Palette (darkest to lightest)
+  --gray-darkest: #121212;    // App background, nav
+  --gray-darker: #181818;     // Cards, papers
+  --gray-dark: #1f1f1f;       // Headers, sections
+  --gray: #2e2e2e;            // Elevated elements
+  --gray-light: #333333;      // Stats labels
+  --gray-lighter: #666666;    // Stats values
+  --gray-lightest: #cccccc;   // Borders, dividers
+  
+  // Text Colors
+  --text-primary: #ffffff;                    // Main text
+  --text-secondary: rgba(255, 255, 255, 0.7); // Secondary text
+  --text-disabled: rgba(255, 255, 255, 0.38); // Disabled text
+  --text-inverse: #1f1f1f;                    // Text on light backgrounds
+  
+  // Utility Colors (RGB versions for transparency)
+  --gray-darker-rgb: 24, 24, 24;
+  --gray-dark-rgb: 31, 31, 31;
+  
+  // Accent Colors
+  --accent-gold: #d4af37;    // Refit titles, modified stats
   
   // Status colors (consistent across themes)
   --color-success: #4caf50;
   --color-error: #f44336;
   --color-warning: #ff9800;
-  
-  // Background colors (theme-dependent)
-  --bg-primary: #121212;
-  --bg-secondary: #1f1f1f;
-  --bg-tertiary: #2e2e2e;
-  --bg-paper: #181818;
-  --bg-darker: #1f1f1f;
-  --bg-paper-rgb: 24, 24, 24;
-  --bg-darker-rgb: 31, 31, 31;
-  
-  // Text colors (theme-dependent)
-  --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.7);
-  --text-disabled: rgba(255, 255, 255, 0.38);
-  --text-header: #1f1f1f;
-  
-  // Border colors (theme-dependent)
-  --border-color: rgba(255, 255, 255, 0.12);
-  --divider-color: rgba(255, 255, 255, 0.12);
 }
 
 // SCSS Variables for non-color properties (these stay as SCSS variables)

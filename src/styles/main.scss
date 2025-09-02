@@ -6,7 +6,7 @@
 body {
   margin: 0;
   padding: 0;
-  background-color: var(--bg-primary);
+  background-color: var(--gray-darker) !important;
   color: var(--text-primary);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
@@ -75,7 +75,7 @@ body {
       transition: color $transition-fast;
       
       &:hover {
-        color: var(--primary-color);
+        color: var(--primary);
       }
     }
     
@@ -95,7 +95,7 @@ body {
   }
   
   &:hover {
-    color: var(--primary-color);
+    color: var(--primary);
     transition: color $transition-fast;
   }
 }
@@ -157,7 +157,7 @@ body {
     transition: color $transition-fast;
     
     &:hover {
-      color: var(--primary-color);
+      color: var(--primary);
     }
     
     &--editing {
@@ -177,8 +177,8 @@ body {
     border-color: rgba(255, 255, 255, 0.3);
     
     &:hover {
-      border-color: var(--primary-color);
-      background-color: rgba(var(--primary-color-rgb), 0.08);
+      border-color: var(--primary);
+      background-color: rgba(var(--primary-rgb), 0.08);
     }
   }
 }
@@ -187,6 +187,7 @@ body {
 .ship-card, .squadron-card {
   @include card-dark;
   position: relative;
+  padding: 0; // Remove padding from card-base mixin
   
   &__header {
     @include flex-between;
@@ -307,7 +308,7 @@ body {
 // Command abilities
 .command-ability {
   @include card-base;
-  background-color: var(--bg-paper);
+  background-color: var(--gray-darker);
   display: flex;
   align-items: stretch;
   gap: $spacing-lg;
@@ -458,7 +459,7 @@ body {
     cursor: pointer;
     
     &:hover {
-      color: var(--primary-color);
+      color: var(--primary);
     }
   }
   
@@ -501,14 +502,14 @@ body {
     transition: all 0.2s ease;
     
     &:hover {
-      border-color: var(--primary-color);
+      border-color: var(--primary);
       background-color: rgba(25, 118, 210, 0.08);
     }
   }
   
   &__mode-toggle {
     display: flex;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--gray);
     border-radius: 4px;
     overflow: hidden;
   }
@@ -516,7 +517,7 @@ body {
   &__mode-button {
     padding: 8px;
     border: none;
-    background-color: var(--bg-paper);
+    background-color: var(--gray-darker);
     color: var(--text-primary);
     cursor: pointer;
     transition: all 0.2s ease;
@@ -531,17 +532,17 @@ body {
     }
     
     &--active {
-      background-color: var(--primary-color);
+      background-color: var(--primary);
       color: white;
       
       &:hover {
-        background-color: var(--primary-color);
+        background-color: var(--primary);
         opacity: 0.9;
       }
     }
     
     &:first-child {
-      border-right: 1px solid var(--border-color);
+      border-right: 1px solid var(--gray);
     }
   }
   
@@ -551,16 +552,16 @@ body {
     justify-content: center;
     width: 32px;
     height: 32px;
-    border: 1px solid var(--border-color);
-    background-color: var(--bg-paper);
+    border: 1px solid var(--gray);
+    background-color: var(--gray-darker);
     color: var(--text-primary);
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.2s ease;
     
     &:hover:not(:disabled) {
-      background-color: var(--primary-color);
-      border-color: var(--primary-color);
+      background-color: var(--primary);
+      border-color: var(--primary);
       color: white;
     }
     
@@ -649,7 +650,7 @@ body {
     }
     
     &--active .MuiFormControlLabel-label {
-      color: var(--primary-color);
+      color: var(--primary);
     }
   }
   
@@ -659,7 +660,7 @@ body {
   }
   
   &__accordion--mb-1 {
-    margin-bottom: 8px;
+    margin-bottom: 0;
   }
   
   &__accordion-title {
@@ -782,8 +783,8 @@ body {
     position: sticky;
     top: 55px;
     z-index: 1100;
-    background-color: var(--bg-paper);
-    border-bottom: 1px solid var(--border-color);
+    background-color: var(--gray-darker);
+    border-bottom: 1px solid var(--gray-dark);
     padding: 12px 24px;
     margin-bottom: 24px;
     box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.2), 0px 4px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 10px 0px rgba(0, 0, 0, 0.12);
@@ -848,8 +849,8 @@ body {
   }
 }
 
-// Build View Card styles (theme-independent structure only)
-.build-view-card {
+// Ship Card styles (theme-independent structure only)
+.ship-card {
   border: none;
   border-radius: 8px;
   overflow: hidden;
@@ -892,10 +893,12 @@ body {
   &__stats {
     &-labels {
       padding: $spacing-sm $spacing-md;
+      background-color: #333333; // Dark grey background
     }
     
     &-values {
       padding: 0 $spacing-md;
+      background-color: #666666; // Medium grey background
     }
     
     &-grid {
@@ -930,7 +933,7 @@ body {
   
   &__stats-section {
     // Container for always-visible stats
-    border-bottom: 1px solid var(--primary-color);
+    border-bottom: 1px solid var(--primary);
   }
 
   &__weapons {
@@ -939,7 +942,7 @@ body {
 
   &__weapon-section {
     &:not(:last-child) {
-      border-bottom: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--gray-lightest);
     }
 
     &-header {
@@ -962,7 +965,7 @@ body {
       grid-template-columns: 3fr 1fr 1fr 1fr 0.5fr;
       gap: 0;
       padding: 0.5rem $spacing-md;
-      border-bottom: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--gray-lightest);
     }
 
     &-label {
@@ -980,7 +983,7 @@ body {
       grid-template-columns: 3fr 1fr 1fr 1fr 0.5fr;
       gap: 0;
       padding: 0.75rem $spacing-md;
-      border-bottom: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--gray-lightest);
 
       &:last-child {
         border-bottom: none;
@@ -1124,8 +1127,8 @@ body {
 .weapon-section {
   &__header {
     padding: $spacing-sm $spacing-md;
-    border-bottom: 1px solid var(--border-color);
-    background-color: var(--bg-darker);
+    border-top: 1px solid var(--primary);
+    background-color: var(--gray);
     
     &--sticky {
       position: sticky;
@@ -1188,7 +1191,7 @@ body {
 
   &__separator {
     height: 1px;
-    background-color: var(--primary-color);
+    background-color: var(--primary);
     display: none; // Hidden by default
     
     // Only show in play mode
@@ -1202,8 +1205,20 @@ body {
     padding: 0;
   }
 
+  &__alert {
+    padding: 8px;
+  }
+
   &__rows {
     // Container for weapon rows
+    
+    .weapon-row {
+      border-bottom: 1px solid var(--gray-light); // Light gray border
+      
+      &:last-child {
+        border-bottom: none; // Remove border from last row
+      }
+    }
   }
 }
 
@@ -1218,7 +1233,7 @@ body {
   &__content {
     position: relative;
     z-index: 2;
-    background-color: var(--bg-paper);
+    background-color: var(--gray-dark);
     min-height: 64px;
     display: grid;
     grid-template-columns: 1fr auto auto auto;
@@ -1242,7 +1257,7 @@ body {
   }
 
   &--selected {
-    border-left: 5px solid var(--primary-color);
+    // Selected styling moved to __content
   }
 
   &:focus {
@@ -1257,9 +1272,14 @@ body {
     gap: 0.5rem;
     padding: $spacing-sm $spacing-md;
     height: 64px;
-    background-color: var(--bg-paper);
+    background-color: var(--gray-dark);
     z-index: 2;
     min-height: 64px;
+    border-left: 5px solid transparent;
+    
+    .weapon-row--selected & {
+      border-left: 5px solid var(--primary);
+    }
   }
 
   &__name {
@@ -1275,11 +1295,11 @@ body {
     font-size: 0.75rem;
     font-weight: 500;
     opacity: 0.8;
-    background: rgba(var(--primary-color-rgb, 25, 118, 210), 0.2);
-    color: var(--primary-color);
+    background: rgba(var(--primary-rgb, 25, 118, 210), 0.2);
+    color: var(--primary);
     padding: 0.125rem 0.375rem;
     border-radius: 8px;
-    border: 1px solid var(--primary-color);
+    border: 1px solid var(--primary);
   }
   
   &__ship-number {
@@ -1326,7 +1346,7 @@ body {
 // Squadron ship separator for Play mode
 .squadron-ship-separator {
   display: none;
-  border-bottom: 1px solid var(--primary-color);
+  border-bottom: 1px solid var(--primary);
   
   // Only show in Play mode
   .play-view & {
@@ -1370,8 +1390,8 @@ body {
   }
 }
 
-// Continue with build-view-card styles...
-.build-view-card {
+// Continue with ship-card styles...
+.ship-card {
   
   &__content {
     padding: $spacing-md;
@@ -1411,254 +1431,127 @@ body {
       }
     }
   }
-}
-
-// Play View Card styles (theme-independent structure only)
-.play-view-card {
-  // Only structural styles that don't change with themes
-  border: none;
-  border-radius: $border-radius-md;
-  overflow: hidden;
-
-  &__header {
+  
+  &__advancement {
     padding: $spacing-md;
+    border-top: 1px solid;
     
-    &-content {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    
-    &-left {
-      // Left side content
-    }
-    
-    &-faction {
-      font-size: 0.75rem;
-      font-weight: $font-weight-semibold;
-      letter-spacing: 0.1em;
-      line-height: 1;
-    }
-    
-    &-name {
-      font-weight: $font-weight-black;
-      line-height: 1;
-      margin: 0;
-    }
-    
-    &-right {
-      text-align: right;
-    }
-    
-    &-faction {
-      font-size: 0.75rem;
+    &-title {
       font-weight: 600;
-      letter-spacing: 0.1em;
-      line-height: 1;
-      text-transform: uppercase;
+      margin-bottom: 0.25rem;
     }
     
-    &-name {
-      font-size: 1.5rem;
-      font-weight: 700;
-      line-height: 1.2;
-      margin: 0.25rem 0;
+    &-type {
+      margin-bottom: 0.75rem;
+      font-style: italic;
     }
     
-    &-size {
-      font-size: 0.875rem;
-      line-height: 1;
-      opacity: 0.8;
-    }
-    
-    &-cost {
-      font-size: 1.25rem;
-      font-weight: 600;
-      line-height: 1;
-    }
-    
-    &-count {
-      font-size: 0.75rem;
-      line-height: 1;
-      opacity: 0.8;
-    }
-  }
-
-  &__stats {
-    padding: 0;
-    
-    &-grid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 0;
-    }
-    
-    &-labels {
-      // Labels row styling will be handled by themes
-    }
-    
-    &-values {
-      // Values row styling will be handled by themes
-    }
-    
-    &-label-item,
-    &-value-item {
-      text-align: center;
-      padding: 0 0.5rem;
+    &-weapon-select {
+      margin-top: 0.5rem;
     }
     
     &-label {
-      line-height: 1;
+      display: block;
+      margin-bottom: 0.25rem;
+      font-weight: 500;
     }
     
-    &-value {
-      line-height: 1;
-    }
-  }
-
-  &__weapons {
-    padding: 0;
-    border-top: 1px solid var(--primary-color);
-    
-    &-header {
-      padding: $spacing-sm $spacing-md;
-      
-      &-grid {
-        display: grid;
-        grid-template-columns: 6fr 2fr 2fr 2fr;
-        gap: 0;
-      }
-      
-      &-label {
-        font-weight: $font-weight-semibold;
-        text-align: center;
-        font-size: 0.875rem;
-        line-height: 1.5;
-      }
+    &-dropdown-container {
+      position: relative;
+      width: 100%;
     }
     
-    &-row {
-      padding: 0.5rem 1rem;
-      
-      &-grid {
-        display: grid;
-        grid-template-columns: 6fr 2fr 2fr 2fr;
-        gap: 0;
-        align-items: center;
-      }
-      
-      &-name {
-        display: flex;
-        align-items: center;
-        gap: $spacing-md;
-      }
-      
-      &-number {
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.875rem;
-        font-weight: $font-weight-semibold;
-      }
-      
-      &-title {
-        font-weight: $font-weight-semibold;
-      }
-      
-      &-stat {
-        text-align: center;
-        font-weight: $font-weight-semibold;
-      }
-    }
-  }
-
-  &__refit {
-    padding: $spacing-sm $spacing-md;
-    
-    &-title {
-      font-weight: $font-weight-semibold;
-      margin-bottom: $spacing-md;
-    }
-    
-    &-effect {
+    &-dropdown {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid;
+      border-radius: 4px;
+      background-color: var(--gray-darker);
+      color: var(--text-primary);
       font-size: 0.875rem;
-      line-height: 1.4;
-      margin-bottom: 0.5rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      
+      &:hover {
+        background-color: var(--bg-secondary);
+      }
+      
+      &-selected {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      
+      &-arrow {
+        transition: transform 0.2s ease;
+        
+        &.open {
+          transform: rotate(180deg);
+        }
+        
+        &.upward {
+          transform: rotate(180deg);
+          
+          &.open {
+            transform: rotate(0deg);
+          }
+        }
+      }
+      
+      &-options {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background-color: var(--gray-darker);
+        border: 1px solid;
+        border-top: none;
+        border-radius: 0 0 4px 4px;
+        z-index: 1000;
+        max-height: 200px;
+        overflow-y: auto;
+        
+        &.upward {
+          top: auto;
+          bottom: 100%;
+          border-top: 1px solid;
+          border-bottom: none;
+          border-radius: 4px 4px 0 0;
+        }
+      }
+      
+      &-option {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        
+        &:hover {
+          background-color: var(--bg-secondary);
+        }
+        
+        &.selected {
+          background-color: var(--primary-main);
+          color: var(--primary-contrast);
+        }
+      }
     }
-  }
-
-  &__footnote {
-    border-top: 1px solid var(--primary-color);
-    padding: 1rem;
     
-    &-text {
-      font-style: italic;
-      font-weight: 600;
+    &-weapon-icon {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+    
+    &-rule {
+      display: block;
+      font-size: 0.75rem;
+      line-height: 1.2;
+      margin-top: 0.5rem;
     }
   }
 }
-
-// Weapon section styles
-.weapon-section {
-
-  &__header {
-    // margin-bottom removed for tighter spacing
-  }
-
-  &__title {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-  }
-
-  &__status {
-    font-size: 0.875rem;
-    opacity: 0.8;
-    margin-bottom: 0.5rem;
-  }
-
-  &__table-header {
-    display: grid;
-    grid-template-columns: 3fr 1fr 1fr 1fr;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  &__helper {
-    font-size: 0.75rem;
-    opacity: 0.7;
-    font-weight: 500;
-    
-    &--hidden {
-      opacity: 0;
-      visibility: hidden;
-    }
-  }
-
-  &__column-label {
-    font-size: 0.625rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    text-align: center;
-    opacity: 0.8;
-  }
-
-  &__alert {
-    padding: 0.5rem;
-    margin-bottom: 0.5rem;
-  }
-
-  &__rows {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-  }
-}
-
-

@@ -11,7 +11,7 @@ import { cleanWeaponSpec, inferWeaponKind } from './normalize.js';
  * @returns {Object|null} Fighter bay stats or null
  */
 export function getFighterBayStats(weaponName) {
-  if (weaponName === "Fighter Bays") {
+  if (weaponName === "Fighter Bays" || weaponName === "Hive Bays" || weaponName === "Drone Bay") {
     return {
       targets: "Any",
       attacks: "1d6*",
@@ -33,7 +33,27 @@ export function getWeaponDataByIndex(weaponRef, shipDef, location, ship = null) 
   // Handle direct weapon objects (already complete)
   if (weaponRef && typeof weaponRef === 'object' && weaponRef.targets) {
     const cleaned = cleanWeaponSpec(weaponRef);
-    return applyCanonicalRefitEffects(cleaned, ship);
+    const withRefits = applyCanonicalRefitEffects(cleaned, ship);
+    return applyLiberationistAdvancement(withRefits, ship, location);
+  }
+  
+  // Handle beginsWith weapons that need special stats (like Drone Bay)
+  if (weaponRef && typeof weaponRef === 'object' && weaponRef.name) {
+    // Check if this is a special weapon that needs standardized stats (regardless of location parameter)
+    if (weaponRef.name === "Fighter Bays" || weaponRef.name === "Hive Bays" || weaponRef.name === "Drone Bay") {
+      const fighterBayStats = getFighterBayStats(weaponRef.name);
+      if (fighterBayStats) {
+        const weaponData = cleanWeaponSpec({ name: weaponRef.name, ...fighterBayStats });
+        const withRefits = applyCanonicalRefitEffects(weaponData, ship);
+        return applyLiberationistAdvancement(withRefits, ship, location);
+      }
+    }
+    // For beginsWith weapons or other complete weapon objects, use the data as-is if it has stats
+    if (location === 'begins' || weaponRef.targets || weaponRef.attacks || weaponRef.range) {
+      const cleaned = cleanWeaponSpec(weaponRef);
+      const withRefits = applyCanonicalRefitEffects(cleaned, ship);
+      return applyLiberationistAdvancement(withRefits, ship, location);
+    }
   }
   
   // Handle index references
@@ -56,18 +76,20 @@ export function getWeaponDataByIndex(weaponRef, shipDef, location, ship = null) 
   
   const weaponDef = options[optionIndex];
   
-  // Handle Fighter Bays (special case)
-  if (weaponDef.name === "Fighter Bays") {
+  // Handle Fighter Bays and similar weapons (special case)
+  if (weaponDef.name === "Fighter Bays" || weaponDef.name === "Hive Bays" || weaponDef.name === "Drone Bay") {
     const fighterBayStats = getFighterBayStats(weaponDef.name);
     if (fighterBayStats) {
       const weaponData = cleanWeaponSpec({ name: weaponDef.name, ...fighterBayStats });
-      return applyCanonicalRefitEffects(weaponData, ship);
+      const withRefits = applyCanonicalRefitEffects(weaponData, ship);
+      return applyLiberationistAdvancement(withRefits, ship, location);
     }
   }
   
   // Return cleaned weapon data
   const weaponData = cleanWeaponSpec(weaponDef);
-  return applyCanonicalRefitEffects(weaponData, ship);
+  const withRefits = applyCanonicalRefitEffects(weaponData, ship);
+  return applyLiberationistAdvancement(withRefits, ship, location);
 }
 
 /**
@@ -114,6 +136,58 @@ export function convertLoadoutToIndices(ship, shipDef) {
   return { ...ship, loadout: newLoadout };
 }
 
+/**
+ * Apply Liberationist capital ship advancement weapon upgrades
+ * @param {Object} weaponData - Base weapon data
+ * @param {Object} ship - Ship object with potential advancement data
+ * @param {string} location - Weapon location ('prow', 'hull', 'begins')
+ * @returns {Object} Modified weapon data
+ */
+function applyLiberationistAdvancement(weaponData, ship, location = null) {
+  if (!ship || !ship.capitalShipAdvancement) {
+    return weaponData;
+  }
+  
+  const advancement = ship.capitalShipAdvancement;
+  
+  // Only apply to advancement 5 (Upgraded weapons) with a selected weapon
+  if (advancement.roll !== 5 || !advancement.selectedWeapon) {
+    return weaponData;
+  }
+  
+  // Check if this weapon matches the selected weapon for upgrade
+  // selectedWeapon format: "location:weaponName" (e.g., "prow:Cyclone Guns")
+  if (!advancement.selectedWeapon || !advancement.selectedWeapon.includes(':')) {
+    return weaponData;
+  }
+  
+  const [selectedLocation, selectedWeaponName] = advancement.selectedWeapon.split(':');
+  
+  // Must match both weapon name and location
+  if (weaponData.name !== selectedWeaponName || location !== selectedLocation) {
+    return weaponData;
+  }
+  
+  // Apply the upgrade: +2 attacks (+1 for lasers)
+  const modifiedWeapon = { ...weaponData };
+  const isLaser = weaponData.name.toLowerCase().includes('laser');
+  const bonus = isLaser ? 1 : 2;
+  
+  // Handle different attack formats
+  if (typeof modifiedWeapon.attacks === 'number') {
+    modifiedWeapon.attacks += bonus;
+  } else if (typeof modifiedWeapon.attacks === 'string') {
+    // Try to parse and add bonus
+    const numMatch = modifiedWeapon.attacks.match(/^(\d+)/);
+    if (numMatch) {
+      const baseAttacks = parseInt(numMatch[1]);
+      const suffix = modifiedWeapon.attacks.replace(/^\d+/, '');
+      modifiedWeapon.attacks = `${baseAttacks + bonus}${suffix}`;
+    }
+  }
+  
+  return modifiedWeapon;
+}
 
 /**
  * Apply canonical refit effects to weapon data

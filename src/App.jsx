@@ -4,7 +4,7 @@ import {
   Stack, Button, IconButton, Avatar, ClickAwayListener, Drawer, List, ListItem, ListItemIcon, ListItemText, Divider, useMediaQuery,
   Menu, MenuItem
 } from "@mui/material";
-import { Delete as DeleteIcon, PlayArrow as PlayIcon, Save as SaveIcon, Folder as FolderIcon, Login as LoginIcon, Logout as LogoutIcon, Build as BuildIcon, Menu as MenuIcon, Palette as PaletteIcon, Close as CloseIcon } from "@mui/icons-material";
+import { Delete as DeleteIcon, PlayArrow as PlayIcon, Save as SaveIcon, Folder as FolderIcon, Login as LoginIcon, Logout as LogoutIcon, Build as BuildIcon, Menu as MenuIcon, Close as CloseIcon, Palette as PaletteIcon } from "@mui/icons-material";
 import './styles/main.scss';
 import './styles/themes.scss';
 
@@ -12,10 +12,10 @@ import './styles/themes.scss';
 import { Logo } from './components/SVGComponents';
 import CreateNewFleetView from './components/CreateNewFleetView';
 import BuildView from './components/BuildView';
-import PlayView from './components/PlayView';
 import FleetsView from './components/FleetsView';
-import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import ThemeSettings from './components/ThemeSettings';
+import { ThemeProvider, useTheme } from './contexts/ThemeContext';
+
 
 // Utils
 import {
@@ -58,18 +58,17 @@ function AppContent(){
 
   // Apply theme class to body element
   useEffect(() => {
-    // Remove any existing theme classes
-    document.body.classList.remove('theme-space', 'theme-dark', 'theme-default', 'theme-vintage');
+    // Remove all theme classes first
+    document.body.classList.remove('theme-default', 'theme-vintage');
     
-    // Add current theme class
-    if (currentTheme) {
-      document.body.classList.add(`theme-${currentTheme}`);
-      console.log('🎨 Applied theme class:', `theme-${currentTheme}`);
-    }
+    // Apply current theme class
+    const themeClass = `theme-${currentTheme}`;
+    document.body.classList.add(themeClass);
+    console.log('🎨 Applied theme class:', themeClass);
     
     // Cleanup function to remove theme class when component unmounts
     return () => {
-      document.body.classList.remove('theme-space', 'theme-dark', 'theme-default', 'theme-vintage');
+      document.body.classList.remove('theme-default', 'theme-vintage');
     };
   }, [currentTheme]);
 
@@ -114,6 +113,17 @@ function AppContent(){
 
     return () => unsubscribe();
   }, []);
+
+  // Set initial tab based on saved fleets after they're loaded (only once)
+  const [hasSetInitialTab, setHasSetInitialTab] = useState(false);
+  useEffect(() => {
+    if (hasLoadedSavedFleets && !hasSetInitialTab && tab === 0) {
+      if (savedFleets.length > 0) {
+        setTab(1); // Go to FleetsView when user has saved fleets
+      }
+      setHasSetInitialTab(true); // Prevent this from running again
+    }
+  }, [hasLoadedSavedFleets, savedFleets.length, tab, hasSetInitialTab]);
 
   // Load factions and refits data
   useEffect(() => {
@@ -315,6 +325,36 @@ function AppContent(){
     return [...counts.values()].some(v=>v>1);
   },[roster, ships]);
 
+  // Helper functions for Liberationist capital ship advancements
+  function getAdvancementType(roll) {
+    switch (roll) {
+      case 1: return "Elite engineers";
+      case 2: return "Skilled defenders";
+      case 3: return "Reinforced hull";
+      case 4: return "Enhanced thrusters";
+      case 5: return "Upgraded weapons";
+      case 6: return "Fighter escort";
+      default: return "Unknown";
+    }
+  }
+
+  function applyAdvancementStats(statline, roll) {
+    switch (roll) {
+      case 1: // Elite engineers: +1 shields
+        statline.Shields = (statline.Shields || 0) + 1;
+        break;
+      case 2: // Skilled defenders: +1 flak
+        statline.Flak = (statline.Flak || 0) + 1;
+        break;
+      case 3: // Reinforced hull: +1 hull
+        statline.Hull = (statline.Hull || 0) + 1;
+        break;
+      case 4: // Enhanced thrusters: +1 speed
+        statline.Speed = (statline.Speed || 0) + 1;
+        break;
+    }
+  }
+
   function addShip(className){
     const def = ships[className];
     const cost = shipCost(def);
@@ -324,20 +364,80 @@ function AppContent(){
 
     const groupId = def.squadron ? uid() : null;
 
+    // For Junk Runners, pre-select the weapon type that all ships will get
+    let squadronRandomWeapon = null;
+    if (def.randomizeHull && def.squadron && className === "Junk Runner") {
+      const pool = def.hull.options.map(o => o.name);
+      squadronRandomWeapon = pool[Math.floor(Math.random() * pool.length)];
+    }
+
     const mk = () => {
-      const loadout = { prow:null, hull:[], begins:(def.beginsWith||[]).map(o=>o.name) };
+      const loadout = { 
+        prow: def.squadron ? [] : null,  // Arrays for squadrons, single object for individual ships
+        hull: [], 
+        begins: (def.beginsWith||[]).map(o=>o.name) 
+      };
       // Note: beginsWith weapons are stored in loadout.begins, not added to hull or prow
       
       if (hasUnplannedConstruction(faction, FACTIONS)) {
-        const randomWeapons = randomizeScrapBotWeapons(def);
-        loadout.hull = [...loadout.hull, ...randomWeapons];
+        // Special case for Junk Runners: all ships in squadron get the same weapon type
+        if (def.squadron && className === "Junk Runner" && squadronRandomWeapon) {
+          const picks = [];
+          const n = def.hull.select;
+          for (let i = 0; i < n; i++) {
+            picks.push(squadronRandomWeapon);
+          }
+          loadout.hull = [...loadout.hull, ...picks];
+        } else {
+          // Regular Scrap Bot randomization for other ships
+          const randomWeapons = randomizeScrapBotWeapons(def);
+          loadout.hull = [...loadout.hull, ...randomWeapons];
+        }
+        loadout.isRandomized = true;
+      } else if (def.randomizeHull) {
+        // Auto-randomize ships with randomizeHull: true (like Junk Runners)
+        const picks = [];
+        const n = def.hull.select;
+
+        // Special case for Junk Runners: all ships in squadron get the same weapon type
+        if (def.squadron && className === "Junk Runner" && squadronRandomWeapon) {
+          for (let i = 0; i < n; i++) {
+            picks.push(squadronRandomWeapon);
+          }
+        } else {
+          // Original behavior for other ships: pick different random weapons
+          const pool = def.hull.options.map(o => o.name);
+          for (let i = 0; i < n; i++) {
+            picks.push(pool[Math.floor(Math.random() * pool.length)]);
+          }
+        }
+        
+        loadout.hull = [...loadout.hull, ...picks];
         loadout.isRandomized = true;
       }
       
       // Include base statline for canonical refit system
       const statline = def.statline ? { ...def.statline } : {};
       
-      return { id: uid(), className, loadout, groupId, statline };
+      // Liberationists: Add random capital ship advancement to capital ships
+      let capitalShipAdvancement = null;
+      if (faction === "Liberationists" && !def.squadron) {
+        const roll = Math.floor(Math.random() * 6) + 1;
+        capitalShipAdvancement = {
+          roll: roll,
+          type: getAdvancementType(roll),
+          appliedStats: null,
+          selectedWeapon: null // For advancement 5
+        };
+        
+        // Apply stat modifications for advancements 1-4
+        if (roll >= 1 && roll <= 4) {
+          applyAdvancementStats(statline, roll);
+          capitalShipAdvancement.appliedStats = true;
+        }
+      }
+      
+      return { id: uid(), className, loadout, groupId, statline, capitalShipAdvancement };
     };
 
     const newShips = Array.from({length: count}, mk);
@@ -345,13 +445,46 @@ function AppContent(){
     // Insectoid Swarm: Add free Pincer squadron when adding Pincers
     if (faction === "Insectoids" && className === "Pincer") {
       const freeGroupId = uid();
+      
+      // For free Junk Runners, pre-select the weapon type that all ships will get
+      let freeSquadronRandomWeapon = null;
+      if (def.randomizeHull && def.squadron && className === "Junk Runner") {
+        const pool = def.hull.options.map(o => o.name);
+        freeSquadronRandomWeapon = pool[Math.floor(Math.random() * pool.length)];
+
+      }
+      
       const mkFree = () => {
-        const loadout = { prow:null, hull:[], begins:(def.beginsWith||[]).map(o=>o.name) };
+        const loadout = { 
+          prow: def.squadron ? [] : null,  // Arrays for squadrons, single object for individual ships
+          hull: [], 
+          begins: (def.beginsWith||[]).map(o=>o.name) 
+        };
         // Note: beginsWith weapons are stored in loadout.begins, not added to hull or prow
         
         if (hasUnplannedConstruction(faction, FACTIONS)) {
           const randomWeapons = randomizeScrapBotWeapons(def);
           loadout.hull = [...loadout.hull, ...randomWeapons];
+          loadout.isRandomized = true;
+        } else if (def.randomizeHull) {
+          // Auto-randomize ships with randomizeHull: true (like Junk Runners)
+          const picks = [];
+          const n = def.hull.select;
+
+          // Special case for Junk Runners: all ships in squadron get the same weapon type
+          if (def.squadron && className === "Junk Runner" && freeSquadronRandomWeapon) {
+            for (let i = 0; i < n; i++) {
+              picks.push(freeSquadronRandomWeapon);
+            }
+          } else {
+            // Original behavior for other ships: pick different random weapons
+            const pool = def.hull.options.map(o => o.name);
+            for (let i = 0; i < n; i++) {
+              picks.push(pool[Math.floor(Math.random() * pool.length)]);
+            }
+          }
+          
+          loadout.hull = [...loadout.hull, ...picks];
           loadout.isRandomized = true;
         }
         
@@ -391,7 +524,15 @@ function AppContent(){
           id: uid(),
           groupId: ship.isFree ? uid() : newGroupId,
           isFree: ship.isFree,
-          statline
+          statline,
+          // Deep clone the loadout to prevent shared references
+          loadout: {
+            prow: ship.loadout?.prow ? 
+              (Array.isArray(ship.loadout.prow) ? [...ship.loadout.prow] : { ...ship.loadout.prow }) 
+              : (def.squadron ? [] : null),
+            hull: ship.loadout?.hull ? [...ship.loadout.hull] : [],
+            begins: ship.loadout?.begins ? [...ship.loadout.begins] : []
+          }
         };
       });
       
@@ -411,7 +552,15 @@ function AppContent(){
               ...ship,
               id: uid(),
               groupId: newFreeGroupId,
-              statline
+              statline,
+              // Deep clone the loadout to prevent shared references
+              loadout: {
+                prow: ship.loadout?.prow ? 
+                  (Array.isArray(ship.loadout.prow) ? [...ship.loadout.prow] : { ...ship.loadout.prow }) 
+                  : (def.squadron ? [] : null),
+                hull: ship.loadout?.hull ? [...ship.loadout.hull] : [],
+                begins: ship.loadout?.begins ? [...ship.loadout.begins] : []
+              }
             };
           });
           return [...r, ...duplicatedShips, ...duplicatedFreeShips];
@@ -484,7 +633,8 @@ function AppContent(){
     setRoster([...fleet.roster]);
     setFleetName(fleet.name);
     setNameSubmitted(true);
-    setTab(1);
+    setTab(0); // Go to BuildView instead of PlayView
+    setIsPlayMode(true); // Enable play mode toggle
   }
 
   function startNewFleet(){
@@ -494,6 +644,7 @@ function AppContent(){
     setFaction('Loyalists');
     setPoints(30);
     setTab(0);
+    setIsPlayMode(false); // Ensure build mode is selected for new fleets
   }
 
   function deleteFleet(fleetId){
@@ -560,10 +711,6 @@ function AppContent(){
 
       setSavedFleets(fleets);
       setHasLoadedSavedFleets(true);
-      
-      if (fleets.length > 0 && tab === 0) {
-        setTab(2);
-      }
     } catch (error) {
       console.error('Failed to load fleets:', error);
       setHasLoadedSavedFleets(true);
@@ -616,24 +763,85 @@ function AppContent(){
     }));
   }
 
-  function randomizeHull(id, def) {
+  function selectAdvancementWeapon(id, weaponName) {
     setRoster(r => r.map(x => {
       if (x.id !== id) return x;
-
-      const fixed = (x.loadout.hull || []).filter(n =>
-        (def.beginsWith || []).some(b => b.name === n)
-      );
-
-      const pool = def.hull.options.map(o => o.name);
-      const picks = [];
-      const n = def.hull.select;
-
-      for (let i = 0; i < n; i++) {
-        picks.push(pool[Math.floor(Math.random() * pool.length)]);
-      }
-
-      return { ...x, loadout: { ...x.loadout, hull: [...fixed, ...picks] } };
+      if (!x.capitalShipAdvancement || x.capitalShipAdvancement.roll !== 5) return x;
+      
+      return {
+        ...x,
+        capitalShipAdvancement: {
+          ...x.capitalShipAdvancement,
+          selectedWeapon: weaponName
+        }
+      };
     }));
+  }
+
+  function randomizeHull(id, def) {
+    setRoster(r => {
+      // Find the ship that was clicked
+      const clickedShip = r.find(x => x.id === id);
+      if (!clickedShip) return r;
+
+      // For squadrons, randomize all ships in the same group
+      if (def.squadron && clickedShip.groupId) {
+        const pool = def.hull.options.map(o => o.name);
+        let squadronRandomWeapon = null;
+        
+        // Special case for Junk Runners: pick one weapon type for the whole squadron
+        if (clickedShip.className === "Junk Runner") {
+          squadronRandomWeapon = pool[Math.floor(Math.random() * pool.length)];
+
+        }
+
+        return r.map(x => {
+          // Only update ships in the same squadron
+          if (x.groupId !== clickedShip.groupId) return x;
+
+          const fixed = (x.loadout.hull || []).filter(n =>
+            (def.beginsWith || []).some(b => b.name === n)
+          );
+
+          const picks = [];
+          const n = def.hull.select;
+
+          if (def.squadron && x.className === "Junk Runner" && squadronRandomWeapon) {
+            // All ships in Junk Runner squadron get the same weapon
+            for (let i = 0; i < n; i++) {
+              picks.push(squadronRandomWeapon);
+            }
+          } else {
+            // Original behavior for other ships: pick different random weapons
+            for (let i = 0; i < n; i++) {
+              picks.push(pool[Math.floor(Math.random() * pool.length)]);
+            }
+          }
+
+          return { ...x, loadout: { ...x.loadout, hull: [...fixed, ...picks] } };
+        });
+      } else {
+        // Single ship randomization (non-squadron)
+        return r.map(x => {
+          if (x.id !== id) return x;
+
+          const fixed = (x.loadout.hull || []).filter(n =>
+            (def.beginsWith || []).some(b => b.name === n)
+          );
+
+          const pool = def.hull.options.map(o => o.name);
+          const picks = [];
+          const n = def.hull.select;
+
+          // Original behavior for single ships: pick different random weapons
+          for (let i = 0; i < n; i++) {
+            picks.push(pool[Math.floor(Math.random() * pool.length)]);
+          }
+
+          return { ...x, loadout: { ...x.loadout, hull: [...fixed, ...picks] } };
+        });
+      }
+    });
   }
 
   // Refit functions
@@ -916,11 +1124,21 @@ function AppContent(){
                   }}
                 >
                   {/* User Info */}
-                  <MenuItem disabled sx={{ flexDirection: 'column', alignItems: 'flex-start', py: 1.5 }}>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                  <MenuItem 
+                    disabled 
+                    sx={{ 
+                      flexDirection: 'column', 
+                      alignItems: 'flex-start', 
+                      py: 1.5,
+                      '&.Mui-disabled': {
+                        opacity: 1
+                      }
+                    }}
+                  >
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600, color: 'white !important' }}>
                       {user.displayName}
                     </Typography>
-                    <Typography variant="caption" color="text.secondary">
+                    <Typography variant="caption" sx={{ color: 'white !important', opacity: 0.7 }}>
                       {user.email}
                     </Typography>
                   </MenuItem>
@@ -949,9 +1167,6 @@ function AppContent(){
                     </ListItemIcon>
                     <ListItemText>New Fleet</ListItemText>
                   </MenuItem>
-                  <Divider />
-                  
-                  {/* Theme */}
                   <MenuItem
                     onClick={() => {
                       setTab(2);
@@ -963,6 +1178,7 @@ function AppContent(){
                     </ListItemIcon>
                     <ListItemText>Theme</ListItemText>
                   </MenuItem>
+                  <Divider />
                   
                   {/* Logout */}
                   <MenuItem onClick={handleSignOut}>
@@ -991,14 +1207,16 @@ function AppContent(){
         <Box>
           {tab===0 && (
             !nameSubmitted ? (
-              <CreateNewFleetView
-                fleetName={fleetName}
-                setFleetName={setFleetName}
-                faction={faction}
-                setFaction={setFaction}
-                factions={FACTIONS}
-                onSubmit={handleNameSubmit}
-              />
+              <Box sx={{ padding: 2 }}>
+                <CreateNewFleetView
+                  fleetName={fleetName}
+                  setFleetName={setFleetName}
+                  faction={faction}
+                  setFaction={setFaction}
+                  factions={FACTIONS}
+                  onSubmit={handleNameSubmit}
+                />
+              </Box>
             ) : (
               <BuildView
                 fleetName={fleetName}
@@ -1034,6 +1252,7 @@ function AppContent(){
                 addHull={addHull}
                 removeHullByName={removeHullByName}
                 randomizeHull={randomizeHull}
+                selectAdvancementWeapon={selectAdvancementWeapon}
                 addRefit={addRefit}
                 removeRefit={removeRefit}
                 addRefitToGroup={addRefitToGroup}
@@ -1048,21 +1267,26 @@ function AppContent(){
           )}
 
           {tab===1 && (
-            <FleetsView
-              user={user}
-              savedFleets={savedFleets}
-              startNewFleet={startNewFleet}
-              setTab={setTab}
-              editFleet={editFleet}
-              playFleet={playFleet}
-              deleteFleet={deleteFleet}
-              signInWithGoogle={signInWithGoogle}
-            />
+            <Box sx={{ padding: 2 }}>
+              <FleetsView
+                user={user}
+                savedFleets={savedFleets}
+                startNewFleet={startNewFleet}
+                setTab={setTab}
+                editFleet={editFleet}
+                playFleet={playFleet}
+                deleteFleet={deleteFleet}
+                signInWithGoogle={signInWithGoogle}
+              />
+            </Box>
           )}
 
           {tab===2 && (
-            <ThemeSettings />
+            <Box sx={{ padding: 2 }}>
+              <ThemeSettings />
+            </Box>
           )}
+
         </Box>
       </Box>
     </MuiThemeProvider>

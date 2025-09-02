@@ -102,7 +102,7 @@ export function groupWeapons(weaponNames, allWeapons) {
 
 // Generate random weapons for Scrap Bots
 export function randomizeScrapBotWeapons(def) {
-  if (!def.hull?.options) return def;
+  if (!def.hull?.options) return [];
   
   const randomOptions = [];
   for (let i = 0; i < def.hull.select; i++) {
@@ -110,13 +110,7 @@ export function randomizeScrapBotWeapons(def) {
     randomOptions.push(def.hull.options[randomIndex].name);
   }
   
-  return {
-    ...def,
-    hull: {
-      ...def.hull,
-      randomized: randomOptions
-    }
-  };
+  return randomOptions;
 }
 
 // Clean roster data for Firestore (remove undefined values)
@@ -169,7 +163,7 @@ export function formatStatValue(statName, value) {
 
 // Check if a weapon is a Fighter Bay and return standard stats
 export function getFighterBayStats(weaponName) {
-  if (weaponName === "Fighter Bays" || weaponName === "Hive Bays") {
+  if (weaponName === "Fighter Bays" || weaponName === "Hive Bays" || weaponName === "Drone Bay") {
     return {
       targets: "Any",
       attacks: "1d6*",

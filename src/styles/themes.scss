@@ -3,35 +3,41 @@
 // Global AppBar override to remove MUI's default background-image
 .MuiAppBar-root {
   background-image: none !important;
+  background-color: var(--gray-darkest) !important; // Primary nav: darkest
 }
 
 // Default theme styles
 body.theme-default {
-  // Define CSS custom properties for default theme
-  --primary-color: #1976d2;
-  --primary-color-rgb: 25, 118, 210;
-  --primary-color-dark: #1565c0;
+  // Primary Brand Color
+  --primary: #3874cb;
+  --primary-rgb: 56, 116, 203;
+  --primary-dark: #2e5aa3;
   
-  --bg-primary: #121212;
-  --bg-secondary: #1f1f1f;
-  --bg-tertiary: #2e2e2e;
-  --bg-paper: #181818;
-  --bg-darker: #1f1f1f;
-  --bg-paper-rgb: 24, 24, 24;
-  --bg-darker-rgb: 31, 31, 31;
+  // Gray Scale Palette (darkest to lightest)
+  --gray-darkest: #121212;    // App background, nav
+  --gray-darker: #181818;     // Cards, papers
+  --gray-dark: #1f1f1f;       // Headers, sections
+  --gray: #2e2e2e;            // Elevated elements
+  --gray-light: #333333;      // Stats labels
+  --gray-lighter: #666666;    // Stats values
+  --gray-lightest: #cccccc;   // Borders, dividers
   
-  --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.7);
-  --text-disabled: rgba(255, 255, 255, 0.38);
-  --text-header: #1f1f1f;
+  // Text Colors
+  --text-primary: #ffffff;                    // Main text
+  --text-secondary: rgba(255, 255, 255, 0.7); // Secondary text
+  --text-disabled: rgba(255, 255, 255, 0.38); // Disabled text
+  --text-inverse: #1f1f1f;                    // Text on light backgrounds
   
-  --border-color: rgba(255, 255, 255, 0.12);
-  --divider-color: rgba(255, 255, 255, 0.12);
+  // Utility Colors (RGB versions for transparency)
+  --gray-darker-rgb: 24, 24, 24;
+  --gray-dark-rgb: 31, 31, 31;
+  
+  // Accent Colors
+  --accent-gold: #d4af37;    // Refit titles, modified stats
   
   // General card shadow enhancements
   .MuiCard-root,
-  .MuiPaper-elevation1,
-  .play-view-card {
+  .MuiPaper-elevation1 {
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
     
     &:hover {
@@ -40,15 +46,23 @@ body.theme-default {
     }
   }
 
-  // BuildViewCard default theme colors
-  .build-view-card {
-    background-color: var(--bg-paper);
-    color: #ffffff;
+  // Ship card colors
+  .ship-card {
+    background-color: var(--gray-darker);
+    color: var(--text-primary);
     
     &__header {
-      background-color: var(--primary-color);
+      background-color: var(--primary);
       
       &-delete-button {
+        color: #ffffff;
+        
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.1);
+        }
+      }
+      
+      &-duplicate-button {
         color: #ffffff;
         
         &:hover {
@@ -59,42 +73,42 @@ body.theme-default {
       &-faction,
       &-name,
       &-size {
-        color: var(--text-header);
+        color: var(--text-inverse);
       }
     }
 
     &__weapon-section-header {
-      background-color: var(--bg-darker);
+      background-color: var(--gray);
       color: var(--text-primary);
     }
 
     &__weapons-header {
-      background-color: var(--bg-darker);
+      background-color: var(--gray-dark);
     }
 
     &__weapon-select-button {
-      background-color: var(--bg-paper);
+      background-color: var(--gray-darker);
       color: var(--text-primary);
-      border: 1px solid var(--border-color);
+      border: 1px solid var(--gray-lightest);
 
       &:hover {
-        background-color: var(--primary-color);
+        background-color: var(--primary);
         color: white;
       }
 
       &.selected {
-        background-color: var(--primary-color);
+        background-color: var(--primary);
         color: white;
       }
     }
 
     &__weapon-control-button {
-      background-color: var(--bg-paper);
+      background-color: var(--gray-darker);
       color: var(--text-primary);
-      border: 1px solid var(--border-color);
+      border: 1px solid var(--gray-lightest);
 
       &:hover {
-        background-color: var(--primary-color);
+        background-color: var(--primary);
         color: white;
       }
 
@@ -107,11 +121,11 @@ body.theme-default {
     // Mobile weapon selection styling
     &__weapons .weapon-section {
       &__header {
-        background-color: var(--bg-darker);
+        background-color: var(--gray);
         color: var(--text-primary);
 
         &--sticky {
-          background-color: var(--bg-darker);
+          background-color: var(--gray);
           backdrop-filter: blur(8px);
         }
       }
@@ -119,649 +133,89 @@ body.theme-default {
     
     &__stats {
       &-labels {
-        background-color: var(--bg-darker);
+        background-color: var(--gray);
       }
       
       &-values {
-        background-color: var(--bg-paper);
+        background-color: var(--gray-dark);
       }
       
       &-label {
-        color: rgba(255, 255, 255, 0.9);
+        color: var(--text-primary);
         
         &--modified {
-          color: #ffc107;
+          color: var(--accent-gold);
         }
       }
       
       &-value {
-        color: #ffffff;
+        color: var(--text-primary);
         
         &--modified {
-          color: #ffc107;
+          color: var(--accent-gold);
         }
       }
       
       &-original {
-        color: rgba(255, 255, 255, 0.7);
+        color: var(--text-secondary);
       }
     }
     
     &__footer {
-      background-color: #1a1a1a;
-      border-top-color: #333;
+      background-color: var(--gray-dark);
+      border-top-color: var(--gray-lightest);
       
       &-refit-title {
-        color: #d4af37;
+        color: var(--accent-gold);
       }
       
       &-note {
-        color: rgba(255, 255, 255, 0.6);
+        color: var(--text-secondary);
       }
       
       &-begins-with {
-        color: rgba(255, 255, 255, 0.8);
+        color: var(--text-secondary);
       }
     }
-  }
-
-  // PlayViewCard default theme colors
-  .play-view-card {
-    background-color: var(--bg-paper);
-    color: #ffffff;
-    
-    &__header {
-      background-color: var(--primary-color);
-      
-      &-faction,
-      &-name,
-      &-size,
-      &-cost,
-      &-count {
-        color: #1f1f1f;
-      }
-    }
-    
-    &__stats {
-      &-labels {
-        background-color: var(--bg-darker);
-      }
-      
-      &-values {
-        background-color: var(--bg-paper);
-      }
-      
-      &-label {
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 0.875rem;
-        font-weight: 600;
-      }
-      
-      &-value {
-        color: #ffffff;
-        font-size: 1.5rem;
-        font-weight: 400;
-      }
-    }
-    
-    &__weapons {
-      &-header {
-        background-color: var(--bg-darker);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        
-        &-label {
-          color: rgba(255, 255, 255, 0.9);
-        }
-      }
-      
-      &-row {
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        
-        &:last-child,
-        &--last {
-          border-bottom: none;
-        }
-        
-        &-number {
-          background-color: rgba(255, 255, 255, 0.1);
-        }
-        
-        &-title,
-        &-stat {
-          color: #ffffff;
-        }
-        
-        &--refit {
-          .play-view-card__weapons-row-title,
-          .play-view-card__weapons-row-stat {
-            color: #d4af37;
-          }
-        }
-      }
-    }
-    
-    &__refit {
-      background-color: #2d2d2d;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      
-      &-title {
-        color: #ff6b6b;
-      }
-      
-      &-effect {
-        color: rgba(255, 255, 255, 0.8);
-      }
-    }
-    
-
-  }
-
-  // Mobile weapon row styling  
-  .weapon-row {
-    background-color: var(--bg-paper);
-    color: var(--text-primary);
-
-    &:hover {
-      background-color: var(--bg-secondary);
-    }
-
-    &__begins-with {
-      background-color: var(--bg-paper);
-    }
-
-    &__edit-button {
-      &:hover {
-        background-color: var(--bg-secondary);
-      }
-    }
-      }
-  }
-
-  // Ship Card Header default theme colors (shared by Build and Play View)
-  .ship-card {
-    &__header {
-      &-faction,
-      &-name,
-      &-size {
-        color: var(--text-header);
-      }
-      
-      &-cost,
-      &-count {
-        color: #ffffff;
-      }
-    }
-  }
-
-  // Vintage theme styles
-body.theme-vintage {
-  // Define CSS custom properties for vintage theme
-  --primary-color: #ca4a3c;
-  --primary-color-rgb: 202, 74, 60;
-  --primary-color-dark: #b8443c;
-  
-  --bg-primary: #2d2c2d;
-  --bg-secondary: #343233;
-  --bg-tertiary: #3a3839;
-  --bg-paper: #3a3839;
-  --bg-darker: #343233;
-  --bg-paper-rgb: 58, 56, 57;
-  --bg-darker-rgb: 52, 50, 51;
-  
-  --text-primary: #e5e2d8;
-  --text-secondary: rgba(229, 226, 216, 0.7);
-  --text-disabled: rgba(229, 226, 216, 0.38);
-  --text-header: #1f1f1f;
-  
-  --border-color: rgba(229, 226, 216, 0.12);
-  --divider-color: rgba(229, 226, 216, 0.12);
-  
-  // General card shadow enhancements
-  .MuiCard-root,
-  .MuiPaper-elevation1,
-  .play-view-card {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-    
-    &:hover {
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-      transition: box-shadow 0.2s ease-in-out;
-    }
-  }
-
-  // BuildViewCard vintage theme colors
-  .build-view-card {
-    background-color: var(--bg-paper);
-    color: #e5e2d8;
-    
-    &__header {
-      background-color: var(--primary-color);
-      
-      &-delete-button {
-        color: #e5e2d8;
-        
-        &:hover {
-          background-color: rgba(229, 226, 216, 0.1);
-        }
-      }
-      
-      &-faction,
-      &-name,
-      &-size {
-        color: var(--text-header);
-      }
-    }
-    
-    &__stats {
-      &-labels {
-        background-color: var(--bg-darker);
-      }
-      
-      &-values {
-        background-color: var(--bg-paper);
-      }
-      
-      &-label {
-        color: rgba(229, 226, 216, 0.9);
-        
-        &--modified {
-          color: #ffc107;
-        }
-      }
-      
-      &-value {
-        color: #e5e2d8;
-        
-        &--modified {
-          color: #ffc107;
-        }
-      }
-      
-      &-original {
-        color: rgba(229, 226, 216, 0.7);
-      }
-    }
-    
-    &__footer {
-      background-color: #2d2c2d;
-      border-top-color: rgba(229, 226, 216, 0.12);
-      
-      &-refit-title {
-        color: #d4af37;
-      }
-      
-      &-note {
-        color: rgba(229, 226, 216, 0.6);
-      }
-      
-      &-begins-with {
-        color: rgba(229, 226, 216, 0.8);
-      }
-    }
-
-    &__weapon-section-header {
-      background-color: var(--bg-darker);
-      color: var(--text-primary);
-    }
-
-    &__weapons-header {
-      background-color: var(--bg-darker);
-    }
-
-    &__weapon-select-button {
-      background-color: var(--bg-paper);
-      color: var(--text-primary);
-      border: 1px solid var(--border-color);
-
-      &:hover {
-        background-color: var(--primary-color);
-        color: white;
-      }
-
-      &.selected {
-        background-color: var(--primary-color);
-        color: white;
-      }
-    }
-
-    &__weapon-control-button {
-      background-color: var(--bg-paper);
-      color: var(--text-primary);
-      border: 1px solid var(--border-color);
-
-      &:hover {
-        background-color: var(--primary-color);
-        color: white;
-      }
-
-      &:disabled {
-        opacity: 0.3;
-        cursor: not-allowed;
-      }
-    }
-  }
-
-  // Ship Card Header vintage theme colors (shared by Build and Play View)
-  .ship-card {
-    &__header {
-      background-color: var(--primary-color);
-      
-      &-faction,
-      &-name,
-      &-size {
-        color: var(--text-header);
-      }
-      
-      &-cost,
-      &-count {
-        color: #ffffff;
-      }
-    }
-  }
-  
-  // PlayViewCard vintage theme colors
-  .play-view-card {
-    background-color: var(--bg-paper);
-    color: #e5e2d8;
-    
-    &__stats {
-      &-labels {
-        background-color: var(--bg-darker);
-      }
-      
-      &-values {
-        background-color: var(--bg-paper);
-      }
-      
-      &-label {
-        color: rgba(229, 226, 216, 0.9);
-        font-size: 0.875rem;
-        font-weight: 600;
-        line-height: 2.2;
-      }
-      
-      &-value {
-        color: #e5e2d8;
-        font-size: 1.5rem;
-        font-weight: 400;
-      }
-    }
-    
-    &__weapons {
-      &-header {
-        background-color: var(--bg-darker);
-        border-bottom: 1px solid rgba(229, 226, 216, 0.12);
-        
-        &-label {
-          color: rgba(229, 226, 216, 0.9);
-        }
-      }
-      
-      &-row {
-        border-bottom: 1px solid rgba(229, 226, 216, 0.08);
-        
-        &:last-child,
-        &--last {
-          border-bottom: none;
-        }
-        
-        &-number {
-          background-color: rgba(229, 226, 216, 0.15);
-        }
-        
-        &-title,
-        &-stat {
-          color: #e5e2d8;
-        }
-        
-        &--refit {
-          .play-view-card__weapons-row-title,
-          .play-view-card__weapons-row-stat {
-            color: #d4af37;
-          }
-        }
-      }
-    }
-    
-    &__refit {
-      background-color: #2d2b2c;
-      border-bottom: 1px solid rgba(229, 226, 216, 0.12);
-      
-      &-title {
-        color: #ff6b6b;
-      }
-      
-      &-effect {
-        color: rgba(229, 226, 216, 0.8);
-      }
-    }
-    
-
   }
 }
 
-// Space theme styles
-body.theme-space {
-  // Define CSS custom properties for space theme
-  --primary-color: #64b5f6;
-  --primary-color-rgb: 100, 181, 246;
-  --primary-color-dark: #42a5f5;
+// Vintage theme styles
+body.theme-vintage {
+  // Primary Brand Color
+  --primary: #ca4a3c;
+  --primary-rgb: 202, 74, 60;
+  --primary-dark: #b8443c;
   
-  --bg-primary: #0d0d0d;
-  --bg-secondary: #1a1a1a;
-  --bg-tertiary: #1e1e1e;
-  --bg-paper: #1e1e1e;
-  --bg-darker: #1f1f1f;
-  --bg-paper-rgb: 30, 30, 30;
-  --bg-darker-rgb: 31, 31, 31;
+  // Gray Scale Palette (darkest to lightest) - Vintage browns/grays
+  --gray-darkest: #2d2c2d;    // App background, nav
+  --gray-darker: #3a3839;     // Cards, papers, body background
+  --gray-dark: #3f3e3f;       // Headers, sections, weapon rows
+  --gray: #444243;            // Elevated elements, weapon headers
+  --gray-light: #4a4849;      // Stats labels, weapon row borders
+  --gray-lighter: #5a5859;    // Stats values
+  --gray-lightest: #8a8889;   // Borders, dividers
   
-  --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.7);
-  --text-disabled: rgba(255, 255, 255, 0.38);
-  --text-header: #1f1f1f;
+  // Text Colors
+  --text-primary: #f5f5dc;                    // Cream text
+  --text-secondary: rgba(245, 245, 220, 0.7); // Cream with opacity
+  --text-disabled: rgba(245, 245, 220, 0.38); // Disabled cream
+  --text-inverse: #2d2c2d;                    // Dark text on light backgrounds
   
-  --border-color: rgba(255, 255, 255, 0.1);
-  --divider-color: rgba(255, 255, 255, 0.1);
+  // Utility Colors (RGB versions for transparency)
+  --gray-darker-rgb: 58, 56, 57;
+  --gray-dark-rgb: 63, 62, 63;
   
-    background-image: url('/void-admiral/images/starfield.webp');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    background-repeat: no-repeat;
-    min-height: 100vh;
-
-  // Layered card system - outer cards with transparency and blur
-  .MuiCard-root,
-  .MuiPaper-root,
-  .play-view-card,
-  .build-view-card {
-    background: rgba(30, 30, 30, 0.7);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-    
-    // Inner sections - more opaque, less blur for content readability
-    .MuiCardContent-root,
-    .MuiPaper-root,
-    .MuiAccordionDetails-root,
-    .MuiList-root,
-    .play-view-card__weapons {
-      background: rgba(40, 40, 40, 0.9);
-      backdrop-filter: blur(4px);
-      border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-  }
-
-  // Special handling for navigation
-  .MuiAppBar-root {
-    background: rgba(18, 18, 18, 0.85);
-    backdrop-filter: blur(15px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  }
-
-  // Fleet name entry and special sections
-  .MuiTextField-root .MuiInputBase-root {
-    background: rgba(50, 50, 50, 0.8);
-    backdrop-filter: blur(5px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-  }
-
-  // Floating action button enhancement
-  .MuiFab-root {
-    background: rgba(100, 181, 246, 0.9);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(10px);
-  }
-
-  // Dialog and drawer enhancements
-  .MuiDrawer-paper {
-    background: rgba(25, 25, 25, 0.95);
-    backdrop-filter: blur(20px);
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
-    
-    .MuiListItem-root {
-      background: rgba(40, 40, 40, 0.6);
-      backdrop-filter: blur(5px);
-      margin: 4px 8px;
-      border-radius: 6px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-  }
-
-  // Ship stat boxes and weapon displays - make them more readable
-  .MuiPaper-outlined {
-    background: rgba(50, 50, 50, 0.9);
-    backdrop-filter: blur(3px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-  }
-
-  // Buttons and interactive elements
-  .MuiButton-root {
-    background: rgba(100, 181, 246, 0.15);
-    backdrop-filter: blur(5px);
-    border: 1px solid rgba(100, 181, 246, 0.3);
-    
-    &:hover {
-      background: rgba(100, 181, 246, 0.25);
-    }
-  }
-
-  .MuiChip-root {
-    background: rgba(60, 60, 60, 0.8);
-    backdrop-filter: blur(4px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-  }
-
-  // Apply space theme effects to our custom play-view-card
-  .play-view-card {
-    background: rgba(var(--bg-paper-rgb), 0.7);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-    color: #ffffff;
+  // Accent Colors
+  --accent-gold: #d4af37;    // Refit titles, modified stats (same gold)
+  
+  // Ship card colors
+  .ship-card {
+    background-color: var(--gray-darker);
+    color: var(--text-primary);
     
     &__header {
-      background: rgba(var(--primary-color-rgb), 0.9);
-      backdrop-filter: blur(5px);
-      
-      &-faction,
-      &-name,
-      &-size,
-      &-cost,
-      &-count {
-        color: #ffffff;
-      }
-    }
-    
-    &__stats {
-      &-labels {
-        background: rgba(var(--bg-darker-rgb), 0.9);
-        backdrop-filter: blur(4px);
-      }
-      
-      &-values {
-        background: rgba(var(--bg-paper-rgb), 0.7);
-        backdrop-filter: blur(8px);
-      }
-      
-      &-label {
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 0.875rem;
-        font-weight: 600;
-      }
-      
-      &-value {
-        color: #ffffff;
-        font-size: 1.5rem;
-        font-weight: 400;
-      }
-    }
-    
-    &__weapons {
-      background: rgba(40, 40, 40, 0.9);
-      backdrop-filter: blur(4px);
-      border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      
-      &-header {
-        background: rgba(var(--bg-darker-rgb), 0.9);
-        backdrop-filter: blur(4px);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        
-        &-label {
-          color: rgba(255, 255, 255, 0.9);
-        }
-      }
-      
-      &-row {
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        
-        &:last-child,
-        &--last {
-          border-bottom: none;
-        }
-        
-        &-number {
-          background-color: rgba(255, 255, 255, 0.2);
-        }
-        
-        &-title,
-        &-stat {
-          color: #ffffff;
-        }
-        
-        &--refit {
-          .play-view-card__weapons-row-title,
-          .play-view-card__weapons-row-stat {
-            color: #d4af37;
-          }
-        }
-      }
-    }
-    
-    &__refit {
-      background: rgba(45, 45, 45, 0.9);
-      backdrop-filter: blur(4px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      
-      &-title {
-        color: #ff6b6b;
-      }
-      
-      &-effect {
-        color: rgba(255, 255, 255, 0.8);
-      }
-    }
-    
-
-  }
-
-  // BuildViewCard space theme colors
-  .build-view-card {
-    color: #ffffff;
-    
-    &__header {
-      background: rgba(var(--primary-color-rgb), 0.9);
+      background-color: var(--primary);
       
       &-delete-button {
         color: #ffffff;
@@ -770,101 +224,54 @@ body.theme-space {
           background-color: rgba(255, 255, 255, 0.1);
         }
       }
-      backdrop-filter: blur(4px);
+      
+      &-duplicate-button {
+        color: #ffffff;
+        
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.1);
+        }
+      }
       
       &-faction,
       &-name,
       &-size {
-        color: var(--text-header);
-      }
-    }
-    
-    &__stats {
-      &-labels {
-        background: rgba(var(--bg-darker-rgb), 0.9);
-        backdrop-filter: blur(4px);
-      }
-      
-      &-values {
-        background: rgba(var(--bg-paper-rgb), 0.7);
-        backdrop-filter: blur(8px);
-      }
-      
-      &-label {
-        color: rgba(255, 255, 255, 0.9);
-        
-        &--modified {
-          color: #ffc107;
-        }
-      }
-      
-      &-value {
-        color: #ffffff;
-        
-        &--modified {
-          color: #ffc107;
-        }
-      }
-      
-      &-original {
-        color: rgba(255, 255, 255, 0.7);
-      }
-    }
-    
-    &__footer {
-      background: rgba(26, 26, 26, 0.9);
-      backdrop-filter: blur(4px);
-      border-top-color: rgba(255, 255, 255, 0.1);
-      
-      &-refit-title {
-        color: #d4af37;
-      }
-      
-      &-note {
-        color: rgba(255, 255, 255, 0.6);
-      }
-      
-      &-begins-with {
-        color: rgba(255, 255, 255, 0.8);
+        color: var(--text-inverse);
       }
     }
 
     &__weapon-section-header {
-      background: rgba(var(--bg-darker-rgb), 0.9);
-      backdrop-filter: blur(4px);
+      background-color: var(--gray);
       color: var(--text-primary);
     }
 
     &__weapons-header {
-      background: rgba(var(--bg-darker-rgb), 0.9);
-      backdrop-filter: blur(4px);
+      background-color: var(--gray-dark);
     }
 
     &__weapon-select-button {
-      background: rgba(var(--bg-paper-rgb), 0.7);
-      backdrop-filter: blur(8px);
+      background-color: var(--gray-darker);
       color: var(--text-primary);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--gray-lightest);
 
       &:hover {
-        background: rgba(var(--primary-color-rgb), 0.9);
+        background-color: var(--primary);
         color: white;
       }
 
       &.selected {
-        background: rgba(var(--primary-color-rgb), 0.9);
+        background-color: var(--primary);
         color: white;
       }
     }
 
     &__weapon-control-button {
-      background: rgba(var(--bg-paper-rgb), 0.7);
-      backdrop-filter: blur(8px);
+      background-color: var(--gray-darker);
       color: var(--text-primary);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--gray-lightest);
 
       &:hover {
-        background: rgba(var(--primary-color-rgb), 0.9);
+        background-color: var(--primary);
         color: white;
       }
 
@@ -873,20 +280,64 @@ body.theme-space {
         cursor: not-allowed;
       }
     }
-  }
 
-  // Ship Card Header space theme colors (shared by Build and Play View)
-  .ship-card {
-    &__header {
-      &-faction,
-      &-name,
-      &-size {
-        color: var(--text-header);
+    // Mobile weapon selection styling
+    &__weapons .weapon-section {
+      &__header {
+        background-color: var(--gray);
+        color: var(--text-primary);
+
+        &--sticky {
+          background-color: var(--gray);
+          backdrop-filter: blur(8px);
+        }
+      }
+    }
+    
+    &__stats {
+      &-labels {
+        background-color: var(--gray);
       }
       
-      &-cost,
-      &-count {
-        color: #ffffff;
+      &-values {
+        background-color: var(--gray-dark);
+      }
+      
+      &-label {
+        color: var(--text-primary);
+        
+        &--modified {
+          color: var(--accent-gold);
+        }
+      }
+      
+      &-value {
+        color: var(--text-primary);
+        
+        &--modified {
+          color: var(--accent-gold);
+        }
+      }
+      
+      &-original {
+        color: var(--text-secondary);
+      }
+    }
+    
+    &__footer {
+      background-color: var(--gray-dark);
+      border-top-color: var(--gray-lightest);
+      
+      &-refit-title {
+        color: var(--accent-gold);
+      }
+      
+      &-note {
+        color: var(--text-secondary);
+      }
+      
+      &-begins-with {
+        color: var(--text-secondary);
       }
     }
   }

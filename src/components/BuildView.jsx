@@ -119,6 +119,7 @@ const BuildView = ({
   addHull,
   removeHullByName,
   randomizeHull,
+  selectAdvancementWeapon,
   addRefit,
   removeRefit,
   addRefitToGroup,
@@ -596,7 +597,14 @@ const BuildView = ({
                         </Typography>
                       </Box>
                     </MuiTooltip>
-                    <Button size="small" variant="contained" startIcon={<AddIcon/>} onClick={()=>addShip(cls)}>Add</Button>
+                    <Button 
+                      size="small" 
+                      variant="contained" 
+                      onClick={()=>addShip(cls)}
+                      sx={{ minWidth: 'auto', width: 32, height: 32, p: 0 }}
+                    >
+                      <AddIcon fontSize="small" />
+                    </Button>
                   </Stack>
                 </Paper>
                 );
@@ -747,6 +755,7 @@ const BuildView = ({
                         faction={faction}
                         onDuplicateGroup={duplicateGroup}
                         onRemoveGroup={removeGroup}
+                        onSelectAdvancementWeapon={selectAdvancementWeapon}
                         isPlayMode={isPlayMode}
                         onSelectWeapon={(location, weaponOption) => {
                           // For squadrons, apply weapon selection to the first available ship
@@ -765,7 +774,19 @@ const BuildView = ({
                           // For squadrons, add weapon to the first available ship
                           const targetShip = squadronShips[0];
                           if (location === 'hull') {
-                            addHull(targetShip.id, weaponName, def);
+                            // Add hull weapon to squadron (multi-select) - same logic as prow
+                            const updatedShip = { ...targetShip };
+                            if (!updatedShip.loadout.hull) {
+                              updatedShip.loadout.hull = [];
+                            }
+                            updatedShip.loadout.hull.push(weaponName);
+                            
+                            // Update the roster
+                            setRoster(prevRoster => 
+                              prevRoster.map(ship => 
+                                ship.id === targetShip.id ? updatedShip : ship
+                              )
+                            );
                           } else if (location === 'prow') {
                             // Add prow weapon to squadron (multi-select)
                             const updatedShip = { ...targetShip };
@@ -785,10 +806,29 @@ const BuildView = ({
                         onRemoveWeapon={(location, weaponName) => {
                           // For squadrons, remove weapon from the ship that has it
                           if (location === 'hull') {
+                            // Remove hull weapon from squadron (multi-select) - same logic as prow
                             const targetShip = squadronShips.find(ship => 
-                              ship.loadout.hull && ship.loadout.hull.includes(weaponName)
+                              ship.loadout.hull && ship.loadout.hull.some(h => 
+                                (typeof h === 'string' ? h : h.name) === weaponName
+                              )
                             ) || squadronShips[0];
-                            removeHullByName(targetShip.id, weaponName, def);
+                            
+                            const updatedShip = { ...targetShip };
+                            if (updatedShip.loadout.hull) {
+                              const index = updatedShip.loadout.hull.findIndex(h => 
+                                (typeof h === 'string' ? h : h.name) === weaponName
+                              );
+                              if (index !== -1) {
+                                updatedShip.loadout.hull.splice(index, 1);
+                              }
+                            }
+                            
+                            // Update the roster
+                            setRoster(prevRoster => 
+                              prevRoster.map(ship => 
+                                ship.id === targetShip.id ? updatedShip : ship
+                              )
+                            );
                           } else if (location === 'prow') {
                             // Remove prow weapon from squadron (multi-select)
                             const targetShip = squadronShips.find(ship => 
@@ -897,6 +937,7 @@ const BuildView = ({
                         faction={faction}
                         onRemoveShip={removeShip}
                         onRemoveGroup={removeGroup}
+                        onSelectAdvancementWeapon={selectAdvancementWeapon}
                         onSelectWeapon={(location, weaponOption) => {
                           // Handle weapon selection (prow and single-slot hull)
                           if (location === 'prow') {
@@ -924,15 +965,47 @@ const BuildView = ({
                           }
                         }}
                         onAddWeapon={(location, weaponName) => {
-                          // Handle adding weapon (hull allows multiple)
+                          // Handle adding weapon (hull and prow allow multiple)
                           if (location === 'hull') {
                             addHull(s.id, weaponName, def);
+                          } else if (location === 'prow') {
+                            // Add prow weapon to individual ship (multi-select)
+                            const updatedShip = { ...s };
+                            if (!updatedShip.loadout.prow) {
+                              updatedShip.loadout.prow = [];
+                            }
+                            updatedShip.loadout.prow.push(weaponName);
+                            
+                            // Update the roster
+                            setRoster(prevRoster => 
+                              prevRoster.map(ship => 
+                                ship.id === s.id ? updatedShip : ship
+                              )
+                            );
                           }
                         }}
                         onRemoveWeapon={(location, weaponName) => {
-                          // Handle removing weapon (hull allows multiple)
+                          // Handle removing weapon (hull and prow allow multiple)
                           if (location === 'hull') {
                             removeHullByName(s.id, weaponName, def);
+                          } else if (location === 'prow') {
+                            // Remove prow weapon from individual ship (multi-select)
+                            const updatedShip = { ...s };
+                            if (updatedShip.loadout.prow) {
+                              const index = updatedShip.loadout.prow.findIndex(p => 
+                                (typeof p === 'string' ? p : p.name) === weaponName
+                              );
+                              if (index !== -1) {
+                                updatedShip.loadout.prow.splice(index, 1);
+                              }
+                            }
+                            
+                            // Update the roster
+                            setRoster(prevRoster => 
+                              prevRoster.map(ship => 
+                                ship.id === s.id ? updatedShip : ship
+                              )
+                            );
                           }
                         }}
                         isPlayMode={isPlayMode}

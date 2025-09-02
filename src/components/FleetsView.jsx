@@ -28,25 +28,18 @@ const FleetsView = ({
 }) => {
   return (
     <Box>
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
         <Typography variant="h4" className="page-title">Fleets</Typography>
-        <IconButton 
-          color="primary" 
+        <button 
+          className="build-view__icon-button"
           onClick={() => {
             startNewFleet();
             setTab(0); // Go to Build tab
           }}
-          sx={{ 
-            bgcolor: 'rgba(25, 118, 210, 0.08)',
-            border: '1px solid',
-            borderColor: 'primary.main',
-            '&:hover': {
-              bgcolor: 'rgba(25, 118, 210, 0.16)'
-            }
-          }}
+          title="New Fleet"
         >
-          <AddIcon />
-        </IconButton>
+          <AddIcon fontSize="small" />
+        </button>
       </Box>
       
       {!user ? (
@@ -76,39 +69,52 @@ const FleetsView = ({
           {savedFleets.map(fleet => (
             <Grid key={fleet.id} item xs={12} md={6} lg={4}>
               <Paper variant="outlined" sx={{ p:2, backgroundColor: '#1f1f1f', position: 'relative' }}>
-                <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 1 }}>
-                  <Box>
-                    <Typography variant="h6" sx={{ fontWeight: 800, color: 'white' }}>{fleet.name}</Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {fleet.faction} • {fleet.points} pts • {fleet.roster.length} ships
-                    </Typography>
-                  </Box>
-                  <Stack direction="row" spacing={0.5}>
-                    <IconButton color="primary" size="small" onClick={()=>editFleet(fleet)}>
-                      <EditIcon/>
-                    </IconButton>
-                    <IconButton color="success" size="small" onClick={()=>playFleet(fleet)}>
-                      <PlayIcon/>
-                    </IconButton>
-                  </Stack>
-                </Stack>
+                {/* Delete button in upper right - white */}
+                <IconButton 
+                  size="small" 
+                  onClick={()=>deleteFleet(fleet.id)}
+                  sx={{ 
+                    position: 'absolute', 
+                    top: 8, 
+                    right: 8,
+                    color: 'white',
+                    '&:hover': {
+                      backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                    }
+                  }}
+                >
+                  <DeleteIcon/>
+                </IconButton>
+
+                {/* Fleet info - no buttons in header now */}
+                <Box sx={{ mb: 1 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 800, color: 'white', pr: 5 }}>{fleet.name}</Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {fleet.faction} • {fleet.points} pts • {fleet.roster.length} ships
+                  </Typography>
+                </Box>
+                
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                   Saved {new Date(fleet.savedAt).toLocaleDateString()}
                 </Typography>
                 
-                {/* Trash can in bottom right */}
-                <IconButton 
-                  color="error" 
-                  size="small" 
-                  onClick={()=>deleteFleet(fleet.id)}
+                {/* Edit and Play buttons in bottom right */}
+                <Stack 
+                  direction="row" 
+                  spacing={0.5}
                   sx={{ 
                     position: 'absolute', 
                     bottom: 8, 
                     right: 8 
                   }}
                 >
-                  <DeleteIcon/>
-                </IconButton>
+                  <IconButton color="primary" size="small" onClick={()=>editFleet(fleet)}>
+                    <EditIcon/>
+                  </IconButton>
+                  <IconButton color="success" size="small" onClick={()=>playFleet(fleet)}>
+                    <PlayIcon/>
+                  </IconButton>
+                </Stack>
               </Paper>
             </Grid>
           ))}

@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Card, Box, Grid, IconButton, Button, Stack, Chip, Tooltip as MuiTooltip, Alert, Typography
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
 
 import { getStatDisplayName, formatStatValue, calculateEffectiveHullSlots, shipCost } from '../utils/gameUtils';
 import { hasRefit, getRefitName, getRefitNotes } from '../utils/refitDisplayUtils';
@@ -19,6 +21,134 @@ const formatAttacks = (attacksObj) => {
     return attacksObj.star ? `${attacksObj.dice}*` : attacksObj.dice;
   }
   return attacksObj.toString();
+};
+
+// Helper function to get advancement rule text
+const getAdvancementRuleText = (roll) => {
+  switch (roll) {
+    case 1: return "+1 shields.";
+    case 2: return "+1 flak.";
+    case 3: return "+1 hull.";
+    case 4: return "+1 speed.";
+    case 5: return "Choose one weapon system to gain +2 attacks.";
+    case 6: return "Begins play with a single fighter token that does not count towards its maximum.";
+    default: return "";
+  }
+};
+
+// Custom dropdown component for weapon advancement selection
+const AdvancementWeaponDropdown = ({ currentShip, currentShipDef, onSelectAdvancementWeapon }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [openUpward, setOpenUpward] = useState(false);
+  const dropdownRef = useRef(null);
+  
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+  
+  // Check if dropdown should open upward
+  const handleToggleOpen = () => {
+    if (!isOpen && dropdownRef.current) {
+      const rect = dropdownRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const spaceAbove = rect.top;
+      const dropdownHeight = 200; // Max height from CSS
+      
+      // Open upward if there's more space above or not enough space below
+      setOpenUpward(spaceBelow < dropdownHeight && spaceAbove > spaceBelow);
+    }
+    setIsOpen(!isOpen);
+  };
+  
+  const selectedWeapon = currentShip.capitalShipAdvancement.selectedWeapon;
+  const getSelectedDisplay = () => {
+    if (!selectedWeapon) return "Select weapon...";
+    const [location, weaponName] = selectedWeapon.split(':');
+    const Icon = location === 'prow' ? ProwIcon : HullIcon;
+    return (
+      <div className="ship-card__advancement-dropdown-selected">
+        <Icon className="ship-card__advancement-weapon-icon" />
+        <span>{weaponName}</span>
+      </div>
+    );
+  };
+
+  const weaponOptions = [];
+  
+  // Add prow weapons
+  currentShipDef.prow?.options?.forEach((weapon, index) => {
+    if (weapon.name !== "Fighter Bays") {
+      weaponOptions.push({
+        key: `prow-${index}`,
+        value: `prow:${weapon.name}`,
+        icon: ProwIcon,
+        name: weapon.name
+      });
+    }
+  });
+  
+  // Add hull weapons
+  currentShipDef.hull?.options?.forEach((weapon, index) => {
+    if (weapon.name !== "Fighter Bays") {
+      weaponOptions.push({
+        key: `hull-${index}`,
+        value: `hull:${weapon.name}`,
+        icon: HullIcon,
+        name: weapon.name
+      });
+    }
+  });
+
+  return (
+    <div className="ship-card__advancement-weapon-select">
+      <Typography variant="caption" className="ship-card__advancement-label">
+        Choose weapon to upgrade:
+      </Typography>
+      <div className="ship-card__advancement-dropdown-container" ref={dropdownRef}>
+        <div 
+          className="ship-card__advancement-dropdown"
+          onClick={handleToggleOpen}
+        >
+          {getSelectedDisplay()}
+          <ExpandMoreIcon 
+            className={`ship-card__advancement-dropdown-arrow ${isOpen ? 'open' : ''} ${openUpward ? 'upward' : ''}`}
+          />
+        </div>
+        {isOpen && (
+          <div className={`ship-card__advancement-dropdown-options ${openUpward ? 'upward' : ''}`}>
+            {weaponOptions.map((option) => {
+              const Icon = option.icon;
+              return (
+                <div
+                  key={option.key}
+                  className={`ship-card__advancement-dropdown-option ${
+                    selectedWeapon === option.value ? 'selected' : ''
+                  }`}
+                  onClick={() => {
+                    onSelectAdvancementWeapon && onSelectAdvancementWeapon(currentShip.id, option.value);
+                    setIsOpen(false);
+                  }}
+                >
+                  <Icon className="ship-card__advancement-weapon-icon" />
+                  <span>{option.name}</span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 const formatRange = (range) => {
@@ -86,6 +216,9 @@ const SwipeableWeaponRow = ({
     console.log('🔥 TOUCH START:', weaponName, sectionType);
     e.preventDefault(); // Prevent default touch behavior
     
+    // If interactions are disabled, do nothing
+    if (!onCountChange && !onTap) return;
+    
     if (sectionType === 'single') {
       // Prow weapons - just call onTap
       onTap && onTap();
@@ -145,6 +278,10 @@ const SwipeableWeaponRow = ({
 
   const handleMouseDown = (e) => {
     console.log('🔥 MOUSE DOWN:', weaponName, sectionType);
+    
+    // If interactions are disabled, do nothing
+    if (!onCountChange && !onTap) return;
+    
     if (sectionType === 'single') {
       onTap && onTap();
       return;
@@ -191,19 +328,21 @@ const SwipeableWeaponRow = ({
     setDragX(0); // Reset visual position
   };
 
+  const isDisabled = !onCountChange && !onTap;
+  
   return (
     <div 
-      className={`weapon-row ${currentCount > 0 ? 'weapon-row--selected' : ''}`}
+      className={`weapon-row ${currentCount > 0 ? 'weapon-row--selected' : ''} ${isDisabled ? 'weapon-row--disabled' : ''}`}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
-      style={{ touchAction: 'pan-x' }}
+      style={{ touchAction: isDisabled ? 'none' : 'pan-x' }}
     >
       {/* Swipe Background for Hull Weapons */}
-      {sectionType === 'multi' && (
+      {sectionType === 'multi' && !isDisabled && (
         <div className="swipe-background">
           <div className="swipe-background__left">
             <span className="swipe-background__text">−1</span>
@@ -261,6 +400,7 @@ const BuildViewCard = ({
   onRemoveShip, 
   onRemoveGroup, 
   onDuplicateGroup,
+  onSelectAdvancementWeapon,
   onPickProw,
   onPickHull,
   onAddHull,
@@ -280,6 +420,9 @@ const BuildViewCard = ({
 
   if (!currentShip || !currentShipDef) return null;
   if (isSquadron && squadron && squadron.length === 0) return null;
+
+  // Check if this ship belongs to Scrap Bots faction (has Unplanned Construction)
+  const isScrapBot = currentShip?.loadout?.isRandomized === true;
 
   // Use canonical refit system - ship.statline should already contain modified stats
   const modifiedStats = currentShip.statline || currentShipDef.statline || {};
@@ -331,13 +474,13 @@ const BuildViewCard = ({
   // Calculate cost and display
   const getCostAndStatline = () => {
     if (isSquadron) {
-      // Squadron logic
-      const isFreeSquadron = currentShip.isFree;
+      // Squadron logic - check if ALL ships in squadron are free
+      const isFreeSquadron = squadron && squadron.every(ship => ship.isFree);
       const squadronCost = isFreeSquadron ? 0 : shipCost(currentShipDef) * squadron.length;
       const costDisplay = squadronCost === 0 ? 'Free' : `${squadronCost}pts`;
       const perShipCost = shipCost(currentShipDef);
       
-      return { cost: squadronCost, costDisplay, perShipCost };
+      return { cost: squadronCost, costDisplay, perShipCost, isFreeSquadron };
     } else {
       // Single ship logic
       const cost = shipCost(currentShipDef);
@@ -345,10 +488,10 @@ const BuildViewCard = ({
     }
   };
 
-  const { cost, costDisplay, perShipCost } = getCostAndStatline();
+  const { cost, costDisplay, perShipCost, isFreeSquadron } = getCostAndStatline();
 
   return (
-    <Card className="build-view-card">
+    <Card className="ship-card">
       {/* Header Section */}
       <div className="ship-card__header">
         <div className="ship-card__header-content">
@@ -392,17 +535,17 @@ const BuildViewCard = ({
             
             {/* Actions and Delete Button - hide in Play mode */}
             {!isPlayMode && (
-              <Stack direction="row" spacing={1} alignItems="center" className="build-view-card__header-actions">
-                {currentShip.isFree && (
+              <Stack direction="row" spacing={1} alignItems="center" className="ship-card__header-actions">
+                {(isSquadron ? isFreeSquadron : currentShip.isFree) && (
                 <Chip size="small" label="Free" color="success" />
               )}
                 {isSquadron ? (
                   // Squadron actions (duplicate only)
                   <>
-                    {!currentShip.isFree && (
+                    {!isFreeSquadron && !isScrapBot && (
                       <MuiTooltip title="Duplicate Squadron" arrow>
                         <IconButton 
-                          color="primary" 
+                          className="ship-card__header-duplicate-button"
                           onClick={() => onDuplicateGroup(currentShip.groupId)}
                         >
                           <ContentCopyIcon />
@@ -425,10 +568,11 @@ const BuildViewCard = ({
                   </>
                 )}
                 
+
                 {/* Delete Button */}
                 <MuiTooltip title={isSquadron ? "Remove Squadron" : "Remove Ship"} arrow>
             <IconButton 
-                    className="build-view-card__header-delete-button"
+                    className="ship-card__header-delete-button"
                     onClick={isSquadron ? () => onRemoveGroup(currentShip.groupId) : () => onRemoveShip(currentShip.id)}
             >
               <DeleteIcon />
@@ -441,13 +585,13 @@ const BuildViewCard = ({
       </div>
 
       {/* Stats Section - Always Visible */}
-      <div className="build-view-card__stats-section">
-        <div className="build-view-card__stats-labels">
-          <div className="build-view-card__stats-grid">
+      <div className="ship-card__stats-section">
+        <div className="ship-card__stats-labels">
+          <div className="ship-card__stats-grid">
             {getFilteredStats().map(([statName, value]) => (
-              <div key={statName} className="build-view-card__stats-item">
+              <div key={statName} className="ship-card__stats-item">
                 <div
-                  className={`build-view-card__stats-label ${isStatModified(statName) ? 'build-view-card__stats-label--modified' : ''}`}
+                  className={`ship-card__stats-label ${isStatModified(statName) ? 'ship-card__stats-label--modified' : ''}`}
                 >
                   {getStatDisplayName(statName)}
                 </div>
@@ -456,17 +600,17 @@ const BuildViewCard = ({
           </div>
         </div>
 
-        <div className="build-view-card__stats-values">
-          <div className="build-view-card__stats-grid">
+        <div className="ship-card__stats-values">
+          <div className="ship-card__stats-grid">
             {getFilteredStats().map(([statName, value]) => (
-              <div key={`${statName}-value`} className="build-view-card__stats-item">
+              <div key={`${statName}-value`} className="ship-card__stats-item">
                 <div
-                  className={`build-view-card__stats-value ${isStatModified(statName) ? 'build-view-card__stats-value--modified' : ''}`}
+                  className={`ship-card__stats-value ${isStatModified(statName) ? 'ship-card__stats-value--modified' : ''}`}
                 >
                   {formatStatValue(statName, value)}
                   {isStatModified(statName) && (
                     <span
-                      className="build-view-card__stats-original"
+                      className="ship-card__stats-original"
                     >
                       ({formatStatValue(statName, baseStats[statName])})
                     </span>
@@ -482,14 +626,14 @@ const BuildViewCard = ({
       {!isPlayMode && ((isSquadron && children) ? (
         // For squadrons, only render if there are beginsWith weapons
         ((currentShip.beginsWith && currentShip.beginsWith.length > 0) || (currentShipDef.beginsWith && currentShipDef.beginsWith.length > 0)) && (
-          <div className="build-view-card__begins-with">
+          <div className="ship-card__begins-with">
             {children}
           </div>
         )
       ) : (
         // For capital ships, render BeginsWithSection directly if they have beginsWith weapons
         ((currentShip.beginsWith && currentShip.beginsWith.length > 0) || (currentShipDef.beginsWith && currentShipDef.beginsWith.length > 0)) && (
-          <div className="build-view-card__begins-with">
+          <div className="ship-card__begins-with">
             <BeginsWithSection 
               beginsWith={currentShip.beginsWith || currentShipDef.beginsWith}
               squadronRefit={currentShip.squadronRefit}
@@ -502,11 +646,12 @@ const BuildViewCard = ({
       ))}
 
       {/* Mobile-First Weapon Selection Section */}
-      <div className="build-view-card__weapons">
+      <div className="ship-card__weapons">
           {/* Prow Section */}
           {currentShipDef.prow && currentShipDef.prow.select > 0 && (() => {
             if (isSquadron) {
               // Squadron multi-select logic (like hull weapons)
+              const currentShip = squadron[0]; // Use first ship for UI state
               const totalSelected = (currentShip.loadout?.prow || []).length;
               const maxWeapons = 3; // Squadrons can select up to 3 weapons
               const remaining = maxWeapons - totalSelected;
@@ -517,12 +662,12 @@ const BuildViewCard = ({
                     {!isPlayMode && (
                       <div className="weapon-section__title">
                         <ProwIcon size={16} />
-                        <span>Prow Weapons <span className="weapon-section__title-counter">(Select {totalSelected}/{maxWeapons})</span></span>
+                        <span>Prow Weapons <span className="weapon-section__title-counter">{isScrapBot ? `(Randomly selected ${totalSelected})` : `(Select ${totalSelected}/${maxWeapons})`}</span></span>
                       </div>
                     )}
                     {!isPlayMode && (
                       <div className="weapon-section__table-header">
-                        <div className="weapon-section__helper">Swipe to adjust.</div>
+                        <div className="weapon-section__helper">{isScrapBot ? 'Weapons locked' : 'Swipe to adjust.'}</div>
                         <div className="weapon-section__column-label">Target</div>
                         <div className="weapon-section__column-label">Attacks</div>
                         <div className="weapon-section__column-label">Range</div>
@@ -574,7 +719,7 @@ const BuildViewCard = ({
                               maxCount={1}
                               isMaxed={true}
                               sectionType="single"
-                              weaponLocation="prow"
+                              weaponLocation={faction === 'Merchants' && !isSquadron ? 'rear' : 'prow'}
                               isPlayMode={isPlayMode}
                               shipNumber={shipCounter}
                               onCountChange={() => {}}
@@ -585,7 +730,7 @@ const BuildViewCard = ({
                           
                           // Add begins-with weapons for this ship (indented, no ship number)
                           beginsWithWeapons.forEach((beginsWeapon, beginsIndex) => {
-                            const beginsWeaponData = getWeaponDataByIndex(beginsWeapon, currentShipDef, 'prow', currentShip);
+                            const beginsWeaponData = getWeaponDataByIndex(beginsWeapon, currentShipDef, 'begins', currentShip);
                             allSelectedWeapons.push(
                               <SwipeableWeaponRow
                                 key={`ship-${shipCounter}-begins-${beginsIndex}`}
@@ -617,7 +762,7 @@ const BuildViewCard = ({
                         
                         return allSelectedWeapons;
                       } else {
-                        // Build mode - original logic
+                        // Build mode - multi-select logic (like hull weapons)
                         return currentShipDef.prow.options.map((option, optionIndex) => {
                           const selectedCount = (currentShip.loadout?.prow || []).filter(p => {
                             if (typeof p === 'string') {
@@ -637,9 +782,9 @@ const BuildViewCard = ({
                               maxCount={maxWeapons}
                               isMaxed={remaining === 0 && selectedCount > 0}
                               sectionType="multi"
-                              weaponLocation="prow"
+                              weaponLocation={faction === 'Merchants' && !isSquadron ? 'rear' : 'prow'}
                               isPlayMode={isPlayMode}
-                              onCountChange={(newCount) => {
+                              onCountChange={isScrapBot ? null : (newCount) => {
                                 const delta = newCount - selectedCount;
                                 if (delta > 0) {
                                   // Add weapons - pass weapon name, not index
@@ -671,7 +816,7 @@ const BuildViewCard = ({
                   )}
                 </div>
               );
-            } else {
+            } else if (currentShipDef.prow.select === 1) {
               // Capital ship single-select logic (existing)
               const isSelected = currentShip.loadout?.prow?.optionIndex !== undefined;
               
@@ -680,13 +825,13 @@ const BuildViewCard = ({
                   <div className="weapon-section__header weapon-section__header--sticky">
                     {!isPlayMode && (
                       <div className="weapon-section__title">
-                        <ProwIcon size={16} />
-                        <span>Prow Weapons <span className="weapon-section__title-counter">(Select 1)</span></span>
+                        {faction === 'Merchants' && !isSquadron ? <RearIcon size={16} /> : <ProwIcon size={16} />}
+                        <span>{faction === 'Merchants' && !isSquadron ? 'Rear' : 'Prow'} Weapons <span className="weapon-section__title-counter">(Select 1)</span></span>
                       </div>
                     )}
                     {!isPlayMode && (
                       <div className="weapon-section__table-header">
-                        <div className="weapon-section__helper">Tap a row to select.</div>
+                        <div className="weapon-section__helper">{isScrapBot ? 'Weapons locked' : 'Tap a row to select.'}</div>
                         <div className="weapon-section__column-label">Target</div>
                         <div className="weapon-section__column-label">Attacks</div>
                         <div className="weapon-section__column-label">Range</div>
@@ -751,16 +896,100 @@ const BuildViewCard = ({
                   )}
                 </div>
               );
+            } else {
+              // Capital ship multi-select logic (for ships like Night Sovereign, Gate Keeper)
+              const totalSelected = (currentShip.loadout?.prow || []).length;
+              const maxWeapons = currentShipDef.prow.select;
+              const remaining = maxWeapons - totalSelected;
+              
+              return (
+                <div className="weapon-section">
+                  <div className="weapon-section__header weapon-section__header--sticky">
+                    {!isPlayMode && (
+                      <div className="weapon-section__title">
+                        {faction === 'Merchants' && !isSquadron ? <RearIcon size={16} /> : <ProwIcon size={16} />}
+                        <span>{faction === 'Merchants' && !isSquadron ? 'Rear' : 'Prow'} Weapons <span className="weapon-section__title-counter">{isScrapBot ? `(Randomly selected ${totalSelected})` : `(Select ${totalSelected}/${maxWeapons})`}</span></span>
+                      </div>
+                    )}
+                    {!isPlayMode && (
+                      <div className="weapon-section__table-header">
+                        <div className="weapon-section__helper">{isScrapBot ? 'Weapons locked' : 'Swipe to adjust.'}</div>
+                        <div className="weapon-section__column-label">Target</div>
+                        <div className="weapon-section__column-label">Attacks</div>
+                        <div className="weapon-section__column-label">Range</div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="weapon-section__rows">
+                    {currentShipDef.prow.options.map((option, optionIndex) => {
+                      const selectedCount = (currentShip.loadout?.prow || []).filter(p => {
+                        if (typeof p === 'string') {
+                          return p === option.name;
+                        }
+                        return p.optionIndex === optionIndex;
+                      }).length;
+                      
+                      // In play mode, only show selected weapons
+                      if (isPlayMode && selectedCount === 0) {
+                        return null;
+                      }
+                      
+                      const weaponData = getWeaponDataByIndex({ optionIndex }, currentShipDef, 'prow', currentShip);
+                      
+                      return (
+                        <SwipeableWeaponRow
+                          key={optionIndex}
+                          weaponName={option.name}
+                          weaponData={weaponData}
+                          currentCount={selectedCount}
+                          maxCount={maxWeapons}
+                          isMaxed={remaining === 0 && selectedCount > 0}
+                          sectionType="multi"
+                          weaponLocation={faction === 'Merchants' && !isSquadron ? 'rear' : 'prow'}
+                          isPlayMode={isPlayMode}
+                          onCountChange={isScrapBot ? null : (newCount) => {
+                            const delta = newCount - selectedCount;
+                            if (delta > 0) {
+                              // Add weapons - pass weapon name, not index
+                              for (let i = 0; i < delta; i++) {
+                                onAddWeapon && onAddWeapon('prow', option.name);
+                              }
+                            } else if (delta < 0) {
+                              // Remove weapons - pass weapon name, not index
+                              for (let i = 0; i < Math.abs(delta); i++) {
+                                onRemoveWeapon && onRemoveWeapon('prow', option.name);
+                              }
+                            }
+                          }}
+                          onPreciseEdit={() => {
+                            // Open precise edit modal/sheet
+                          }}
+                        />
+                      );
+                    })}
+                  </div>
+
+                  {/* Info Alert for Capital Ship Multi-Select Prow */}
+                  {remaining > 0 && (
+                    <div className="weapon-section__alert">
+                      <Alert severity="info">Choose {remaining} more prow weapon(s).</Alert>
+                    </div>
+                  )}
+                </div>
+              );
             }
           })()}
 
           {/* Hull Section */}
           {currentShipDef.hull && currentShipDef.hull.select > 0 && (() => {
             // Calculate total including beginsWith weapons
-            const totalSelected = (currentShip.loadout?.hull || []).length;
-            const effectiveSlots = calculateEffectiveHullSlots(currentShip, currentShipDef);
+            const totalSelected = isSquadron 
+              ? squadron.reduce((total, ship) => total + (ship.loadout?.hull || []).length, 0) // Count from all ships in squadron
+              : (currentShip.loadout?.hull || []).length; // Count from single ship
+            const effectiveSlots = isSquadron ? (currentShipDef.hull.select * 3) : calculateEffectiveHullSlots(currentShip, currentShipDef); // Squadrons: hull.select × 3 ships
             const remaining = effectiveSlots - totalSelected;
-            const isSingleSelect = effectiveSlots === 1;
+            const isSingleSelect = effectiveSlots === 1 && !isSquadron; // Squadrons are always multi-select
             
             return (
               <div className="weapon-section">
@@ -768,12 +997,12 @@ const BuildViewCard = ({
                   {!isPlayMode && (
                     <div className="weapon-section__title">
                       <HullIcon size={16} />
-                      <span>Hull Weapons <span className="weapon-section__title-counter">{isSingleSelect ? `(Select 1)` : `(Select ${totalSelected}/${effectiveSlots})`}</span></span>
+                      <span>Hull Weapons <span className="weapon-section__title-counter">{isScrapBot ? `(Randomly selected ${totalSelected})` : (isSingleSelect ? `(Select 1)` : `(Select ${totalSelected}/${effectiveSlots})`)}</span></span>
                     </div>
                   )}
                   {!isPlayMode && (
                     <div className="weapon-section__table-header">
-                      <div className="weapon-section__helper">{isSingleSelect ? 'Tap a row to select.' : 'Swipe to adjust.'}</div>
+                      <div className="weapon-section__helper">{isScrapBot ? 'Weapons locked' : (isSingleSelect ? 'Tap a row to select.' : 'Swipe to adjust.')}</div>
                       <div className="weapon-section__column-label">Target</div>
                       <div className="weapon-section__column-label">Attacks</div>
                       <div className="weapon-section__column-label">Range</div>
@@ -813,7 +1042,7 @@ const BuildViewCard = ({
                           onCountChange={(newCount) => {
                             // Single-select doesn't use swipe, only tap
                           }}
-                          onTap={() => {
+                          onTap={isScrapBot ? null : () => {
                             // Tap to select for single-select weapons
                             if (isSelected) {
                               // If already selected, clear selection
@@ -835,12 +1064,21 @@ const BuildViewCard = ({
                       );
                     } else {
                       // Multi-select logic (existing)
-                      const selectedCount = (currentShip.loadout?.hull || []).filter(h => {
-                        if (typeof h === 'string') {
-                          return h === option.name;
-                        }
-                        return h.optionIndex === optionIndex;
-                      }).length;
+                      const selectedCount = isSquadron 
+                        ? squadron.reduce((total, ship) => {
+                            return total + (ship.loadout?.hull || []).filter(h => {
+                              if (typeof h === 'string') {
+                                return h === option.name;
+                              }
+                              return h.optionIndex === optionIndex;
+                            }).length;
+                          }, 0)
+                        : (currentShip.loadout?.hull || []).filter(h => {
+                            if (typeof h === 'string') {
+                              return h === option.name;
+                            }
+                            return h.optionIndex === optionIndex;
+                          }).length;
                       
                       // In play mode, only show selected weapons
                       if (isPlayMode && selectedCount === 0) {
@@ -855,12 +1093,12 @@ const BuildViewCard = ({
                           weaponName={option.name}
                           weaponData={weaponData}
                           currentCount={selectedCount}
-                          maxCount={currentShipDef.hull.select}
+                          maxCount={effectiveSlots}
                           isMaxed={remaining === 0 && selectedCount > 0}
                           sectionType="multi"
                           weaponLocation="hull"
                           isPlayMode={isPlayMode}
-                          onCountChange={(newCount) => {
+                          onCountChange={isScrapBot ? null : (newCount) => {
                             const delta = newCount - selectedCount;
                             if (delta > 0) {
                               // Add weapons - pass weapon name, not index
@@ -904,19 +1142,19 @@ const BuildViewCard = ({
 
       {/* Refit and other rule notations */}
       {(refitInfo.hasRefit || isSquadron) && (
-        <div className="build-view-card__footer">
+        <div className="ship-card__footer">
           {refitInfo.hasRefit && (
-            <Typography variant="caption" className="build-view-card__footer-refit-title">
+            <Typography variant="caption" className="ship-card__footer-refit-title">
               {isSquadron ? 'Squadron Refit' : 'Refit'}: {refitInfo.name}
             </Typography>
           )}
           {refitInfo.notes && refitInfo.notes.length > 0 && (
-            <div className="build-view-card__footer-notes">
+            <div className="ship-card__footer-notes">
               {refitInfo.notes.map((note, index) => (
                 <Typography 
                   key={index} 
                   variant="caption" 
-                  className="build-view-card__footer-note"
+                  className="ship-card__footer-note"
                 >
                   • {note}
                 </Typography>
@@ -924,9 +1162,35 @@ const BuildViewCard = ({
             </div>
           )}
           {isSquadron && (
-            <Typography variant="caption" className="build-view-card__footer-note">
+            <Typography variant="caption" className="ship-card__footer-note">
               • Each weapon = 1 ship
+            </Typography>
+          )}
+          {faction === "Scavengers" && currentShip.className === "Ruffian" && (
+            <Typography variant="caption" className="ship-card__footer-note">
+              • Note: these squadrons are not small targets.
+            </Typography>
+          )}
+        </div>
+      )}
+
+      {/* Capital Ship Advancement Section - Liberationists only */}
+      {currentShip.capitalShipAdvancement && faction === "Liberationists" && !isPlayMode && (
+        <div className="ship-card__advancement">
+          <Typography variant="subtitle2" className="ship-card__advancement-title">
+            <strong>Capital Ship Advancement ({currentShip.capitalShipAdvancement.roll})</strong>
           </Typography>
+          <Typography variant="body2" className="ship-card__advancement-type">
+            {currentShip.capitalShipAdvancement.type}: {getAdvancementRuleText(currentShip.capitalShipAdvancement.roll)}
+          </Typography>
+          
+          {/* Weapon upgrade dropdown for advancement 5 */}
+          {currentShip.capitalShipAdvancement.roll === 5 && (
+            <AdvancementWeaponDropdown
+              currentShip={currentShip}
+              currentShipDef={currentShipDef}
+              onSelectAdvancementWeapon={onSelectAdvancementWeapon}
+            />
           )}
         </div>
       )}

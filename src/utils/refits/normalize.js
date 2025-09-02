@@ -4,8 +4,8 @@
  * @returns {string} Normalized arc
  */
 export function normalizeArc(str = "") {
-  const m = String(str).replace(/[°\s]/g, "").trim();
-  if (m === "360" || m === "360°") return "360";
+  const m = String(str).replace(/\s/g, "").trim(); // Only remove spaces, keep degrees symbol
+  if (m === "360" || m === "360°") return "360°";
   
   const map = {
     "Fr/Sd": "Fr/Sd",
