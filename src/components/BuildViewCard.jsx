@@ -200,7 +200,8 @@ const SwipeableWeaponRow = ({
   sectionType,
   weaponLocation = 'prow', // 'prow', 'hull', 'rear'
   isPlayMode = false,
-  shipNumber = null // For squadrons: 1, 2, 3, etc.
+  shipNumber = null, // For squadrons: 1, 2, 3, etc.
+  isBeginsWith = false // For begins-with weapons indentation
 }) => {
   const [startX, setStartX] = React.useState(0);
   const [isDragging, setIsDragging] = React.useState(false);
@@ -360,7 +361,7 @@ const SwipeableWeaponRow = ({
           transition: isDragging ? 'none' : 'transform 200ms ease-out'
         }}
       >
-        <div className="weapon-row__name">
+        <div className={`weapon-row__name ${isPlayMode && isBeginsWith && !shipNumber ? 'weapon-row__name--begins-with' : ''}`}>
           {isPlayMode && (
             <>
               {shipNumber && <span className="weapon-row__ship-number">{shipNumber}</span>}
@@ -665,14 +666,12 @@ const BuildViewCard = ({
                         <span>Prow Weapons <span className="weapon-section__title-counter">{isScrapBot ? `(Randomly selected ${totalSelected})` : `(Select ${totalSelected}/${maxWeapons})`}</span></span>
                       </div>
                     )}
-                    {!isPlayMode && (
-                      <div className="weapon-section__table-header">
-                        <div className="weapon-section__helper">{isScrapBot ? 'Weapons locked' : 'Swipe to adjust.'}</div>
-                        <div className="weapon-section__column-label">Target</div>
-                        <div className="weapon-section__column-label">Attacks</div>
-                        <div className="weapon-section__column-label">Range</div>
-                      </div>
-                    )}
+                    <div className="weapon-section__table-header">
+                      <div className="weapon-section__helper">{isScrapBot ? 'Weapons locked' : 'Swipe to adjust.'}</div>
+                      <div className="weapon-section__column-label">Target</div>
+                      <div className="weapon-section__column-label">Attacks</div>
+                      <div className="weapon-section__column-label">Range</div>
+                    </div>
 
                   </div>
 
@@ -743,6 +742,7 @@ const BuildViewCard = ({
                                 weaponLocation="begins"
                                 isPlayMode={isPlayMode}
                                 shipNumber={null} // No number for begins-with weapons
+                                isBeginsWith={true} // Mark as begins-with weapon for indentation
                                 onCountChange={() => {}}
                                 onTap={() => {}}
                                 onPreciseEdit={() => {}}
@@ -750,12 +750,7 @@ const BuildViewCard = ({
                             );
                           });
                           
-                          // Add separator between ships (but not after the last ship)
-                          if (instanceIndex < selectedWeaponInstances.length - 1) {
-                            allSelectedWeapons.push(
-                              <div key={`ship-separator-${shipCounter}`} className="squadron-ship-separator"></div>
-                            );
-                          }
+
                           
                           shipCounter++;
                         });
@@ -829,14 +824,12 @@ const BuildViewCard = ({
                         <span>{faction === 'Merchants' && !isSquadron ? 'Rear' : 'Prow'} Weapons <span className="weapon-section__title-counter">(Select 1)</span></span>
                       </div>
                     )}
-                    {!isPlayMode && (
-                      <div className="weapon-section__table-header">
-                        <div className="weapon-section__helper">{isScrapBot ? 'Weapons locked' : 'Tap a row to select.'}</div>
-                        <div className="weapon-section__column-label">Target</div>
-                        <div className="weapon-section__column-label">Attacks</div>
-                        <div className="weapon-section__column-label">Range</div>
-                      </div>
-                    )}
+                    <div className="weapon-section__table-header">
+                      <div className="weapon-section__helper">{isScrapBot ? 'Weapons locked' : 'Tap a row to select.'}</div>
+                      <div className="weapon-section__column-label">Target</div>
+                      <div className="weapon-section__column-label">Attacks</div>
+                      <div className="weapon-section__column-label">Range</div>
+                    </div>
 
                   </div>
 
@@ -911,14 +904,12 @@ const BuildViewCard = ({
                         <span>{faction === 'Merchants' && !isSquadron ? 'Rear' : 'Prow'} Weapons <span className="weapon-section__title-counter">{isScrapBot ? `(Randomly selected ${totalSelected})` : `(Select ${totalSelected}/${maxWeapons})`}</span></span>
                       </div>
                     )}
-                    {!isPlayMode && (
-                      <div className="weapon-section__table-header">
-                        <div className="weapon-section__helper">{isScrapBot ? 'Weapons locked' : 'Swipe to adjust.'}</div>
-                        <div className="weapon-section__column-label">Target</div>
-                        <div className="weapon-section__column-label">Attacks</div>
-                        <div className="weapon-section__column-label">Range</div>
-                      </div>
-                    )}
+                    <div className="weapon-section__table-header">
+                      <div className="weapon-section__helper">{isScrapBot ? 'Weapons locked' : 'Swipe to adjust.'}</div>
+                      <div className="weapon-section__column-label">Target</div>
+                      <div className="weapon-section__column-label">Attacks</div>
+                      <div className="weapon-section__column-label">Range</div>
+                    </div>
                   </div>
 
                   <div className="weapon-section__rows">

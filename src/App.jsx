@@ -4,7 +4,7 @@ import {
   Stack, Button, IconButton, Avatar, ClickAwayListener, Drawer, List, ListItem, ListItemIcon, ListItemText, Divider, useMediaQuery,
   Menu, MenuItem
 } from "@mui/material";
-import { Delete as DeleteIcon, PlayArrow as PlayIcon, Save as SaveIcon, Folder as FolderIcon, Login as LoginIcon, Logout as LogoutIcon, Build as BuildIcon, Menu as MenuIcon, Close as CloseIcon, Palette as PaletteIcon } from "@mui/icons-material";
+import { Delete as DeleteIcon, PlayArrow as PlayIcon, Save as SaveIcon, Folder as FolderIcon, Login as LoginIcon, Logout as LogoutIcon, Build as BuildIcon, Menu as MenuIcon, Close as CloseIcon, Palette as PaletteIcon, BugReport as BugReportIcon } from "@mui/icons-material";
 import './styles/main.scss';
 import './styles/themes.scss';
 
@@ -14,6 +14,7 @@ import CreateNewFleetView from './components/CreateNewFleetView';
 import BuildView from './components/BuildView';
 import FleetsView from './components/FleetsView';
 import ThemeSettings from './components/ThemeSettings';
+import ReportBug from './components/ReportBug';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 
 
@@ -1178,6 +1179,17 @@ function AppContent(){
                     </ListItemIcon>
                     <ListItemText>Theme</ListItemText>
                   </MenuItem>
+                  <MenuItem
+                    onClick={() => {
+                      setTab(3);
+                      setDropdownOpen(false);
+                    }}
+                  >
+                    <ListItemIcon>
+                      <BugReportIcon fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText>Report Bug</ListItemText>
+                  </MenuItem>
                   <Divider />
                   
                   {/* Logout */}
@@ -1284,6 +1296,12 @@ function AppContent(){
           {tab===2 && (
             <Box sx={{ padding: 2 }}>
               <ThemeSettings />
+            </Box>
+          )}
+
+          {tab===3 && (
+            <Box sx={{ padding: 2 }}>
+              <ReportBug />
             </Box>
           )}
 

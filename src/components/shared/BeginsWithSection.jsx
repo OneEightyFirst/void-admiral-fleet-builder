@@ -71,7 +71,7 @@ const BeginsWithSection = ({
               className="weapon-row weapon-row--readonly weapon-row--selected"
             >
               <div className="weapon-row__content">
-                <div className="weapon-row__name">{effectiveWeapon.name}</div>
+                <div className={`weapon-row__name ${isPlayMode ? 'weapon-row__name--begins-with' : ''}`}>{effectiveWeapon.name}</div>
                 <div className="weapon-row__target">{weaponData.targets || "—"}</div>
                 <div className="weapon-row__attacks">{formatAttacks(weaponData.attacks) || "—"}</div>
                 <div className="weapon-row__range">{formatRange(weaponData.range) || "—"}</div>

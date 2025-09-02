@@ -1130,6 +1130,16 @@ body {
     border-top: 1px solid var(--primary);
     background-color: var(--gray);
     
+    // Hide empty headers
+    &:empty {
+      display: none;
+    }
+    
+    // In play mode, adjust padding
+    .play-view & {
+      padding: 0 1rem;
+    }
+    
     &--sticky {
       position: sticky;
       top: 0;
@@ -1144,6 +1154,11 @@ body {
     font-weight: 600;
     font-size: 0.875rem;
     margin-bottom: 0.25rem;
+    
+    // Hide titles in play mode but keep layout
+    .play-view & {
+      visibility: hidden;
+    }
     
     &-counter {
       font-weight: 400;
@@ -1165,6 +1180,11 @@ body {
     font-size: 0.625rem;
     opacity: 0.6;
     font-style: italic;
+    
+    // Hide helper text in play mode but keep layout
+    .play-view & {
+      visibility: hidden;
+    }
     
     &--hidden {
       opacity: 0;
@@ -1200,10 +1220,7 @@ body {
     }
   }
   
-  // Play mode: remove header padding when content is hidden
-  .play-view &__header {
-    padding: 0;
-  }
+
 
   &__alert {
     padding: 8px;
@@ -1308,6 +1325,7 @@ body {
     justify-content: center;
     width: 1.25rem;
     height: 1.25rem;
+    line-height: 1.25rem;
     font-size: 0.75rem;
     font-weight: 600;
     color: var(--text-primary);
@@ -1326,7 +1344,7 @@ body {
     font-weight: 500;
   }
   
-  // Play mode: compact weapon rows
+  // Play mode: compact weapon rows and hide selection borders
   .play-view & {
     min-height: auto;
     border-left: none; // Remove 5px left border
@@ -1335,12 +1353,13 @@ body {
   .play-view &__content {
     min-height: auto;
     height: auto;
+    border-left: none !important; // Hide selected weapon border in play mode
   }
-  
-  // Indent begins-with weapons that don't have ship numbers in Play mode
-  .play-view &__name:not(:has(.weapon-row__ship-number)) {
-    margin-left: 2.2rem; // Adjusted indentation for begins-with weapons
-  }
+}
+
+// Begins-with weapons indentation in play mode
+.play-view .weapon-row__name--begins-with {
+  margin-left: 2.2rem; // Indent begins-with weapons
 }
 
 // Squadron ship separator for Play mode
