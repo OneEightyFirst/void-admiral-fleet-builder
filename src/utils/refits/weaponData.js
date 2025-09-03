@@ -196,16 +196,15 @@ function applyLiberationistAdvancement(weaponData, ship, location = null) {
  * @returns {Object} Modified weapon data
  */
 function applyCanonicalRefitEffects(weaponData, ship) {
-  console.log('🔧 applyCanonicalRefitEffects: weapon:', weaponData?.name, 'ship:', ship?.id);
-  console.log('🔧 applyCanonicalRefitEffects: ship.appliedCanonicalRefit:', ship?.appliedCanonicalRefit?.name);
+
   
   if (!ship || !ship.appliedCanonicalRefit) {
-    console.log('🔧 applyCanonicalRefitEffects: No refit to apply');
+
     return weaponData;
   }
   
   const refit = ship.appliedCanonicalRefit;
-  console.log('🔧 applyCanonicalRefitEffects: Found refit:', refit.name);
+
   
   // Check for weapon modifications in the selected option first, then in the base refit
   let weaponChanges = null;
@@ -220,14 +219,14 @@ function applyCanonicalRefitEffects(weaponData, ship) {
     return weaponData;
   }
   
-  console.log('🔧 applyCanonicalRefitEffects: Processing', weaponChanges.modify.length, 'modifications');
+
   
   let modifiedWeapon = { ...weaponData };
   
   // Apply weapon modifications
   for (const modification of weaponChanges.modify) {
     if (shouldApplyCanonicalModification(modification.selector, weaponData, ship)) {
-      console.log('WEAPON MODIFIED:', weaponData.name, 'by refit:', refit.name);
+
       modifiedWeapon = applyCanonicalWeaponModification(modifiedWeapon, modification.changes);
     }
   }

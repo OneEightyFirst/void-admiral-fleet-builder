@@ -128,9 +128,7 @@ function AppContent(){
   // Load factions and refits data
   useEffect(() => {
     const loadData = async () => {
-      console.log('🔄 Starting data load...');
       try {
-        console.log('🔄 Fetching data files...');
         const [factionsResponse, refitsResponse] = await Promise.all([
           fetch(`/data/factions.json?v=${Date.now()}`, {
             cache: 'no-cache',
@@ -142,11 +140,6 @@ function AppContent(){
           })
         ]);
         
-        console.log('🔄 Fetch responses:', { 
-          factionsOk: factionsResponse.ok, 
-          refitsOk: refitsResponse.ok 
-        });
-
         if (!factionsResponse.ok) {
           throw new Error(`Failed to load factions: ${factionsResponse.status}`);
         }
@@ -158,10 +151,6 @@ function AppContent(){
           factionsResponse.json(),
           refitsResponse.json()
         ]);
-        
-        console.log('📦 Loaded factions data');
-        console.log('🔧 Loaded refits data:', refitsData.length, 'refits');
-        console.log('🔧 First few refits:', refitsData.slice(0, 3).map(r => ({ id: r.id, name: r.name, scope: r.scope })));
         
         setFACTIONS(factionsData);
         setREFITS(refitsData);
@@ -695,8 +684,6 @@ function AppContent(){
       setTab(0);
       setSaveStatus('idle');
       setIsEditingName(false);
-      
-      console.log('Successfully signed out and cleared all data');
     } catch (error) {
       console.error('Sign out failed:', error);
     }
@@ -896,16 +883,11 @@ function AppContent(){
   }
 
   function removeRefit(shipId) {
-    console.log('🗑️ REMOVE_REFIT: Called for shipId:', shipId);
+
     setRoster(r => r.map(ship => {
       if (ship.id !== shipId) return ship;
       
-      console.log('🗑️ REMOVE_REFIT: Processing ship:', {
-        id: ship.id,
-        className: ship.className,
-        hasCanonicalRefit: !!ship.appliedCanonicalRefit,
-        refitName: ship.appliedCanonicalRefit?.name
-      });
+
       
       // Use canonical refit system to properly restore stats
       if (ship.appliedCanonicalRefit) {
@@ -913,7 +895,7 @@ function AppContent(){
         const shipDef = ships[ship.className];
         const originalStatline = shipDef.statline ? { ...shipDef.statline } : {};
         
-        console.log('🗑️ REMOVE_REFIT: Removing refit:', ship.appliedCanonicalRefit.name);
+
         
         // Remove canonical refit and restore original stats
         // Note: Weapon options will be automatically updated by the weapon system
@@ -924,11 +906,11 @@ function AppContent(){
           statline: originalStatline
         };
         
-        console.log('🗑️ REMOVE_REFIT: Ship updated, refit removed:', !updatedShip.appliedCanonicalRefit);
+
         return updatedShip;
       }
       
-      console.log('🗑️ REMOVE_REFIT: No canonical refit found on ship');
+
       // Fallback for legacy refits (shouldn't happen anymore)
       return { ...ship, refit: null };
     }));
@@ -958,22 +940,15 @@ function AppContent(){
           selectedOption: selectedOption // Pass the full option object, not just the name
         };
         
-        console.log('🎯 SQUADRON REFIT: Applying canonical refit:', canonicalRefit.name);
-        if (selectedOption) {
-          console.log('🎯 SQUADRON REFIT: With selected option:', selectedOption.name);
-          console.log('🎯 SQUADRON REFIT: Option cost:', selectedOption.cost);
-          console.log('🎯 SQUADRON REFIT: Option gains:', selectedOption.gains);
-        } else {
-          console.log('🎯 SQUADRON REFIT: No option selected, applying base refit');
-        }
-        console.log('🎯 SQUADRON REFIT: Ship before application:', shipWithBaseStats.statline);
+
+
+
         
         // Apply canonical refit to get stat changes and other modifications
         const result = applyCanonicalRefitToShip(shipWithBaseStats, canonicalRefit, 'squadron');
         
         if (result.ok) {
-          console.log('✅ SQUADRON REFIT: Applied successfully, new statline:', result.ship.statline);
-          console.log('✅ SQUADRON REFIT: Applied canonical refit stored as:', result.ship.appliedCanonicalRefit);
+
           
           // Create squadron refit metadata (for UI display)
           const squadronRefit = {

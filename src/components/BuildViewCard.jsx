@@ -213,7 +213,7 @@ const SwipeableWeaponRow = ({
   }, []);
 
   const handleTouchStart = (e) => {
-    console.log('🔥 TOUCH START:', weaponName, sectionType);
+
     e.preventDefault(); // Prevent default touch behavior
     
     // If interactions are disabled, do nothing
@@ -243,11 +243,11 @@ const SwipeableWeaponRow = ({
     const clampedDeltaX = Math.max(-maxDrag, Math.min(maxDrag, deltaX));
     setDragX(clampedDeltaX);
     
-    console.log('🔥 TOUCH MOVE:', weaponName, 'deltaX:', deltaX, 'clampedDeltaX:', clampedDeltaX);
+
   };
 
   const handleTouchEnd = (e) => {
-    console.log('🔥 TOUCH END:', weaponName, sectionType, 'isDragging:', isDragging);
+
     e.preventDefault(); // Prevent default touch behavior
     
     if (sectionType === 'single' || !isDragging) {
@@ -260,7 +260,7 @@ const SwipeableWeaponRow = ({
     const deltaX = touch.clientX - startX;
     const threshold = 50;
 
-    console.log('🔥 SWIPE CALCULATION:', { deltaX, threshold, startX, endX: touch.clientX });
+
 
     if (Math.abs(deltaX) > threshold) {
       const direction = deltaX < 0 ? 'add' : 'remove';
@@ -269,10 +269,10 @@ const SwipeableWeaponRow = ({
       // Enforce maxCount limit
       const clampedCount = Math.min(newCount, maxCount);
       
-      console.log('🔥 SWIPE DETECTED:', direction, 'newCount:', newCount, 'clampedCount:', clampedCount);
+
       onCountChange && onCountChange(clampedCount);
     } else {
-      console.log('🔥 SWIPE TOO SHORT:', Math.abs(deltaX), 'needed:', threshold);
+
     }
 
     setIsDragging(false);
@@ -280,7 +280,7 @@ const SwipeableWeaponRow = ({
   };
 
   const handleMouseDown = (e) => {
-    console.log('🔥 MOUSE DOWN:', weaponName, sectionType);
+
     
     // If interactions are disabled, do nothing
     if (!onCountChange && !onTap) return;
@@ -294,7 +294,7 @@ const SwipeableWeaponRow = ({
     e.preventDefault();
     setStartX(e.clientX);
     setIsDragging(true);
-    console.log('🔥 MOUSE DRAG START:', e.clientX);
+
   };
 
   const handleMouseMove = (e) => {
@@ -310,12 +310,12 @@ const SwipeableWeaponRow = ({
   const handleMouseUp = (e) => {
     if (!isDragging) return;
     
-    console.log('🔥 MOUSE UP:', weaponName, 'isDragging:', isDragging);
+
     
     const deltaX = e.clientX - startX;
     const threshold = 50;
     
-    console.log('🔥 MOUSE SWIPE CALCULATION:', { deltaX, threshold, startX, endX: e.clientX });
+
     
     if (Math.abs(deltaX) > threshold) {
       const direction = deltaX < 0 ? 'add' : 'remove';
@@ -324,10 +324,10 @@ const SwipeableWeaponRow = ({
       // Enforce maxCount limit
       const clampedCount = Math.min(newCount, maxCount);
       
-      console.log('🔥 MOUSE SWIPE DETECTED:', direction, 'newCount:', newCount, 'clampedCount:', clampedCount);
+
       onCountChange && onCountChange(clampedCount);
     } else {
-      console.log('🔥 MOUSE SWIPE TOO SHORT:', Math.abs(deltaX), 'needed:', threshold);
+
     }
     
     setIsDragging(false);

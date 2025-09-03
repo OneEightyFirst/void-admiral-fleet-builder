@@ -222,7 +222,7 @@ const BuildView = ({
 
   // Canonical refit handlers
   const handleSelectRefit = (shipIdOrRefit, refitData = null) => {
-    console.log('REFIT: Modal selected refit:', (refitData || shipIdOrRefit)?.name);
+
     
     if (!refitModalShip) {
       console.error('REFIT ERROR: No refitModalShip');
@@ -234,12 +234,7 @@ const BuildView = ({
     
     // Handle refit removal (clearing)
     if (refit === null) {
-      console.log('REFIT: Clearing refit from', refitModalShip.className);
-      console.log('REFIT: Current ship state:', {
-        hasRefit: !!refitModalShip.refit,
-        hasCanonicalRefit: !!refitModalShip.appliedCanonicalRefit,
-        currentStats: refitModalShip.statline
-      });
+
       
       // Get original ship definition for stat restoration
       const shipDef = ships[refitModalShip.className];
@@ -249,7 +244,7 @@ const BuildView = ({
       }
       
       const originalStatline = shipDef.statline ? { ...shipDef.statline } : {};
-      console.log('REFIT: Restoring to original stats:', originalStatline);
+
       
       // Remove canonical refit and restore original stats
       const clearedShip = {
@@ -266,11 +261,7 @@ const BuildView = ({
         tokens: undefined
       };
       
-      console.log('REFIT: Cleared ship state:', {
-        hasRefit: !!clearedShip.refit,
-        hasCanonicalRefit: !!clearedShip.appliedCanonicalRefit,
-        restoredStats: clearedShip.statline
-      });
+
       
       // Update roster with cleared ship
       setRoster(currentRoster => {
@@ -283,41 +274,32 @@ const BuildView = ({
       // Update the modal ship state to reflect the cleared refit
       setRefitModalShip(clearedShip);
       
-      console.log('REFIT: Clear completed, modal should stay open');
+
       // Don't close modal - allow selecting a different refit
       return;
     }
     
     // Check if same refit is already applied
     if (refitModalShip.appliedCanonicalRefit?.name === refit.name) {
-      console.log('REFIT: Same refit already applied, ignoring');
+
       handleCloseRefitModal();
       return;
     }
     
 
     
-    console.log('REFIT: Calling applyCanonicalRefitToShip with:', {
-      shipName: refitModalShip.className,
-      refitName: refit.name,
-      refitId: refit.id
-    });
+
     
     const result = applyCanonicalRefitToShip(refitModalShip, refit, 'capital');
     
-    console.log('REFIT: applyCanonicalRefitToShip result:', {
-      ok: result.ok,
-      hasShip: !!result.ship,
-      error: result.error
-    });
+
     
     if (result.ok) {
-      console.log('REFIT: Applied successfully to', refitModalShip.className);
-      console.log('REFIT: Ship now has appliedCanonicalRefit:', !!result.ship.appliedCanonicalRefit);
+
       
       // Check if refit has weapon additions to trigger refresh
       const hasWeaponAdditions = refit.selectedOption?.weaponChanges?.add || refit.weaponChanges?.add;
-      console.log('REFIT: Has weapon additions:', !!hasWeaponAdditions);
+
       
       // Update roster with modified ship
       setRoster(currentRoster => {
@@ -329,7 +311,7 @@ const BuildView = ({
       
       // Force refresh of weapon options if refit adds weapons
       if (hasWeaponAdditions) {
-        console.log('REFIT: Triggering weapon options refresh');
+
         setWeaponOptionsRefreshKey(prev => prev + 1);
         // Small delay to ensure state update completes
         setTimeout(() => {
@@ -347,7 +329,7 @@ const BuildView = ({
 
   // Wrapper function to add Micro Hives logic to squadron refit application
   const handleAddRefitToGroup = (groupId, refit, selectedOption) => {
-    console.log('🔧 Adding refit to group:', groupId, refit.name);
+
     
     // Apply the refit manually with ship definition access
     setRoster(currentRoster => {
@@ -355,12 +337,12 @@ const BuildView = ({
         if (ship.groupId === groupId) {
           // Get ship definition for beginsWith weapons
           const shipDef = ships[ship.className];
-          console.log('🔧 SQUADRON_REFIT: Ship def beginsWith:', shipDef?.beginsWith);
+
           
           // Apply the canonical refit with ship definition
           const result = applyCanonicalRefitToShip(ship, refit, selectedOption, shipDef);
           if (result.success) {
-            console.log('🔧 SQUADRON_REFIT: Applied successfully');
+
             return result.ship;
           } else {
             console.error('Failed to apply squadron refit:', result.error);
@@ -372,7 +354,7 @@ const BuildView = ({
 
       // Handle Micro Hives special logic after normal refit application
       if (faction === 'Insectoids' && refit.name === 'Micro Hives') {
-        console.log('🐛 MICRO HIVES: Removing one free Pincer squadron');
+  
         
         // Find a free Pincer squadron to remove (not the one getting the refit)
         const freePincerGroupToRemove = newRoster.find(ship => 
@@ -382,11 +364,11 @@ const BuildView = ({
         )?.groupId;
 
         if (freePincerGroupToRemove) {
-          console.log('🐛 MICRO HIVES: Removing free Pincer squadron:', freePincerGroupToRemove);
+
           // Remove all ships from that squadron group
           return newRoster.filter(ship => ship.groupId !== freePincerGroupToRemove);
         } else {
-          console.log('🐛 MICRO HIVES: No free Pincer squadrons found to remove');
+
         }
       }
 
@@ -396,7 +378,7 @@ const BuildView = ({
 
   // Wrapper function to add Micro Hives logic to squadron refit removal
   const handleRemoveRefitFromGroup = (groupId) => {
-    console.log('🔧 Removing refit from group:', groupId);
+
     
     // Check if this group had Micro Hives refit before removing it
     const groupShips = roster.filter(ship => ship.groupId === groupId);
@@ -408,7 +390,7 @@ const BuildView = ({
     
     // Then handle Micro Hives special logic
     if (faction === 'Insectoids' && hadMicroHives) {
-      console.log('🐛 MICRO HIVES REMOVAL: Adding back one free Pincer squadron');
+
       
       setRoster(currentRoster => {
         // Add back one free Pincer squadron
@@ -433,7 +415,7 @@ const BuildView = ({
             });
           }
           
-          console.log('🐛 MICRO HIVES REMOVAL: Added free Pincer squadron with', squadronSize, 'ships');
+
           return [...currentRoster, ...newPincerSquadron];
         }
         return currentRoster;
