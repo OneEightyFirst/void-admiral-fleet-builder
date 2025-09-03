@@ -6,41 +6,76 @@ import {
   Button,
   Paper,
   Alert,
-  Snackbar
+  Snackbar,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  ListItemIcon,
+  ListItemText
 } from '@mui/material';
+import { 
+  Folder as FolderIcon, 
+  Build as BuildIcon, 
+  Palette as PaletteIcon, 
+  Edit as EditIcon, 
+  PlayArrow as PlayIcon,
+  Home as HomeIcon
+} from '@mui/icons-material';
+import emailjs from '@emailjs/browser';
 
-const ReportBug = () => {
+const ReportBug = ({ FACTIONS, user }) => {
   const [bugReport, setBugReport] = useState('');
   const [email, setEmail] = useState('');
+  const [appLocation, setAppLocation] = useState('');
+  const [faction, setFaction] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null); // 'success' | 'error' | null
   const [showAlert, setShowAlert] = useState(false);
+
+  // App location options with icons
+  const appLocationOptions = [
+    { label: 'General', icon: HomeIcon },
+    { label: 'Saved Fleets page', icon: FolderIcon },
+    { label: 'Fleet build page', icon: EditIcon },
+    { label: 'Fleet play page', icon: PlayIcon },
+    { label: 'New fleet page', icon: BuildIcon },
+    { label: 'Theme page', icon: PaletteIcon }
+  ];
+
+  // Faction options (excluding Universal)
+  const factionOptions = ['N/A', ...(FACTIONS ? Object.keys(FACTIONS).filter(faction => faction !== 'Universal') : [])];
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setIsSubmitting(true);
 
     try {
-      const formData = new FormData();
-      formData.append('form-name', 'bug-report');
-      formData.append('bug-description', bugReport);
-      formData.append('user-email', email);
+      // EmailJS configuration
+      const serviceId = 'service_p5ztxn6';
+      const templateId = 'template_q2mxetf';
+      const publicKey = 'eO0v_chs0vT7UV0B9';
 
-      const response = await fetch('/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams(formData).toString(),
-      });
+      // Template parameters (must match your EmailJS template variables)
+      const templateParams = {
+        message: bugReport,
+        user_email: user ? user.email : (email || 'Not provided'),
+        user_name: user ? user.displayName : 'Anonymous',
+        app_location: appLocation || 'Not specified',
+        faction: faction || 'Not specified',
+        browser_info: `${navigator.userAgent}`,
+        submitted_at: new Date().toLocaleString()
+      };
 
-      if (response.ok) {
-        setSubmitStatus('success');
-        setBugReport('');
-        setEmail('');
-      } else {
-        setSubmitStatus('error');
-      }
+      await emailjs.send(serviceId, templateId, templateParams, publicKey);
+      
+      setSubmitStatus('success');
+      setBugReport('');
+      setEmail('');
+      setAppLocation('');
+      setFaction('');
     } catch (error) {
-      console.error('Form submission error:', error);
+      console.error('EmailJS error:', error);
       setSubmitStatus('error');
     } finally {
       setIsSubmitting(false);
@@ -60,29 +95,68 @@ const ReportBug = () => {
       </Typography>
       
       <Paper sx={{ p: 3, mt: 3 }}>
-        {/* Hidden form for Netlify Forms detection */}
-        <form name="bug-report" netlify="true" netlify-honeypot="bot-field" hidden>
-          <input type="text" name="form-name" value="bug-report" readOnly />
-          <textarea name="bug-description"></textarea>
-          <input type="email" name="user-email" />
-        </form>
-
-        {/* Actual form */}
         <form onSubmit={handleSubmit}>
           {/* Honeypot field for spam protection */}
           <input type="text" name="bot-field" style={{ display: 'none' }} />
           
-          <TextField
-            fullWidth
-            label="Your Email (optional)"
-            placeholder="your@email.com"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            variant="outlined"
-            sx={{ mb: 2 }}
-            helperText="Optional - only if you want a response"
-          />
+          <FormControl fullWidth sx={{ mb: 2 }}>
+            <InputLabel>App Location</InputLabel>
+            <Select
+              value={appLocation}
+              label="App Location"
+              onChange={(e) => setAppLocation(e.target.value)}
+              renderValue={(selected) => {
+                const option = appLocationOptions.find(opt => opt.label === selected);
+                if (!option) return selected;
+                const IconComponent = option.icon;
+                return (
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <IconComponent fontSize="small" />
+                    {option.label}
+                  </Box>
+                );
+              }}
+            >
+              {appLocationOptions.map((option) => (
+                <MenuItem key={option.label} value={option.label}>
+                  <ListItemIcon>
+                    <option.icon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>{option.label}</ListItemText>
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <FormControl fullWidth sx={{ mb: 2 }}>
+            <InputLabel>Faction</InputLabel>
+            <Select
+              value={faction}
+              label="Faction"
+              onChange={(e) => setFaction(e.target.value)}
+            >
+              {factionOptions.map((factionName) => (
+                <MenuItem key={factionName} value={factionName}>
+                  {factionName}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          
+          {/* Only show email field for non-authenticated users */}
+          {!user && (
+            <TextField
+              fullWidth
+              label="Your Email (optional)"
+              placeholder="your@email.com"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              variant="outlined"
+              sx={{ mb: 2 }}
+              helperText="Optional - only if you want a response"
+            />
+          )}
           
           <TextField
             fullWidth

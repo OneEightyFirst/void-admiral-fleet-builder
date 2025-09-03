@@ -65,6 +65,13 @@ export const ThemeProvider = ({ children }) => {
     }
   };
 
+  // Function to set theme without saving to localStorage (for Firebase sync)
+  const setThemeFromPreferences = (themeName) => {
+    if (themes[themeName]) {
+      setCurrentTheme(themeName);
+    }
+  };
+
   // Load theme from localStorage on mount
   useEffect(() => {
     const savedTheme = localStorage.getItem('selectedTheme');
@@ -80,6 +87,7 @@ export const ThemeProvider = ({ children }) => {
     currentTheme,
     themes,
     switchTheme,
+    setThemeFromPreferences,
     muiTheme,
     user: null, // Simplified since theme settings are removed
     isLoading: false,

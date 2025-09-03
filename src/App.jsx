@@ -34,7 +34,7 @@ import { signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
 import { collection, addDoc, getDocs, deleteDoc, doc, query, where, orderBy, setDoc, getDoc } from "firebase/firestore";
 
 function AppContent(){
-  const { muiTheme, currentTheme } = useTheme();
+  const { muiTheme, currentTheme, setThemeFromPreferences } = useTheme();
 
   // State declarations first
   const [tab,setTab] = useState(0);
@@ -133,11 +133,11 @@ function AppContent(){
       try {
         console.log('🔄 Fetching data files...');
         const [factionsResponse, refitsResponse] = await Promise.all([
-          fetch(`/void-admiral/data/factions.json?v=${Date.now()}`, {
+          fetch(`/data/factions.json?v=${Date.now()}`, {
             cache: 'no-cache',
             headers: { 'Cache-Control': 'no-cache' }
           }),
-          fetch(`/void-admiral/refits.json?v=${Date.now()}`, {
+          fetch(`/refits.json?v=${Date.now()}`, {
             cache: 'no-cache',
             headers: { 'Cache-Control': 'no-cache' }
           })
@@ -205,6 +205,9 @@ function AppContent(){
         const prefs = JSON.parse(savedPrefs);
         setUseRefits(prefs.useRefits || false);
         setUseJuggernauts(prefs.useJuggernauts || false);
+        if (prefs.theme) {
+          setThemeFromPreferences(prefs.theme);
+        }
       } catch (error) {
         console.error('Failed to load local preferences:', error);
       }
@@ -221,6 +224,9 @@ function AppContent(){
         const prefs = userPrefsSnap.data();
         setUseRefits(prefs.useRefits || false);
         setUseJuggernauts(prefs.useJuggernauts || false);
+        if (prefs.theme) {
+          setThemeFromPreferences(prefs.theme);
+        }
         return;
       }
       
@@ -1217,6 +1223,23 @@ function AppContent(){
 
 
         <Box>
+          {/* Version number */}
+          <Box
+            sx={{
+              position: 'fixed',
+              bottom: 8,
+              right: 12,
+              fontSize: '0.75rem',
+              color: 'rgba(255, 255, 255, 0.3)',
+              userSelect: 'none',
+              pointerEvents: 'none',
+              zIndex: 1000,
+              fontFamily: 'monospace'
+            }}
+          >
+            v0.9.0
+          </Box>
+
           {tab===0 && (
             !nameSubmitted ? (
               <Box sx={{ padding: 2 }}>
@@ -1295,13 +1318,18 @@ function AppContent(){
 
           {tab===2 && (
             <Box sx={{ padding: 2 }}>
-              <ThemeSettings />
+              <ThemeSettings 
+                user={user}
+                useRefits={useRefits}
+                useJuggernauts={useJuggernauts}
+                savePreferences={savePreferences}
+              />
             </Box>
           )}
 
           {tab===3 && (
             <Box sx={{ padding: 2 }}>
-              <ReportBug />
+              <ReportBug FACTIONS={FACTIONS} user={user} />
             </Box>
           )}
 

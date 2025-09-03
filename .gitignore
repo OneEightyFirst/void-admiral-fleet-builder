@@ -48,4 +48,4 @@ temp/
 firebase-debug.log
 
 # Deployment credentials - NEVER commit real FTP credentials!
-deploy.js
+deploy.jssendgrid.env

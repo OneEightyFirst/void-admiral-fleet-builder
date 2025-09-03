@@ -16,10 +16,12 @@
     "test:critical": "playwright test tests/debug-refit-issues.spec.js"
   },
   "dependencies": {
+    "@emailjs/browser": "^4.4.1",
     "@emotion/react": "^11.11.0",
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.15.0",
     "@mui/material": "^5.15.0",
+    "@sendgrid/mail": "^8.1.5",
     "firebase": "^12.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"

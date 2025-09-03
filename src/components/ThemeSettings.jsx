@@ -11,11 +11,21 @@ import {
 } from '@mui/material';
 import { useTheme } from '../contexts/ThemeContext';
 
-const ThemeSettings = () => {
+const ThemeSettings = ({ user, useRefits, useJuggernauts, savePreferences }) => {
   const { currentTheme, switchTheme, themes } = useTheme();
 
-  const handleThemeChange = (event) => {
-    switchTheme(event.target.value);
+  const handleThemeChange = async (event) => {
+    const newTheme = event.target.value;
+    switchTheme(newTheme);
+    
+    // Save theme preference through the unified preference system
+    if (savePreferences) {
+      await savePreferences({
+        useRefits,
+        useJuggernauts,
+        theme: newTheme
+      });
+    }
   };
 
   // Define theme color swatches
