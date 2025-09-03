@@ -1085,6 +1085,7 @@ function AppContent(){
                   color="inherit"
                   onClick={(e) => setDropdownOpen(e.currentTarget)}
                   sx={{ padding: 1 }}
+                  aria-label={dropdownOpen ? "Close user menu" : "Open user menu"}
                 >
                   {dropdownOpen ? <CloseIcon /> : <MenuIcon />}
                 </IconButton>

@@ -474,6 +474,7 @@ const BuildView = ({
                   className="build-view__icon-button"
                   onClick={startNewFleet}
                   title="New Fleet"
+                  aria-label="Create new fleet"
                 >
                   <AddIcon fontSize="small" />
                 </button>
@@ -483,6 +484,7 @@ const BuildView = ({
                   onClick={saveFleet}
                   disabled={saveStatus === 'saving' || !user || !fleetName.trim() || roster.length === 0}
                   title={saveStatus === 'saved' ? 'Saved' : 'Save'}
+                  aria-label={saveStatus === 'saving' ? 'Saving fleet' : saveStatus === 'saved' ? 'Fleet saved' : 'Save fleet'}
                 >
                   {saveStatus === 'saving' ? (
                     <CircularProgress size={16} color="inherit" />
@@ -498,6 +500,7 @@ const BuildView = ({
                   className={`build-view__mode-button ${!isPlayMode ? 'build-view__mode-button--active' : ''}`}
                   onClick={() => setIsPlayMode(false)}
                   title="Build Mode"
+                  aria-label="Switch to build mode"
                 >
                   <EditIcon fontSize="small" />
                 </button>
@@ -505,6 +508,7 @@ const BuildView = ({
                   className={`build-view__mode-button ${isPlayMode ? 'build-view__mode-button--active' : ''}`}
                   onClick={() => setIsPlayMode(true)}
                   title="Play Mode"
+                  aria-label="Switch to play mode"
                 >
                   <PlayIcon fontSize="small" />
                 </button>
@@ -884,6 +888,7 @@ const BuildView = ({
                                       handleOpenSquadronRefitModal(squadronShips);
                                     }}
                                     className="build-view__refit-button"
+                                    aria-label={squadronShips[0].squadronRefit ? 'Edit squadron refit' : 'Add squadron refit'}
                                   >
                                     {squadronShips[0].squadronRefit ? <EditIcon fontSize="small" /> : <AddIcon fontSize="small" />}
                                   </Button>
@@ -894,6 +899,7 @@ const BuildView = ({
                                       color="error"
                                       onClick={() => handleClearSquadronRefit(squadronShips[0].groupId)}
                                       className="build-view__refit-button build-view__refit-button--error"
+                                      aria-label="Remove squadron refit"
                                     >
                                       <CloseIcon fontSize="small" />
                                     </Button>

@@ -160,6 +160,7 @@ const WeaponStatsGrid = ({
                           backgroundColor: 'primary.dark'
                         }
                       }}
+                      aria-label={actionProps.ariaLabel || `Add ${weapon.name} weapon`}
                     >
                       {actionProps.label || '+'}
                     </Button>

@@ -37,6 +37,7 @@ const FleetsView = ({
             setTab(0); // Go to Build tab
           }}
           title="New Fleet"
+          aria-label="Create new fleet"
         >
           <AddIcon fontSize="small" />
         </button>
@@ -70,18 +71,19 @@ const FleetsView = ({
             <Grid key={fleet.id} item xs={12} md={6} lg={4}>
               <Paper variant="outlined" sx={{ p:2, backgroundColor: 'var(--gray-dark)', position: 'relative' }}>
                 {/* Delete button in upper right - white */}
-                <IconButton 
+                                <IconButton 
                   size="small" 
                   onClick={()=>deleteFleet(fleet.id)}
-                  sx={{ 
-                    position: 'absolute', 
-                    top: 8, 
+                  sx={{
+                    position: 'absolute',
+                    top: 8,
                     right: 8,
                     color: 'var(--text-primary)',
                     '&:hover': {
                       backgroundColor: 'rgba(var(--gray-darker-rgb), 0.8)'
                     }
                   }}
+                  aria-label={`Delete fleet ${fleet.name}`}
                 >
                   <DeleteIcon/>
                 </IconButton>
@@ -108,10 +110,10 @@ const FleetsView = ({
                     right: 8 
                   }}
                 >
-                  <IconButton color="primary" size="small" onClick={()=>editFleet(fleet)}>
+                  <IconButton color="primary" size="small" onClick={()=>editFleet(fleet)} aria-label={`Edit fleet ${fleet.name}`}>
                     <EditIcon/>
                   </IconButton>
-                  <IconButton color="success" size="small" onClick={()=>playFleet(fleet)}>
+                  <IconButton color="success" size="small" onClick={()=>playFleet(fleet)} aria-label={`Play fleet ${fleet.name}`}>
                     <PlayIcon/>
                   </IconButton>
                 </Stack>

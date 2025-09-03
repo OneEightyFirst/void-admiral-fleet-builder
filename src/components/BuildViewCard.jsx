@@ -553,6 +553,7 @@ const BuildViewCard = ({
                         <IconButton 
                           className="ship-card__header-duplicate-button"
                           onClick={() => onDuplicateGroup(currentShip.groupId)}
+                          aria-label="Duplicate squadron"
                         >
                           <ContentCopyIcon />
                         </IconButton>
@@ -567,6 +568,7 @@ const BuildViewCard = ({
                 size="small" 
                 variant="outlined"
                         onClick={() => onRemoveGroup(currentShip.groupId)}
+                        aria-label="Remove ship group"
               >
                 Remove Group
               </Button>
@@ -580,6 +582,7 @@ const BuildViewCard = ({
             <IconButton 
                     className="ship-card__header-delete-button"
                     onClick={isSquadron ? () => onRemoveGroup(currentShip.groupId) : () => onRemoveShip(currentShip.id)}
+                    aria-label={isSquadron ? "Remove squadron" : "Remove ship"}
             >
               <DeleteIcon />
             </IconButton>

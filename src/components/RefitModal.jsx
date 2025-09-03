@@ -96,6 +96,7 @@ const RefitCard = ({
               backgroundColor: 'error.dark',
             }
           }}
+          aria-label="Clear selected refit"
         >
           <CloseIcon fontSize="small" />
         </IconButton>
@@ -193,6 +194,7 @@ const RefitCard = ({
                     onSelectRefit(refit, option);
                   }}
                   disabled={!isEligible || hasOtherSelection}
+                  aria-label={`Select refit option: ${option.name}`}
                 >
                   {option.name}
                         </Button>
@@ -234,6 +236,7 @@ const RefitCard = ({
                       justifyContent: 'flex-start',
                       textTransform: 'none'
                     }}
+                    aria-label={`Select weapon option: ${option.name}`}
                   >
                     {option.name}
                   </Button>
@@ -398,7 +401,7 @@ const RefitModal = ({
         <Typography variant="h5" sx={{ fontWeight: 700 }}>
           {isSquadron ? 'Squadron Refits' : 'Capital Ship Refits'} - {currentShip.className}
         </Typography>
-        <IconButton onClick={onClose} sx={{ color: 'white' }}>
+        <IconButton onClick={onClose} sx={{ color: 'white' }} aria-label="Close refit modal">
           <CloseIcon />
         </IconButton>
       </DialogTitle>
@@ -416,6 +419,7 @@ const RefitModal = ({
               size="small"
               onClick={handleClearRefit}
               sx={{ mt: 1 }}
+              aria-label={`Clear ${isSquadron ? 'squadron' : 'ship'} refit`}
             >
               Clear {isSquadron ? 'Squadron ' : ''}Refit
             </Button>
