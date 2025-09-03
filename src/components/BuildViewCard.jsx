@@ -653,7 +653,7 @@ const BuildViewCard = ({
               // Squadron multi-select logic (like hull weapons)
               const currentShip = squadron[0]; // Use first ship for UI state
               const totalSelected = (currentShip.loadout?.prow || []).length;
-              const maxWeapons = squadron.length; // Squadrons can select up to squadron size weapons
+              const maxWeapons = 3; // Squadrons can select up to 3 weapons
               const remaining = maxWeapons - totalSelected;
               
               return (
@@ -977,7 +977,7 @@ const BuildViewCard = ({
             const totalSelected = isSquadron 
               ? squadron.reduce((total, ship) => total + (ship.loadout?.hull || []).length, 0) // Count from all ships in squadron
               : (currentShip.loadout?.hull || []).length; // Count from single ship
-            const effectiveSlots = isSquadron ? (currentShipDef.hull.select * squadron.length) : calculateEffectiveHullSlots(currentShip, currentShipDef); // Squadrons: hull.select × squadron size
+            const effectiveSlots = isSquadron ? (currentShipDef.hull.select * 3) : calculateEffectiveHullSlots(currentShip, currentShipDef); // Squadrons: hull.select × 3 ships
             const remaining = effectiveSlots - totalSelected;
             const isSingleSelect = effectiveSlots === 1 && !isSquadron; // Squadrons are always multi-select
             
