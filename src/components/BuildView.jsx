@@ -496,9 +496,6 @@ const BuildView = ({
                   <AddIcon fontSize="small" />
                 </button>
                 
-                {/* Debug: Show save button conditions */}
-                {console.log('Save button debug:', { user: !!user, fleetName: fleetName.trim(), rosterLength: roster.length })}
-                {/* Temporarily always show save button for debugging */}
                 <button 
                   className={`build-view__icon-button ${saveStatus === 'saved' ? 'build-view__icon-button--saved' : ''}`}
                   onClick={saveFleet}

@@ -210,7 +210,6 @@ const SwipeableWeaponRow = ({
   // Detect if we have touch support
   React.useEffect(() => {
     const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    console.log('🔥 DEVICE INFO:', { hasTouch, maxTouchPoints: navigator.maxTouchPoints, userAgent: navigator.userAgent.substring(0, 50) });
   }, []);
 
   const handleTouchStart = (e) => {

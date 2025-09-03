@@ -65,7 +65,6 @@ function AppContent(){
     // Apply current theme class
     const themeClass = `theme-${currentTheme}`;
     document.body.classList.add(themeClass);
-    console.log('🎨 Applied theme class:', themeClass);
     
     // Cleanup function to remove theme class when component unmounts
     return () => {
