@@ -38,8 +38,28 @@ const themes = {
         paper: '#3a3839', // Vintage gray-darker
       },
       text: {
-        primary: '#f5f5dc', // Cream
-        secondary: 'rgba(245, 245, 220, 0.7)', // Cream with opacity
+        primary: '#e4e2d9', // Cream
+        secondary: 'rgba(228, 226, 217, 0.7)', // Cream with opacity
+      },
+    },
+  },
+  blinding: {
+    name: 'Blinding',
+    palette: {
+      mode: 'light',
+      primary: {
+        main: '#3874cb', // Same blue but for light mode
+      },
+      secondary: {
+        main: '#f50057',
+      },
+      background: {
+        default: '#ffffff', // Pure white (reverse of #181818)
+        paper: '#ffffff', // Pure white (reverse of #181818)
+      },
+      text: {
+        primary: '#000000', // Pure black (reverse of #ffffff)
+        secondary: 'rgba(0, 0, 0, 0.7)', // Black with opacity (reverse of white)
       },
     },
   },

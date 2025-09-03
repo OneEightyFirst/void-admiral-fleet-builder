@@ -41,6 +41,12 @@ const ThemeSettings = ({ user, useRefits, useJuggernauts, savePreferences }) => 
       background: '#3a3839',
       surface: '#444243',
       text: '#f5f5dc'
+    },
+    blinding: {
+      primary: '#3874cb',
+      background: '#ffffff',
+      surface: '#f8f8f8',
+      text: '#000000'
     }
   };
 

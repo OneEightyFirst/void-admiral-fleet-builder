@@ -68,7 +68,7 @@ const FleetsView = ({
         <Grid container spacing={2}>
           {savedFleets.map(fleet => (
             <Grid key={fleet.id} item xs={12} md={6} lg={4}>
-              <Paper variant="outlined" sx={{ p:2, backgroundColor: '#1f1f1f', position: 'relative' }}>
+              <Paper variant="outlined" sx={{ p:2, backgroundColor: 'var(--gray-dark)', position: 'relative' }}>
                 {/* Delete button in upper right - white */}
                 <IconButton 
                   size="small" 
@@ -77,9 +77,9 @@ const FleetsView = ({
                     position: 'absolute', 
                     top: 8, 
                     right: 8,
-                    color: 'white',
+                    color: 'var(--text-primary)',
                     '&:hover': {
-                      backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                      backgroundColor: 'rgba(var(--gray-darker-rgb), 0.8)'
                     }
                   }}
                 >
@@ -88,7 +88,7 @@ const FleetsView = ({
 
                 {/* Fleet info - no buttons in header now */}
                 <Box sx={{ mb: 1 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 800, color: 'white', pr: 5 }}>{fleet.name}</Typography>
+                  <Typography variant="h6" sx={{ fontWeight: 800, color: 'var(--text-primary)', pr: 5 }}>{fleet.name}</Typography>
                   <Typography variant="caption" color="text.secondary">
                     {fleet.faction} • {fleet.points} pts • {fleet.roster.length} ships
                   </Typography>

@@ -197,9 +197,9 @@ body.theme-vintage {
   --gray-lightest: #8a8889;   // Borders, dividers
   
   // Text Colors
-  --text-primary: #f5f5dc;                    // Cream text
-  --text-secondary: rgba(245, 245, 220, 0.7); // Cream with opacity
-  --text-disabled: rgba(245, 245, 220, 0.38); // Disabled cream
+  --text-primary: #e4e2d9;                    // Cream text
+  --text-secondary: rgba(228, 226, 217, 0.7); // Cream with opacity
+  --text-disabled: rgba(228, 226, 217, 0.38); // Disabled cream
   --text-inverse: #2d2c2d;                    // Dark text on light backgrounds
   
   // Utility Colors (RGB versions for transparency)
@@ -213,6 +213,186 @@ body.theme-vintage {
   .ship-card {
     background-color: var(--gray-darker);
     color: var(--text-primary);
+    
+    &__header {
+      background-color: var(--primary);
+      
+      &-delete-button {
+        color: #ffffff;
+        
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.1);
+        }
+      }
+      
+      &-duplicate-button {
+        color: #ffffff;
+        
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.1);
+        }
+      }
+      
+      &-faction,
+      &-name,
+      &-size {
+        color: var(--text-inverse);
+      }
+    }
+
+    &__weapon-section-header {
+      background-color: var(--gray);
+      color: var(--text-primary);
+    }
+
+    &__weapons-header {
+      background-color: var(--gray-dark);
+    }
+
+    &__weapon-select-button {
+      background-color: var(--gray-darker);
+      color: var(--text-primary);
+      border: 1px solid var(--gray-lightest);
+
+      &:hover {
+        background-color: var(--primary);
+        color: white;
+      }
+
+      &.selected {
+        background-color: var(--primary);
+        color: white;
+      }
+    }
+
+    &__weapon-control-button {
+      background-color: var(--gray-darker);
+      color: var(--text-primary);
+      border: 1px solid var(--gray-lightest);
+
+      &:hover {
+        background-color: var(--primary);
+        color: white;
+      }
+
+      &:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+      }
+    }
+
+    // Mobile weapon selection styling
+    &__weapons .weapon-section {
+      &__header {
+        background-color: var(--gray);
+        color: var(--text-primary);
+
+        &--sticky {
+          background-color: var(--gray);
+          backdrop-filter: blur(8px);
+        }
+      }
+    }
+    
+    &__stats {
+      &-labels {
+        background-color: var(--gray);
+      }
+      
+      &-values {
+        background-color: var(--gray-dark);
+      }
+      
+      &-label {
+        color: var(--text-primary);
+        
+        &--modified {
+          color: var(--accent-gold);
+        }
+      }
+      
+      &-value {
+        color: var(--text-primary);
+        
+        &--modified {
+          color: var(--accent-gold);
+        }
+      }
+      
+      &-original {
+        color: var(--text-secondary);
+      }
+    }
+    
+    &__footer {
+      background-color: var(--gray-dark);
+      border-top-color: var(--gray-lightest);
+      
+      &-refit-title {
+        color: var(--accent-gold);
+      }
+      
+      &-note {
+        color: var(--text-secondary);
+      }
+      
+      &-begins-with {
+        color: var(--text-secondary);
+      }
+    }
+  }
+}// Blinding theme styles (reverse of default dark theme)
+body.theme-blinding {
+  // Primary Brand Color (same blue)
+  --primary: #3874cb;
+  --primary-rgb: 56, 116, 203;
+  --primary-dark: #2e5aa3;
+  
+  // Gray Scale Palette (lightest to darkest - reverse of default)
+  --gray-darkest: #ffffff;    // App background, nav (pure white)
+  --gray-darker: #f8f8f8;     // Cards, papers (very light gray)
+  --gray-dark: #f0f0f0;       // Headers, sections (light gray)
+  --gray: #e8e8e8;            // Elevated elements (medium light gray)
+  --gray-light: #d0d0d0;      // Stats labels (medium gray)
+  --gray-lighter: #999999;    // Stats values (darker gray)
+  --gray-lightest: #333333;   // Borders, dividers (dark gray)
+  
+  // Text Colors (reverse of default)
+  --text-primary: #000000;                    // Pure black text
+  --text-secondary: rgba(0, 0, 0, 0.7);       // Black with opacity
+  --text-disabled: rgba(0, 0, 0, 0.38);       // Disabled black
+  --text-inverse: #ffffff;                     // White text on dark backgrounds
+  
+  // Utility Colors (RGB versions for transparency)
+  --gray-darker-rgb: 248, 248, 248;
+  --gray-dark-rgb: 240, 240, 240;
+  
+  // Accent Colors
+  --accent-gold: #b8860b;    // Darker gold for better contrast on light background
+  
+  // Override MUI AppBar for light theme
+  .MuiAppBar-root {
+    background-color: var(--gray-darkest) !important;
+    color: var(--text-primary) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  }
+  
+  // General card shadow adjustments for light theme
+  .MuiCard-root,
+  .MuiPaper-elevation1 {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    
+    &:hover {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+      transition: box-shadow 0.2s ease-in-out;
+    }
+  }
+
+  // Ship card colors
+  .ship-card {
+    background-color: var(--gray-darker);
+    color: var(--text-primary);
+    border: 1px solid var(--gray-light);
     
     &__header {
       background-color: var(--primary);

@@ -20,8 +20,8 @@ const BaseCard = ({
   return (
     <Card
       sx={{
-        backgroundColor: '#181818',
-        color: 'white',
+        backgroundColor: 'var(--gray-darker)',
+        color: 'var(--text-primary)',
         border: 'none',
         borderRadius: 2,
         overflow: 'hidden'
@@ -41,7 +41,7 @@ const BaseCard = ({
               sx={{
                 fontSize: '0.75rem',
                 fontWeight: 600,
-                color: '#1f1f1f',
+                color: 'var(--text-inverse)',
                 letterSpacing: '0.1em',
                 lineHeight: 1
               }}
@@ -62,7 +62,7 @@ const BaseCard = ({
             <Typography
               variant="body2"
               sx={{
-                color: '#1f1f1f',
+                color: 'var(--text-inverse)',
                 lineHeight: 1
               }}
             >

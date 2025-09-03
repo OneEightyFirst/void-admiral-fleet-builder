@@ -60,7 +60,7 @@ function AppContent(){
   // Apply theme class to body element
   useEffect(() => {
     // Remove all theme classes first
-    document.body.classList.remove('theme-default', 'theme-vintage');
+    document.body.classList.remove('theme-default', 'theme-vintage', 'theme-blinding');
     
     // Apply current theme class
     const themeClass = `theme-${currentTheme}`;
@@ -68,7 +68,7 @@ function AppContent(){
     
     // Cleanup function to remove theme class when component unmounts
     return () => {
-      document.body.classList.remove('theme-default', 'theme-vintage');
+      document.body.classList.remove('theme-default', 'theme-vintage', 'theme-blinding');
     };
   }, [currentTheme]);
 
@@ -1141,10 +1141,10 @@ function AppContent(){
                       }
                     }}
                   >
-                    <Typography variant="subtitle2" sx={{ fontWeight: 600, color: 'white !important' }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600, color: 'var(--text-primary) !important' }}>
                       {user.displayName}
                     </Typography>
-                    <Typography variant="caption" sx={{ color: 'white !important', opacity: 0.7 }}>
+                    <Typography variant="caption" sx={{ color: 'var(--text-secondary) !important' }}>
                       {user.email}
                     </Typography>
                   </MenuItem>
@@ -1229,7 +1229,8 @@ function AppContent(){
               bottom: 8,
               right: 12,
               fontSize: '0.75rem',
-              color: 'rgba(255, 255, 255, 0.3)',
+              color: 'var(--text-secondary)',
+              opacity: 0.5,
               userSelect: 'none',
               pointerEvents: 'none',
               zIndex: 1000,

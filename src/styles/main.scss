@@ -87,7 +87,7 @@ body {
 
 // Logo styling
 .nav-logo {
-  color: $color-text-primary;
+  color: var(--text-primary);
   margin-right: $spacing-lg;
   
   .logo-fill {
@@ -893,12 +893,12 @@ body {
   &__stats {
     &-labels {
       padding: $spacing-sm $spacing-md;
-      background-color: #333333; // Dark grey background
+      background-color: var(--gray-light); // Theme-aware background
     }
     
     &-values {
       padding: 0 $spacing-md;
-      background-color: #666666; // Medium grey background
+      background-color: var(--gray-lighter); // Theme-aware background
     }
     
     &-grid {
