@@ -200,17 +200,13 @@ const SwipeableWeaponRow = ({
   sectionType,
   weaponLocation = 'prow', // 'prow', 'hull', 'rear'
   isPlayMode = false,
+  isDesktop = false, // Passed from parent
   shipNumber = null, // For squadrons: 1, 2, 3, etc.
   isBeginsWith = false // For begins-with weapons indentation
 }) => {
   const [startX, setStartX] = React.useState(0);
   const [isDragging, setIsDragging] = React.useState(false);
   const [dragX, setDragX] = React.useState(0);
-  
-  // Detect if we have touch support
-  React.useEffect(() => {
-    const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-  }, []);
 
   const handleTouchStart = (e) => {
 
@@ -279,9 +275,26 @@ const SwipeableWeaponRow = ({
     setDragX(0); // Reset visual position
   };
 
-  const handleMouseDown = (e) => {
-
+  // Desktop click handler for plus/minus functionality
+  const handleDesktopClick = (e) => {
+    if (!isDesktop || sectionType !== 'multi' || !onCountChange) return;
     
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const halfWidth = rect.width / 2;
+    
+    if (clickX < halfWidth) {
+      // Left side - minus
+      const newCount = Math.max(0, currentCount - 1);
+      onCountChange(newCount);
+    } else {
+      // Right side - plus
+      const newCount = Math.min(maxCount, currentCount + 1);
+      onCountChange(newCount);
+    }
+  };
+
+  const handleMouseDown = (e) => {
     // If interactions are disabled, do nothing
     if (!onCountChange && !onTap) return;
     
@@ -290,15 +303,20 @@ const SwipeableWeaponRow = ({
       return;
     }
     
-    // For hull weapons, start mouse drag
+    // Desktop uses click, not drag
+    if (isDesktop) {
+      handleDesktopClick(e);
+      return;
+    }
+    
+    // Mobile/tablet: start mouse drag
     e.preventDefault();
     setStartX(e.clientX);
     setIsDragging(true);
-
   };
 
   const handleMouseMove = (e) => {
-    if (!isDragging) return;
+    if (!isDragging || isDesktop) return;
     
     // Update visual drag position
     const deltaX = e.clientX - startX;
@@ -308,14 +326,10 @@ const SwipeableWeaponRow = ({
   };
 
   const handleMouseUp = (e) => {
-    if (!isDragging) return;
-    
-
+    if (!isDragging || isDesktop) return;
     
     const deltaX = e.clientX - startX;
     const threshold = 50;
-    
-
     
     if (Math.abs(deltaX) > threshold) {
       const direction = deltaX < 0 ? 'add' : 'remove';
@@ -324,10 +338,7 @@ const SwipeableWeaponRow = ({
       // Enforce maxCount limit
       const clampedCount = Math.min(newCount, maxCount);
       
-
       onCountChange && onCountChange(clampedCount);
-    } else {
-
     }
     
     setIsDragging(false);
@@ -338,17 +349,32 @@ const SwipeableWeaponRow = ({
   
   return (
     <div 
-      className={`weapon-row ${currentCount > 0 ? 'weapon-row--selected' : ''} ${isDisabled ? 'weapon-row--disabled' : ''}`}
+      className={`weapon-row ${currentCount > 0 ? 'weapon-row--selected' : ''} ${isDisabled ? 'weapon-row--disabled' : ''} ${isDesktop && sectionType === 'multi' && !isDisabled ? 'weapon-row--desktop-clickable' : ''}`}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
-      style={{ touchAction: isDisabled ? 'none' : 'pan-x' }}
+      style={{ 
+        touchAction: isDisabled ? 'none' : 'pan-x',
+        cursor: isDesktop && sectionType === 'multi' && !isDisabled ? 'pointer' : 'default'
+      }}
     >
-      {/* Swipe Background for Hull Weapons */}
-      {sectionType === 'multi' && !isDisabled && (
+      {/* Desktop Click Zones for multi-select weapons */}
+      {isDesktop && sectionType === 'multi' && !isDisabled && (
+        <div className="desktop-click-zones">
+          <div className="desktop-click-zones__left">
+            <span className="desktop-click-zones__text">−</span>
+          </div>
+          <div className="desktop-click-zones__right">
+            <span className="desktop-click-zones__text">+</span>
+          </div>
+        </div>
+      )}
+      
+      {/* Swipe Background for Mobile Hull Weapons */}
+      {!isDesktop && sectionType === 'multi' && !isDisabled && (
         <div className="swipe-background">
           <div className="swipe-background__left">
             <span className="swipe-background__text">−1</span>
@@ -423,6 +449,14 @@ const BuildViewCard = ({
   const isSquadron = shipDef?.squadron === true;
   const currentShip = isSquadron ? (squadron ? squadron[0] : ship) : ship;
   const currentShipDef = shipDef;
+  
+  // Detect if we're on desktop (no touch support and wider screen)
+  const [isDesktop, setIsDesktop] = React.useState(false);
+  React.useEffect(() => {
+    const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    const isWideScreen = window.innerWidth >= 768; // md breakpoint
+    setIsDesktop(!hasTouch && isWideScreen);
+  }, []);
 
   if (!currentShip || !currentShipDef) return null;
   if (isSquadron && squadron && squadron.length === 0) return null;
@@ -675,7 +709,9 @@ const BuildViewCard = ({
                       </div>
                     )}
                     <div className="weapon-section__table-header">
-                      <div className="weapon-section__helper">{isScrapBot ? 'Weapons locked' : 'Swipe to adjust.'}</div>
+                      <div className="weapon-section__helper">
+                        {isScrapBot ? 'Weapons locked' : (isDesktop ? 'Click left (-) or right (+) to adjust.' : 'Swipe to adjust.')}
+                      </div>
                       <div className="weapon-section__column-label">Target</div>
                       <div className="weapon-section__column-label">Attacks</div>
                       <div className="weapon-section__column-label">Range</div>
@@ -729,6 +765,7 @@ const BuildViewCard = ({
                               weaponLocation={faction === 'Merchants' && !isSquadron ? 'rear' : 'prow'}
                               isPlayMode={isPlayMode}
                               shipNumber={shipCounter}
+                              isDesktop={isDesktop}
                               onCountChange={() => {}}
                               onTap={() => {}}
                               onPreciseEdit={() => {}}
@@ -787,6 +824,7 @@ const BuildViewCard = ({
                               sectionType="multi"
                               weaponLocation={faction === 'Merchants' && !isSquadron ? 'rear' : 'prow'}
                               isPlayMode={isPlayMode}
+                              isDesktop={isDesktop}
                               onCountChange={isScrapBot ? null : (newCount) => {
                                 const delta = newCount - selectedCount;
                                 if (delta > 0) {
@@ -862,8 +900,9 @@ const BuildViewCard = ({
                           isMaxed={isOptionSelected}
                           sectionType="single"
                           weaponLocation="prow"
-                          isPlayMode={isPlayMode}
-                          onCountChange={(newCount) => {
+                                                        isPlayMode={isPlayMode}
+                              isDesktop={isDesktop}
+                              onCountChange={(newCount) => {
                             // Single-select doesn't use swipe, only tap
                           }}
                           onTap={() => {
@@ -913,7 +952,9 @@ const BuildViewCard = ({
                       </div>
                     )}
                     <div className="weapon-section__table-header">
-                      <div className="weapon-section__helper">{isScrapBot ? 'Weapons locked' : 'Swipe to adjust.'}</div>
+                      <div className="weapon-section__helper">
+                        {isScrapBot ? 'Weapons locked' : (isDesktop ? 'Click left (-) or right (+) to adjust.' : 'Swipe to adjust.')}
+                      </div>
                       <div className="weapon-section__column-label">Target</div>
                       <div className="weapon-section__column-label">Attacks</div>
                       <div className="weapon-section__column-label">Range</div>
@@ -1037,8 +1078,9 @@ const BuildViewCard = ({
                           isMaxed={isSelected}
                           sectionType="single"
                           weaponLocation="hull"
-                          isPlayMode={isPlayMode}
-                          onCountChange={(newCount) => {
+                                                        isPlayMode={isPlayMode}
+                              isDesktop={isDesktop}
+                              onCountChange={(newCount) => {
                             // Single-select doesn't use swipe, only tap
                           }}
                           onTap={isScrapBot ? null : () => {

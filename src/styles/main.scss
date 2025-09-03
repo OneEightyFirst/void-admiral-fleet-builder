@@ -1409,6 +1409,63 @@ body {
   }
 }
 
+// Desktop click zones for weapon selection
+.desktop-click-zones {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 64px;
+  z-index: 1;
+  display: flex;
+  pointer-events: none;
+
+  &__left {
+    flex: 1;
+    background: rgba(244, 67, 54, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding-left: $spacing-md;
+    border-right: 1px solid rgba(244, 67, 54, 0.2);
+  }
+
+  &__right {
+    flex: 1;
+    background: rgba(76, 175, 80, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: $spacing-md;
+    border-left: 1px solid rgba(76, 175, 80, 0.2);
+  }
+
+  &__text {
+    font-weight: 700;
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+    opacity: 0.6;
+  }
+}
+
+// Desktop weapon row hover effects
+.weapon-row--desktop-clickable {
+  &:hover .desktop-click-zones {
+    &__left {
+      background: rgba(244, 67, 54, 0.15);
+    }
+    
+    &__right {
+      background: rgba(76, 175, 80, 0.15);
+    }
+    
+    &__text {
+      opacity: 0.8;
+    }
+  }
+}
+
 // Continue with ship-card styles...
 .ship-card {
   
