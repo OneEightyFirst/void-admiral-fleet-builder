@@ -266,8 +266,11 @@ const SwipeableWeaponRow = ({
       const direction = deltaX < 0 ? 'add' : 'remove';
       const newCount = direction === 'add' ? currentCount + 1 : Math.max(0, currentCount - 1);
       
-      console.log('🔥 SWIPE DETECTED:', direction, 'newCount:', newCount);
-      onCountChange && onCountChange(newCount);
+      // Enforce maxCount limit
+      const clampedCount = Math.min(newCount, maxCount);
+      
+      console.log('🔥 SWIPE DETECTED:', direction, 'newCount:', newCount, 'clampedCount:', clampedCount);
+      onCountChange && onCountChange(clampedCount);
     } else {
       console.log('🔥 SWIPE TOO SHORT:', Math.abs(deltaX), 'needed:', threshold);
     }
@@ -318,8 +321,11 @@ const SwipeableWeaponRow = ({
       const direction = deltaX < 0 ? 'add' : 'remove';
       const newCount = direction === 'add' ? currentCount + 1 : Math.max(0, currentCount - 1);
       
-      console.log('🔥 MOUSE SWIPE DETECTED:', direction, 'newCount:', newCount);
-      onCountChange && onCountChange(newCount);
+      // Enforce maxCount limit
+      const clampedCount = Math.min(newCount, maxCount);
+      
+      console.log('🔥 MOUSE SWIPE DETECTED:', direction, 'newCount:', newCount, 'clampedCount:', clampedCount);
+      onCountChange && onCountChange(clampedCount);
     } else {
       console.log('🔥 MOUSE SWIPE TOO SHORT:', Math.abs(deltaX), 'needed:', threshold);
     }
