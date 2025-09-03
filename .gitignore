@@ -42,6 +42,13 @@ coverage/
 tmp/
 temp/
 
+# Environment variables - NEVER commit API keys!
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
 # Firebase
 .firebase/
 .firebaserc
