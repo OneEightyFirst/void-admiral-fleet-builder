@@ -2,9 +2,9 @@ import React, { useMemo, useState, useEffect } from "react";
 import {
   ThemeProvider as MuiThemeProvider, CssBaseline, AppBar, Toolbar, Typography, Tabs, Tab, Box,
   Stack, Button, IconButton, Avatar, ClickAwayListener, Drawer, List, ListItem, ListItemIcon, ListItemText, Divider, useMediaQuery,
-  Menu, MenuItem
+  Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogActions
 } from "@mui/material";
-import { Delete as DeleteIcon, PlayArrow as PlayIcon, Save as SaveIcon, Folder as FolderIcon, Login as LoginIcon, Logout as LogoutIcon, Build as BuildIcon, Menu as MenuIcon, Close as CloseIcon, Palette as PaletteIcon, BugReport as BugReportIcon } from "@mui/icons-material";
+import { Delete as DeleteIcon, PlayArrow as PlayIcon, Save as SaveIcon, Folder as FolderIcon, Login as LoginIcon, Logout as LogoutIcon, Build as BuildIcon, Menu as MenuIcon, Close as CloseIcon, Palette as PaletteIcon, BugReport as BugReportIcon, LocalCafe as CoffeeIcon } from "@mui/icons-material";
 import './styles/main.scss';
 import './styles/themes.scss';
 
@@ -56,6 +56,7 @@ function AppContent(){
   const [useJuggernauts, setUseJuggernauts] = useState(false);
   const [isPlayMode, setIsPlayMode] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [showUpdatePopup, setShowUpdatePopup] = useState(false);
 
   // Apply theme class to body element
   useEffect(() => {
@@ -99,12 +100,32 @@ function AppContent(){
 
   // Authentication listener
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
       setLoading(false);
       if (user) {
         loadUserFleets(user.uid);
         loadUserPreferences(user.uid);
+        
+        // Check if user has seen the update popup
+        try {
+          const userPrefsRef = doc(db, 'userPreferences', user.uid);
+          const userPrefsSnap = await getDoc(userPrefsRef);
+          const userData = userPrefsSnap.exists() ? userPrefsSnap.data() : {};
+          
+          
+          if (userData.hasSeenUpdatePopup === true) {
+            // User has seen it, keep it hidden
+            setShowUpdatePopup(false);
+          } else {
+            // User hasn't seen the popup yet, show it
+            setShowUpdatePopup(true);
+          }
+        } catch (error) {
+          console.error('Error checking popup status:', error);
+          // If there's an error, show the popup anyway
+          setShowUpdatePopup(true);
+        }
       } else {
         loadLocalStorageData();
         loadLocalPreferences();
@@ -662,6 +683,22 @@ function AppContent(){
     }
   };
 
+  const dismissUpdatePopup = async () => {
+    setShowUpdatePopup(false);
+    
+    // Save flag to user's account if they're signed in
+    if (user) {
+      try {
+        const userPrefsRef = doc(db, 'userPreferences', user.uid);
+        await setDoc(userPrefsRef, { 
+          hasSeenUpdatePopup: true 
+        }, { merge: true });
+      } catch (error) {
+        console.error('Error saving popup dismissal:', error);
+      }
+    }
+  };
+
   const handleSignOut = async () => {
     try {
       await signOut(auth);
@@ -1071,7 +1108,13 @@ function AppContent(){
       <Box className="app-root" sx={{ minHeight: '100vh' }}>
         <AppBar position="sticky" color="default" enableColorOnDark>
           <Toolbar>
-            <Logo height={28} className="nav-logo" />
+            <Box 
+              onClick={() => setTab(1)} 
+              sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+              title="Go to Fleets"
+            >
+              <Logo height={28} className="nav-logo" />
+            </Box>
             
             <Box sx={{ flex: 1 }} />
             
@@ -1171,6 +1214,21 @@ function AppContent(){
                     </ListItemIcon>
                     <ListItemText>Report Bug</ListItemText>
                   </MenuItem>
+                  <Divider />
+                  
+                  {/* Buy me a coffee */}
+                  <MenuItem 
+                    component="a" 
+                    href="https://paypal.me/michaelfwells" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                  >
+                    <ListItemIcon>
+                      <CoffeeIcon fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText>Buy me a coffee</ListItemText>
+                  </MenuItem>
+                  
                   <Divider />
                   
                   {/* Logout */}
@@ -1311,6 +1369,49 @@ function AppContent(){
 
         </Box>
       </Box>
+
+      {/* Update Popup */}
+      <Dialog 
+        open={showUpdatePopup && user && !loading} 
+        onClose={dismissUpdatePopup}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
+              Updates
+            </Typography>
+            <IconButton
+              onClick={dismissUpdatePopup}
+              sx={{ 
+                color: 'text.secondary',
+                '&:hover': { color: 'text.primary' }
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant="body1" sx={{ mb: 2 }}>
+            Several of you have been asking for a print feature, so I've gone ahead and added that. 
+            Let me know if you see any bugs or think it should be laid out differently. No promises, 
+            but I'll do what I can.
+          </Typography>
+          <Typography variant="body1" sx={{ mb: 2 }}>
+            I had started working on adding refits, but it got really complicated. With the coming 
+            of a new edition, I've decided to wait until after and might do a revamp with all the 
+            new content.
+          </Typography>
+          <Typography variant="body1" sx={{ mb: 1 }}>
+            I'm glad people are using this and enjoying it!
+          </Typography>
+          <Typography variant="body2" sx={{ fontStyle: 'italic', textAlign: 'right' }}>
+            - OneEightyFirst
+          </Typography>
+        </DialogContent>
+      </Dialog>
     </MuiThemeProvider>
   );
 }

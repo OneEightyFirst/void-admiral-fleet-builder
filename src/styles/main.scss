@@ -1,6 +1,12 @@
 @use 'sass:color';
 @use 'variables' as *;
 @use 'mixins' as *;
+@use 'print';
+
+// Hide print header on screen
+.print-header {
+  display: none;
+}
 
 // Global styles
 body {

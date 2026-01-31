@@ -37,7 +37,8 @@ import {
   Edit as EditIcon,
   Close as CloseIcon,
   Login as LoginIcon,
-  PlayArrow as PlayIcon
+  PlayArrow as PlayIcon,
+  Print as PrintIcon
 } from '@mui/icons-material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
@@ -154,6 +155,11 @@ const BuildView = ({
     const hasCost = option.name && (option.name.includes('+') || option.name.includes('-'));
     
     return !hasCost;
+  };
+
+  // Print function
+  const handlePrint = () => {
+    window.print();
   };
 
   // Auto-selection effect for prow and hull weapons
@@ -433,6 +439,12 @@ const BuildView = ({
 
   return (
     <>
+      {/* Print-only header */}
+      <div className="print-header">
+        <div className="fleet-name">{fleetName || 'Unnamed Fleet'}</div>
+        <div className="fleet-info">{faction} - {used}/{cap} pts</div>
+      </div>
+      
       {/* Secondary Sticky Navigation */}
       <div className="build-view__secondary-nav">
                 <div className="build-view__secondary-nav-content">
@@ -492,6 +504,18 @@ const BuildView = ({
                     <SaveIcon fontSize="small" />
                   )}
                 </button>
+                
+                {isPlayMode && (
+                  <button 
+                    className="build-view__icon-button"
+                    onClick={handlePrint}
+                    disabled={!fleetName.trim() || roster.length === 0}
+                    title="Print"
+                    aria-label="Print fleet"
+                  >
+                    <PrintIcon fontSize="small" />
+                  </button>
+                )}
               </div>
               
               {/* Build/Play Toggle - Symbol Only */}
@@ -651,8 +675,8 @@ const BuildView = ({
         )}
 
         <Grid item xs={12} md={isPlayMode ? 12 : 9}>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
+          <Grid container spacing={2} className="ship-cards-container">
+            <Grid item xs={12} className="build-view__info-sections rules-accordion">
                   {factions && getFluff(faction, factions) && (
                 <Accordion disableGutters className="build-view__accordion--mb-1">
                   <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
